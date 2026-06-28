@@ -19,42 +19,48 @@ export async function POST(req: Request) {
 
     let total = 0;
 
-    const line_items = cart.map((item: any) => {
+    const simpleItems = cart.map((item: any) => {
       total += item.price * item.qty;
 
       return {
-        price_data: {
-          currency: "eur",
-          product_data: {
-            name: item.name,
-          },
-          unit_amount: Math.round(item.price * 100),
-        },
-        quantity: item.qty,
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        qty: item.qty,
       };
     });
+
+    const line_items = cart.map((item: any) => ({
+      price_data: {
+        currency: "eur",
+        product_data: {
+          name: item.name,
+        },
+        unit_amount: Math.round(item.price * 100),
+      },
+      quantity: item.qty,
+    }));
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items,
-
-      customer_email: customer.email,
-
+      customer_email: customer.email || undefined,
       metadata: {
         name: customer.name || "",
         email: customer.email || "",
         address: customer.address || "",
         total: String(total),
-        items: JSON.stringify(cart),
+        items_count: String(simpleItems.length),
       },
-
       success_url: process.env.NEXT_PUBLIC_SITE_URL + "/success",
       cancel_url: process.env.NEXT_PUBLIC_SITE_URL + "/cancel",
     });
 
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({
+      url: session.url,
+    });
   } catch (error: any) {
-    console.error("Stripe error:", error);
+    console.error("Stripe checkout error:", error);
 
     return NextResponse.json(
       { error: error.message || "Unknown error" },
