@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, CSSProperties } from "react";
+import { useEffect, useState } from "react";
 
 export default function Checkout() {
   const [cart, setCart] = useState<any[]>([]);
@@ -58,7 +58,7 @@ export default function Checkout() {
 
   return (
     <main style={styles.page}>
-      <h1 style={styles.title}>Checkout</h1>
+      <h1 style={styles.title}>Оформить заказ</h1>
 
       <div style={styles.container}>
         <div style={styles.form}>
@@ -110,7 +110,7 @@ export default function Checkout() {
   );
 }
 
-const styles: Record<string, CSSProperties> = {
+const styles: any = {
   page: {
     minHeight: "100vh",
     padding: "40px",
