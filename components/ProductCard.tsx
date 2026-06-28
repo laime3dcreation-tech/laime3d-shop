@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 
-export default function ProductCard({ product, addToCart }) {
+export default function ProductCard({
+  product,
+  addToCart,
+}: {
+  product: any;
+  addToCart: (product: any) => void;
+}) {
   const [activeImage, setActiveImage] = useState(0);
 
   return (
@@ -15,9 +21,9 @@ export default function ProductCard({ product, addToCart }) {
         color: "#e8f5e9",
       }}
     >
-      {/* IMAGE */}
       <img
         src={product.images[activeImage]}
+        alt={product.name}
         style={{
           width: "100%",
           height: "180px",
@@ -26,12 +32,12 @@ export default function ProductCard({ product, addToCart }) {
         }}
       />
 
-      {/* THUMBS */}
       <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
-        {product.images.map((img, index) => (
+        {product.images.map((img: string, index: number) => (
           <img
             key={index}
             src={img}
+            alt={product.name}
             onClick={() => setActiveImage(index)}
             style={{
               width: 40,
@@ -48,8 +54,8 @@ export default function ProductCard({ product, addToCart }) {
         ))}
       </div>
 
-      {/* INFO */}
       <h3 style={{ marginTop: 10 }}>{product.name}</h3>
+
       <p style={{ color: "#7CFF9B", fontWeight: "bold" }}>
         {product.price} €
       </p>
