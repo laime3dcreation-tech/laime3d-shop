@@ -1,6 +1,6 @@
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "../../../lib/supabaseAdmin";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -22,19 +22,40 @@ export async function POST(req: Request) {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
 
-      const items = session.metadata?.items
-        ? JSON.parse(session.metadata.items)
-        : [];
+      const lineItems = await stripe.checkout.sessions.listLineItems(
+        session.id,
+        {
+          limit: 100,
+        }
+      );
 
-      await supabaseAdmin.from("orders").insert([
+      const items = lineItems.data.map((item) => ({
+        name: item.description || "",
+        quantity: item.quantity || 0,
+        amount_total: item.amount_total ? item.amount_total / 100 : 0,
+        currency: item.currency,
+      }));
+
+      const { error } = await supabaseAdmin.from("orders").insert([
         {
           customer_name: session.metadata?.name || "",
-          email: session.metadata?.email || session.customer_details?.email || "",
+          email:
+            session.metadata?.email ||
+            session.customer_details?.email ||
+            "",
           address: session.metadata?.address || "",
           total: Number(session.metadata?.total || 0),
           items,
         },
       ]);
+
+      if (error) {
+        console.error("Supabase insert error:", error);
+        return NextResponse.json(
+          { error: error.message },
+          { status: 500 }
+        );
+      }
     }
 
     return NextResponse.json({ received: true });
