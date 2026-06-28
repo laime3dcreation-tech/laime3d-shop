@@ -5,22 +5,20 @@ import { products } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 
 export default function Shop() {
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState<any[]>([]);
   const [category, setCategory] = useState("all");
 
-  // загрузка корзины
   useEffect(() => {
     const saved = localStorage.getItem("cart");
     if (saved) setCart(JSON.parse(saved));
   }, []);
 
-  // сохранение корзины
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  function addToCart(product) {
-    setCart((prev) => {
+  function addToCart(product: any) {
+    setCart((prev: any[]) => {
       const found = prev.find((i) => i.id === product.id);
 
       if (found) {
@@ -33,12 +31,12 @@ export default function Shop() {
     });
   }
 
-  function removeItem(id) {
-    setCart((prev) => prev.filter((i) => i.id !== id));
+  function removeItem(id: number) {
+    setCart((prev: any[]) => prev.filter((i) => i.id !== id));
   }
 
   const total = cart.reduce(
-    (sum, item) => sum + item.price * item.qty,
+    (sum: number, item: any) => sum + item.price * item.qty,
     0
   );
 
@@ -46,7 +44,6 @@ export default function Shop() {
     <main style={styles.page}>
       <h1 style={styles.title}>Laime3D Shop</h1>
 
-      {/* КАТЕГОРИИ */}
       <div style={styles.categories}>
         <button style={styles.catBtn} onClick={() => setCategory("all")}>
           All
@@ -69,11 +66,10 @@ export default function Shop() {
       </div>
 
       <div style={styles.layout}>
-        {/* ТОВАРЫ */}
         <div style={styles.grid}>
           {products
-            .filter((p) => category === "all" || p.category === category)
-            .map((product) => (
+            .filter((p: any) => category === "all" || p.category === category)
+            .map((product: any) => (
               <ProductCard
                 key={product.id}
                 product={product}
@@ -82,13 +78,12 @@ export default function Shop() {
             ))}
         </div>
 
-        {/* КОРЗИНА */}
         <div style={styles.cart}>
           <h2>🛒 Panier</h2>
 
           {cart.length === 0 && <p>Vide</p>}
 
-          {cart.map((item) => (
+          {cart.map((item: any) => (
             <div key={item.id} style={styles.cartItem}>
               <span>
                 {item.name} x{item.qty}
@@ -104,9 +99,7 @@ export default function Shop() {
           <h3>Total: {total}€</h3>
 
           <a href="/checkout">
-            <button style={styles.checkout}>
-              Commander →
-            </button>
+            <button style={styles.checkout}>Commander →</button>
           </a>
         </div>
       </div>
@@ -114,7 +107,7 @@ export default function Shop() {
   );
 }
 
-const styles = {
+const styles: any = {
   page: {
     minHeight: "100vh",
     padding: "40px",
