@@ -1,10 +1,9 @@
-import Image from "next/image";
 export default function Home() {
   return (
     <main style={styles.page}>
-      
       <header style={styles.header}>
         <h1 style={styles.title}>Laime3D</h1>
+
         <p style={styles.subtitle}>
           Créations 3D éco-responsables en France 🌿
         </p>
@@ -15,19 +14,16 @@ export default function Home() {
       </header>
 
       <section style={styles.section}>
-        
         <div style={styles.card}>🏺 Vases</div>
         <div style={styles.card}>🌿 Figurines</div>
         <div style={styles.card}>🌱 Lampes</div>
         <div style={styles.card}>🍃 Porte-clés</div>
-
       </section>
-
     </main>
   );
 }
 
-const styles = {
+const styles: any = {
   page: {
     minHeight: "100vh",
     background: "linear-gradient(180deg, #020b07, #041a10)",
@@ -43,7 +39,7 @@ const styles = {
   title: {
     fontSize: "64px",
     margin: 0,
-    color: "#39ff88", // яркий зелёный
+    color: "#39ff88",
     textShadow: "0 0 20px rgba(57,255,136,0.4)",
   },
 
