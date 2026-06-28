@@ -1,0 +1,184 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { products } from "@/data/products";
+import ProductCard from "@/components/ProductCard";
+
+export default function Shop() {
+  const [cart, setCart] = useState([]);
+  const [category, setCategory] = useState("all");
+
+  // загрузка корзины
+  useEffect(() => {
+    const saved = localStorage.getItem("cart");
+    if (saved) setCart(JSON.parse(saved));
+  }, []);
+
+  // сохранение корзины
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
+
+  function addToCart(product) {
+    setCart((prev) => {
+      const found = prev.find((i) => i.id === product.id);
+
+      if (found) {
+        return prev.map((i) =>
+          i.id === product.id ? { ...i, qty: i.qty + 1 } : i
+        );
+      }
+
+      return [...prev, { ...product, qty: 1 }];
+    });
+  }
+
+  function removeItem(id) {
+    setCart((prev) => prev.filter((i) => i.id !== id));
+  }
+
+  const total = cart.reduce(
+    (sum, item) => sum + item.price * item.qty,
+    0
+  );
+
+  return (
+    <main style={styles.page}>
+      <h1 style={styles.title}>Laime3D Shop</h1>
+
+      {/* КАТЕГОРИИ */}
+      <div style={styles.categories}>
+        <button style={styles.catBtn} onClick={() => setCategory("all")}>
+          All
+        </button>
+        <button style={styles.catBtn} onClick={() => setCategory("cats")}>
+          Cats
+        </button>
+        <button style={styles.catBtn} onClick={() => setCategory("dogs")}>
+          Dogs
+        </button>
+        <button style={styles.catBtn} onClick={() => setCategory("dragons")}>
+          Dragons
+        </button>
+        <button style={styles.catBtn} onClick={() => setCategory("reptiles")}>
+          Reptiles
+        </button>
+        <button style={styles.catBtn} onClick={() => setCategory("keychains")}>
+          Keychains
+        </button>
+      </div>
+
+      <div style={styles.layout}>
+        {/* ТОВАРЫ */}
+        <div style={styles.grid}>
+          {products
+            .filter((p) => category === "all" || p.category === category)
+            .map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                addToCart={addToCart}
+              />
+            ))}
+        </div>
+
+        {/* КОРЗИНА */}
+        <div style={styles.cart}>
+          <h2>🛒 Panier</h2>
+
+          {cart.length === 0 && <p>Vide</p>}
+
+          {cart.map((item) => (
+            <div key={item.id} style={styles.cartItem}>
+              <span>
+                {item.name} x{item.qty}
+              </span>
+
+              <span>{item.price * item.qty}€</span>
+
+              <button onClick={() => removeItem(item.id)}>X</button>
+            </div>
+          ))}
+
+          <hr />
+          <h3>Total: {total}€</h3>
+
+          <a href="/checkout">
+            <button style={styles.checkout}>
+              Commander →
+            </button>
+          </a>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+const styles = {
+  page: {
+    minHeight: "100vh",
+    padding: "40px",
+    background: "#0b1f14",
+    color: "#e8f5e9",
+    fontFamily: "Arial",
+  },
+
+  title: {
+    fontSize: "36px",
+    color: "#7CFF9B",
+    marginBottom: "15px",
+  },
+
+  categories: {
+    display: "flex",
+    gap: "10px",
+    marginBottom: "20px",
+    flexWrap: "wrap",
+  },
+
+  catBtn: {
+    padding: "10px 14px",
+    background: "#102a1c",
+    color: "#e8f5e9",
+    border: "1px solid #1f4d33",
+    borderRadius: "8px",
+    cursor: "pointer",
+  },
+
+  layout: {
+    display: "flex",
+    gap: "20px",
+  },
+
+  grid: {
+    flex: 1,
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: "15px",
+  },
+
+  cart: {
+    width: "320px",
+    padding: "15px",
+    background: "#0f2418",
+    borderRadius: "12px",
+    position: "sticky",
+    top: "20px",
+  },
+
+  cartItem: {
+    display: "flex",
+    justifyContent: "space-between",
+    marginTop: "10px",
+  },
+
+  checkout: {
+    marginTop: "20px",
+    width: "100%",
+    padding: "10px",
+    background: "#7CFF9B",
+    border: "none",
+    cursor: "pointer",
+    fontWeight: "bold",
+  },
+};

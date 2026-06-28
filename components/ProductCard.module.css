@@ -1,0 +1,64 @@
+.card {
+  background: #102a1c;
+  border: 1px solid #1f4d33;
+  border-radius: 14px;
+  padding: 12px;
+  color: #e8f5e9;
+  transition: 0.2s;
+}
+
+.card:hover {
+  transform: scale(1.02);
+}
+
+.imageBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.thumbs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+}
+
+.thumb {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.active {
+  opacity: 1;
+  border: 2px solid #7CFF9B;
+}
+
+.info {
+  margin-top: 10px;
+}
+
+.price {
+  color: #7CFF9B;
+  font-weight: bold;
+}
+
+.button {
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px;
+  background: #7CFF9B;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
