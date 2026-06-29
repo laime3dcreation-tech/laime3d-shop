@@ -32,14 +32,21 @@ export default async function AdminProductsPage() {
     <main style={styles.page}>
       <h1 style={styles.title}>🛍️ Produits Laime3D</h1>
 
-      <a href="/admin/orders" style={styles.link}>
-        ← Retour aux commandes
-      </a>
+      <div style={styles.topBar}>
+        <a href="/admin/orders" style={styles.link}>
+          ← Commandes
+        </a>
+
+        <a href="/admin/products/new" style={styles.addButton}>
+          ➕ Ajouter un produit
+        </a>
+      </div>
 
       <div style={styles.list}>
         {products?.map((product: any) => (
           <div key={product.id} style={styles.card}>
             <h2>{product.name}</h2>
+
             <p><b>Catégorie :</b> {product.category}</p>
             <p><b>Prix :</b> {product.price}€</p>
             <p><b>Actif :</b> {product.active ? "Oui" : "Non"}</p>
@@ -53,17 +60,24 @@ export default async function AdminProductsPage() {
             )}
 
             <div style={styles.actions}>
-              <a href={`/admin/products/${product.id}`} style={styles.editButton}>
+              <a
+                href={`/admin/products/${product.id}`}
+                style={styles.editButton}
+              >
                 Modifier
               </a>
 
               {product.active ? (
                 <form action={toggleProduct.bind(null, product.id, false)}>
-                  <button style={styles.dangerButton}>Masquer</button>
+                  <button style={styles.dangerButton}>
+                    Masquer
+                  </button>
                 </form>
               ) : (
                 <form action={toggleProduct.bind(null, product.id, true)}>
-                  <button style={styles.button}>Afficher</button>
+                  <button style={styles.button}>
+                    Afficher
+                  </button>
                 </form>
               )}
             </div>
@@ -82,26 +96,50 @@ const styles: any = {
     color: "#e8f5e9",
     fontFamily: "Arial",
   },
+
   title: {
     color: "#7CFF9B",
     fontSize: "36px",
     marginBottom: "20px",
   },
+
+  topBar: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "30px",
+    flexWrap: "wrap",
+    gap: "12px",
+  },
+
   link: {
     color: "#7CFF9B",
-    display: "inline-block",
-    marginBottom: "25px",
+    textDecoration: "none",
+    fontWeight: "bold",
   },
+
+  addButton: {
+    display: "inline-block",
+    padding: "12px 18px",
+    background: "#7CFF9B",
+    color: "#03140a",
+    borderRadius: "10px",
+    textDecoration: "none",
+    fontWeight: "bold",
+  },
+
   list: {
     display: "grid",
     gap: "16px",
   },
+
   card: {
     background: "#10251a",
     border: "1px solid #1f4d33",
     borderRadius: "14px",
     padding: "18px",
   },
+
   image: {
     width: "120px",
     height: "120px",
@@ -109,12 +147,14 @@ const styles: any = {
     borderRadius: "10px",
     marginTop: "10px",
   },
+
   actions: {
     marginTop: "15px",
     display: "flex",
     gap: "10px",
     flexWrap: "wrap",
   },
+
   editButton: {
     display: "inline-block",
     padding: "10px 14px",
@@ -124,17 +164,21 @@ const styles: any = {
     textDecoration: "none",
     fontWeight: "bold",
   },
+
   button: {
     padding: "10px 14px",
     background: "#7CFF9B",
+    color: "#03140a",
     border: "none",
     borderRadius: "8px",
     cursor: "pointer",
     fontWeight: "bold",
   },
+
   dangerButton: {
     padding: "10px 14px",
     background: "#ff8a8a",
+    color: "#03140a",
     border: "none",
     borderRadius: "8px",
     cursor: "pointer",
