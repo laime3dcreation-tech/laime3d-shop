@@ -27,7 +27,7 @@ export default function Shop() {
         .order("created_at", { ascending: true });
 
       if (error) {
-        console.error("Erreur de chargement des produits:", error);
+        console.error(error);
         return;
       }
 
@@ -48,11 +48,18 @@ export default function Shop() {
 
   function addToCart(product: any) {
     setCart((prev: any[]) => {
-      const found = prev.find((i) => i.id === product.id);
+      const found = prev.find(
+        (i) =>
+          i.id === product.id &&
+          i.selectedColor === product.selectedColor
+      );
 
       if (found) {
         return prev.map((i) =>
-          i.id === product.id ? { ...i, qty: i.qty + 1 } : i
+          i.id === product.id &&
+          i.selectedColor === product.selectedColor
+            ? { ...i, qty: i.qty + 1 }
+            : i
         );
       }
 
@@ -60,8 +67,12 @@ export default function Shop() {
     });
   }
 
-  function removeItem(id: string) {
-    setCart((prev: any[]) => prev.filter((i) => i.id !== id));
+  function removeItem(id: string, color: string) {
+    setCart((prev: any[]) =>
+      prev.filter(
+        (i) => !(i.id === id && i.selectedColor === color)
+      )
+    );
   }
 
   const total = cart.reduce(
@@ -88,7 +99,10 @@ export default function Shop() {
       <div style={styles.layout}>
         <div style={styles.grid}>
           {products
-            .filter((p: any) => category === "all" || p.category === category)
+            .filter(
+              (p: any) =>
+                category === "all" || p.category === category
+            )
             .map((product: any) => (
               <ProductCard
                 key={product.id}
@@ -103,23 +117,49 @@ export default function Shop() {
 
           {cart.length === 0 && <p>Votre panier est vide</p>}
 
-          {cart.map((item: any) => (
-            <div key={item.id} style={styles.cartItem}>
-              <span>
-                {item.name} × {item.qty}
-              </span>
+          {cart.map((item: any, index: number) => (
+            <div
+              key={index}
+              style={styles.cartItem}
+            >
+              <div>
+                <strong>{item.name}</strong>
 
-              <span>{item.price * item.qty}€</span>
+                {item.selectedColor && (
+                  <div style={styles.color}>
+                    Couleur : {item.selectedColor}
+                  </div>
+                )}
 
-              <button onClick={() => removeItem(item.id)}>Retirer</button>
+                <div>Quantité : {item.qty}</div>
+              </div>
+
+              <div style={{ textAlign: "right" }}>
+                <div>{item.price * item.qty}€</div>
+
+                <button
+                  onClick={() =>
+                    removeItem(
+                      item.id,
+                      item.selectedColor
+                    )
+                  }
+                  style={styles.remove}
+                >
+                  Retirer
+                </button>
+              </div>
             </div>
           ))}
 
           <hr />
+
           <h3>Total : {total}€</h3>
 
           <a href="/checkout">
-            <button style={styles.checkout}>Procéder au paiement →</button>
+            <button style={styles.checkout}>
+              Procéder au paiement →
+            </button>
           </a>
         </div>
       </div>
@@ -171,7 +211,7 @@ const styles: any = {
   },
 
   cart: {
-    width: "320px",
+    width: "340px",
     padding: "15px",
     background: "#0f2418",
     borderRadius: "12px",
@@ -182,8 +222,24 @@ const styles: any = {
   cartItem: {
     display: "flex",
     justifyContent: "space-between",
-    gap: "8px",
-    marginTop: "10px",
+    alignItems: "flex-start",
+    marginTop: "15px",
+    gap: "10px",
+  },
+
+  color: {
+    color: "#7CFF9B",
+    fontSize: "13px",
+    marginTop: "4px",
+  },
+
+  remove: {
+    marginTop: "8px",
+    background: "#ff8a8a",
+    border: "none",
+    borderRadius: "6px",
+    padding: "5px 10px",
+    cursor: "pointer",
   },
 
   checkout: {
