@@ -9,10 +9,22 @@ async function updateProduct(formData: FormData) {
   const name = String(formData.get("name"));
   const category = String(formData.get("category"));
   const price = Number(formData.get("price"));
+  const description = String(formData.get("description"));
+
+  const colors = String(formData.get("colors"))
+    .split(",")
+    .map((color) => color.trim())
+    .filter(Boolean);
 
   await supabaseAdmin
     .from("products")
-    .update({ name, category, price })
+    .update({
+      name,
+      category,
+      price,
+      description,
+      colors,
+    })
     .eq("id", id);
 
   revalidatePath("/admin/products");
@@ -75,6 +87,21 @@ export default async function EditProductPage({
           style={styles.input}
         />
 
+        <label>Description</label>
+        <textarea
+          name="description"
+          defaultValue={product.description || ""}
+          style={styles.textarea}
+        />
+
+        <label>Couleurs disponibles</label>
+        <input
+          name="colors"
+          defaultValue={(product.colors || []).join(", ")}
+          placeholder="Noir, Blanc, Rouge, Bleu..."
+          style={styles.input}
+        />
+
         <button style={styles.button}>Enregistrer</button>
       </form>
     </main>
@@ -100,7 +127,7 @@ const styles: any = {
     marginBottom: "25px",
   },
   form: {
-    maxWidth: "420px",
+    maxWidth: "520px",
     display: "flex",
     flexDirection: "column",
     gap: "10px",
@@ -111,6 +138,15 @@ const styles: any = {
     border: "1px solid #1f4d33",
     background: "#102a1c",
     color: "#fff",
+  },
+  textarea: {
+    padding: "12px",
+    minHeight: "120px",
+    borderRadius: "8px",
+    border: "1px solid #1f4d33",
+    background: "#102a1c",
+    color: "#fff",
+    resize: "vertical",
   },
   button: {
     marginTop: "15px",
