@@ -19,27 +19,24 @@ export async function POST(req: Request) {
 
     let total = 0;
 
-    const simpleItems = cart.map((item: any) => {
+    const line_items = cart.map((item: any) => {
       total += item.price * item.qty;
 
+      const productName = item.selectedColor
+        ? `${item.name} - Couleur : ${item.selectedColor}`
+        : item.name;
+
       return {
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        qty: item.qty,
+        price_data: {
+          currency: "eur",
+          product_data: {
+            name: productName,
+          },
+          unit_amount: Math.round(item.price * 100),
+        },
+        quantity: item.qty,
       };
     });
-
-    const line_items = cart.map((item: any) => ({
-      price_data: {
-        currency: "eur",
-        product_data: {
-          name: item.name,
-        },
-        unit_amount: Math.round(item.price * 100),
-      },
-      quantity: item.qty,
-    }));
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -50,7 +47,7 @@ export async function POST(req: Request) {
         email: customer.email || "",
         address: customer.address || "",
         total: String(total),
-        items_count: String(simpleItems.length),
+        items_count: String(cart.length),
       },
       success_url: process.env.NEXT_PUBLIC_SITE_URL + "/success",
       cancel_url: process.env.NEXT_PUBLIC_SITE_URL + "/cancel",
