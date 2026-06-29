@@ -22,7 +22,7 @@ export default function Checkout() {
 
   async function order() {
     if (!name || !address || !email) {
-      alert("Заполни все поля");
+      alert("Veuillez remplir tous les champs.");
       return;
     }
 
@@ -48,17 +48,17 @@ export default function Checkout() {
         window.location.href = data.url;
       } else {
         console.error(data);
-        alert("Ошибка создания оплаты.");
+        alert("Erreur lors de la création du paiement.");
       }
     } catch (error) {
       console.error(error);
-      alert("Ошибка соединения с сервером.");
+      alert("Erreur de connexion au serveur.");
     }
   }
 
   return (
     <main style={styles.page}>
-      <h1 style={styles.title}>Оформить заказ</h1>
+      <h1 style={styles.title}>Finaliser la commande</h1>
 
       <div style={styles.container}>
         <div style={styles.form}>
@@ -84,12 +84,14 @@ export default function Checkout() {
           />
 
           <button style={styles.button} onClick={order}>
-            Commander
+            Payer la commande
           </button>
         </div>
 
         <div style={styles.cart}>
           <h2>🛒 Votre commande</h2>
+
+          {cart.length === 0 && <p>Votre panier est vide</p>}
 
           {cart.map((item) => (
             <div key={item.id} style={styles.item}>
@@ -103,7 +105,7 @@ export default function Checkout() {
 
           <hr />
 
-          <h3>Total: {total}€</h3>
+          <h3>Total : {total}€</h3>
         </div>
       </div>
     </main>
