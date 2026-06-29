@@ -4,6 +4,15 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import ProductCard from "@/components/ProductCard";
 
+const categories = [
+  { value: "all", label: "Tous" },
+  { value: "cats", label: "Chats" },
+  { value: "dogs", label: "Chiens" },
+  { value: "dragons", label: "Dragons" },
+  { value: "reptiles", label: "Reptiles" },
+  { value: "keychains", label: "Porte-clés" },
+];
+
 export default function Shop() {
   const [products, setProducts] = useState<any[]>([]);
   const [cart, setCart] = useState<any[]>([]);
@@ -18,13 +27,11 @@ export default function Shop() {
         .order("created_at", { ascending: true });
 
       if (error) {
-        console.error("Products load error:", error);
+        console.error("Erreur de chargement des produits:", error);
         return;
       }
 
-      if (data) {
-        setProducts(data);
-      }
+      if (data) setProducts(data);
     }
 
     loadProducts();
@@ -64,20 +71,18 @@ export default function Shop() {
 
   return (
     <main style={styles.page}>
-      <h1 style={styles.title}>Laime3D Shop</h1>
+      <h1 style={styles.title}>Boutique Laime3D</h1>
 
       <div style={styles.categories}>
-        {["all", "cats", "dogs", "dragons", "reptiles", "keychains"].map(
-          (cat) => (
-            <button
-              key={cat}
-              style={styles.catBtn}
-              onClick={() => setCategory(cat)}
-            >
-              {cat}
-            </button>
-          )
-        )}
+        {categories.map((cat) => (
+          <button
+            key={cat.value}
+            style={styles.catBtn}
+            onClick={() => setCategory(cat.value)}
+          >
+            {cat.label}
+          </button>
+        ))}
       </div>
 
       <div style={styles.layout}>
@@ -96,25 +101,25 @@ export default function Shop() {
         <div style={styles.cart}>
           <h2>🛒 Panier</h2>
 
-          {cart.length === 0 && <p>Vide</p>}
+          {cart.length === 0 && <p>Votre panier est vide</p>}
 
           {cart.map((item: any) => (
             <div key={item.id} style={styles.cartItem}>
               <span>
-                {item.name} x{item.qty}
+                {item.name} × {item.qty}
               </span>
 
               <span>{item.price * item.qty}€</span>
 
-              <button onClick={() => removeItem(item.id)}>X</button>
+              <button onClick={() => removeItem(item.id)}>Retirer</button>
             </div>
           ))}
 
           <hr />
-          <h3>Total: {total}€</h3>
+          <h3>Total : {total}€</h3>
 
           <a href="/checkout">
-            <button style={styles.checkout}>Commander →</button>
+            <button style={styles.checkout}>Procéder au paiement →</button>
           </a>
         </div>
       </div>
@@ -177,6 +182,7 @@ const styles: any = {
   cartItem: {
     display: "flex",
     justifyContent: "space-between",
+    gap: "8px",
     marginTop: "10px",
   },
 
