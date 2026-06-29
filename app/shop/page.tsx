@@ -1,12 +1,29 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { products } from "@/data/products";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import ProductCard from "@/components/ProductCard";
 
 export default function Shop() {
+  const [products, setProducts] = useState<any[]>([]);
   const [cart, setCart] = useState<any[]>([]);
   const [category, setCategory] = useState("all");
+
+  useEffect(() => {
+    async function loadProducts() {
+      const { data, error } = await supabaseAdmin
+        .from("products")
+        .select("*")
+        .eq("active", true)
+        .order("created_at", { ascending: true });
+
+      if (!error && data) {
+        setProducts(data);
+      }
+    }
+
+    loadProducts();
+  }, []);
 
   useEffect(() => {
     const saved = localStorage.getItem("cart");
@@ -31,7 +48,7 @@ export default function Shop() {
     });
   }
 
-  function removeItem(id: number) {
+  function removeItem(id: string) {
     setCart((prev: any[]) => prev.filter((i) => i.id !== id));
   }
 
@@ -45,24 +62,11 @@ export default function Shop() {
       <h1 style={styles.title}>Laime3D Shop</h1>
 
       <div style={styles.categories}>
-        <button style={styles.catBtn} onClick={() => setCategory("all")}>
-          All
-        </button>
-        <button style={styles.catBtn} onClick={() => setCategory("cats")}>
-          Cats
-        </button>
-        <button style={styles.catBtn} onClick={() => setCategory("dogs")}>
-          Dogs
-        </button>
-        <button style={styles.catBtn} onClick={() => setCategory("dragons")}>
-          Dragons
-        </button>
-        <button style={styles.catBtn} onClick={() => setCategory("reptiles")}>
-          Reptiles
-        </button>
-        <button style={styles.catBtn} onClick={() => setCategory("keychains")}>
-          Keychains
-        </button>
+        {["all", "cats", "dogs", "dragons", "reptiles", "keychains"].map((cat) => (
+          <button key={cat} style={styles.catBtn} onClick={() => setCategory(cat)}>
+            {cat}
+          </button>
+        ))}
       </div>
 
       <div style={styles.layout}>
@@ -115,20 +119,17 @@ const styles: any = {
     color: "#e8f5e9",
     fontFamily: "Arial",
   },
-
   title: {
     fontSize: "36px",
     color: "#7CFF9B",
     marginBottom: "15px",
   },
-
   categories: {
     display: "flex",
     gap: "10px",
     marginBottom: "20px",
     flexWrap: "wrap",
   },
-
   catBtn: {
     padding: "10px 14px",
     background: "#102a1c",
@@ -137,19 +138,16 @@ const styles: any = {
     borderRadius: "8px",
     cursor: "pointer",
   },
-
   layout: {
     display: "flex",
     gap: "20px",
   },
-
   grid: {
     flex: 1,
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
     gap: "15px",
   },
-
   cart: {
     width: "320px",
     padding: "15px",
@@ -158,13 +156,11 @@ const styles: any = {
     position: "sticky",
     top: "20px",
   },
-
   cartItem: {
     display: "flex",
     justifyContent: "space-between",
     marginTop: "10px",
   },
-
   checkout: {
     marginTop: "20px",
     width: "100%",
