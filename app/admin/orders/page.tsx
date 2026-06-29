@@ -1,5 +1,20 @@
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
+function getStatus(status: string) {
+  switch (status) {
+    case "new":
+      return "🟢 Nouveau";
+    case "processing":
+      return "🟡 En préparation";
+    case "shipped":
+      return "📦 Expédié";
+    case "completed":
+      return "✅ Terminé";
+    default:
+      return status;
+  }
+}
+
 export default async function OrdersPage() {
   const { data: orders, error } = await supabaseAdmin
     .from("orders")
@@ -17,25 +32,39 @@ export default async function OrdersPage() {
 
   return (
     <main style={styles.page}>
-      <h1 style={styles.title}>📦 Commandes</h1>
+      <h1 style={styles.title}>📦 Commandes Laime3D</h1>
 
       {!orders || orders.length === 0 ? (
-        <p>Aucune commande pour le moment.</p>
+        <p>Aucune commande.</p>
       ) : (
         <div style={styles.list}>
           {orders.map((order: any) => (
             <div key={order.id} style={styles.card}>
-              <h2>Commande</h2>
-              <p><b>Nom:</b> {order.customer_name}</p>
-              <p><b>Email:</b> {order.email}</p>
-              <p><b>Adresse:</b> {order.address}</p>
-              <p><b>Total:</b> {order.total}€</p>
-              <p><b>Date:</b> {new Date(order.created_at).toLocaleString("fr-FR")}</p>
+              <div style={styles.header}>
+                <h2>Commande #{order.id}</h2>
+                <span style={styles.badge}>
+                  {getStatus(order.status)}
+                </span>
+              </div>
 
-              <h3>Articles</h3>
-              <pre style={styles.items}>
-                {JSON.stringify(order.items, null, 2)}
-              </pre>
+              <p><b>👤 Client:</b> {order.customer_name}</p>
+              <p><b>📧 Email:</b> {order.email}</p>
+              <p><b>📍 Adresse:</b> {order.address}</p>
+              <p><b>💶 Total:</b> {order.total}€</p>
+              <p>
+                <b>🕒 Date:</b>{" "}
+                {new Date(order.created_at).toLocaleString("fr-FR")}
+              </p>
+
+              <h3>🛒 Articles</h3>
+
+              <ul>
+                {order.items?.map((item: any, index: number) => (
+                  <li key={index}>
+                    {item.name} × {item.quantity} — {item.amount_total}€
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>
@@ -52,26 +81,37 @@ const styles: any = {
     color: "#e8f5e9",
     fontFamily: "Arial",
   },
+
   title: {
     color: "#7CFF9B",
     fontSize: "36px",
-    marginBottom: "20px",
+    marginBottom: "30px",
   },
+
   list: {
     display: "grid",
-    gap: "16px",
+    gap: "20px",
   },
+
   card: {
-    background: "#0f2418",
+    background: "#10251a",
     border: "1px solid #1f4d33",
-    borderRadius: "12px",
-    padding: "18px",
+    borderRadius: "14px",
+    padding: "20px",
   },
-  items: {
-    background: "#07140d",
-    padding: "12px",
-    borderRadius: "8px",
-    overflowX: "auto",
-    color: "#c8facc",
+
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "15px",
+  },
+
+  badge: {
+    background: "#1f4d33",
+    color: "#7CFF9B",
+    padding: "6px 12px",
+    borderRadius: "999px",
+    fontWeight: "bold",
   },
 };
