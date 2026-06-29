@@ -6,7 +6,7 @@ export default function AdminLogin() {
   const [password, setPassword] = useState("");
 
   function login() {
-    localStorage.setItem("admin_password", password);
+    document.cookie = `admin_password=${password}; path=/; max-age=86400`;
     window.location.href = "/admin/orders";
   }
 
