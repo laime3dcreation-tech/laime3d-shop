@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 async function updateProduct(formData: FormData) {
   "use server";
@@ -14,23 +15,43 @@ async function updateProduct(formData: FormData) {
     .update({ name, category, price })
     .eq("id", id);
 
+  revalidatePath("/admin/products");
+  revalidatePath("/shop");
+
   redirect("/admin/products");
 }
 
-export default async function EditProductPage({ params }: any) {
+export default async function EditProductPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
   const { data: product, error } = await supabaseAdmin
     .from("products")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (error || !product) {
-    return <main style={styles.page}>Produit introuvable</main>;
+    return (
+      <main style={styles.page}>
+        <h1>Produit introuvable</h1>
+        <a href="/admin/products" style={styles.link}>
+          ← Retour aux produits
+        </a>
+      </main>
+    );
   }
 
   return (
     <main style={styles.page}>
       <h1 style={styles.title}>Modifier le produit</h1>
+
+      <a href="/admin/products" style={styles.link}>
+        ← Retour aux produits
+      </a>
 
       <form action={updateProduct} style={styles.form}>
         <input type="hidden" name="id" value={product.id} />
@@ -71,6 +92,11 @@ const styles: any = {
   title: {
     color: "#7CFF9B",
     fontSize: "36px",
+    marginBottom: "20px",
+  },
+  link: {
+    color: "#7CFF9B",
+    display: "inline-block",
     marginBottom: "25px",
   },
   form: {
