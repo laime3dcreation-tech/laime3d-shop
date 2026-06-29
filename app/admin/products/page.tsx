@@ -53,6 +53,10 @@ export default async function AdminProductsPage() {
             )}
 
             <div style={styles.actions}>
+              <a href={`/admin/products/${product.id}`} style={styles.editButton}>
+                Modifier
+              </a>
+
               {product.active ? (
                 <form action={toggleProduct.bind(null, product.id, false)}>
                   <button style={styles.dangerButton}>Masquer</button>
@@ -107,6 +111,18 @@ const styles: any = {
   },
   actions: {
     marginTop: "15px",
+    display: "flex",
+    gap: "10px",
+    flexWrap: "wrap",
+  },
+  editButton: {
+    display: "inline-block",
+    padding: "10px 14px",
+    background: "#7CFF9B",
+    color: "#03140a",
+    borderRadius: "8px",
+    textDecoration: "none",
+    fontWeight: "bold",
   },
   button: {
     padding: "10px 14px",
