@@ -5,6 +5,15 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: Request) {
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  if (!webhookSecret) {
+    return NextResponse.json(
+      { error: "Missing STRIPE_WEBHOOK_SECRET in Vercel" },
+      { status: 500 }
+    );
+  }
+
   const body = await req.text();
   const signature = req.headers.get("stripe-signature");
 
@@ -16,7 +25,7 @@ export async function POST(req: Request) {
     const event = stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      webhookSecret
     );
 
     if (event.type === "checkout.session.completed") {
@@ -24,9 +33,7 @@ export async function POST(req: Request) {
 
       const lineItems = await stripe.checkout.sessions.listLineItems(
         session.id,
-        {
-          limit: 100,
-        }
+        { limit: 100 }
       );
 
       const items = lineItems.data.map((item) => ({
@@ -50,9 +57,8 @@ export async function POST(req: Request) {
       ]);
 
       if (error) {
-        console.error("Supabase insert error:", error);
         return NextResponse.json(
-          { error: error.message },
+          { error: "Supabase insert error: " + error.message },
           { status: 500 }
         );
       }
@@ -60,10 +66,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ received: true });
   } catch (error: any) {
-    console.error("Webhook error:", error.message);
-
     return NextResponse.json(
-      { error: error.message },
+      { error: "Webhook error: " + error.message },
       { status: 400 }
     );
   }
