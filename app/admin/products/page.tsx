@@ -1,4 +1,17 @@
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { revalidatePath } from "next/cache";
+
+async function toggleProduct(productId: string, active: boolean) {
+  "use server";
+
+  await supabaseAdmin
+    .from("products")
+    .update({ active })
+    .eq("id", productId);
+
+  revalidatePath("/admin/products");
+  revalidatePath("/shop");
+}
 
 export default async function AdminProductsPage() {
   const { data: products, error } = await supabaseAdmin
@@ -38,6 +51,18 @@ export default async function AdminProductsPage() {
                 style={styles.image}
               />
             )}
+
+            <div style={styles.actions}>
+              {product.active ? (
+                <form action={toggleProduct.bind(null, product.id, false)}>
+                  <button style={styles.dangerButton}>Masquer</button>
+                </form>
+              ) : (
+                <form action={toggleProduct.bind(null, product.id, true)}>
+                  <button style={styles.button}>Afficher</button>
+                </form>
+              )}
+            </div>
           </div>
         ))}
       </div>
@@ -79,5 +104,24 @@ const styles: any = {
     objectFit: "cover",
     borderRadius: "10px",
     marginTop: "10px",
+  },
+  actions: {
+    marginTop: "15px",
+  },
+  button: {
+    padding: "10px 14px",
+    background: "#7CFF9B",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontWeight: "bold",
+  },
+  dangerButton: {
+    padding: "10px 14px",
+    background: "#ff8a8a",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontWeight: "bold",
   },
 };
