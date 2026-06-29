@@ -27,6 +27,27 @@ function getStatus(status: string) {
   }
 }
 
+function getItemColor(item: any) {
+  if (item.color) return item.color;
+  if (item.selectedColor) return item.selectedColor;
+
+  const name = item.name || "";
+  if (name.includes("Couleur :")) {
+    return name.split("Couleur :")[1]?.trim();
+  }
+
+  return "";
+}
+
+function getItemName(item: any) {
+  const name = item.name || "";
+  if (name.includes(" - Couleur :")) {
+    return name.split(" - Couleur :")[0];
+  }
+
+  return name;
+}
+
 export default async function OrdersPage() {
   const { data: orders, error } = await supabaseAdmin
     .from("orders")
@@ -57,20 +78,34 @@ export default async function OrdersPage() {
                 <span style={styles.badge}>{getStatus(order.status)}</span>
               </div>
 
-              <p><b>👤 Client:</b> {order.customer_name}</p>
-              <p><b>📧 Email:</b> {order.email}</p>
-              <p><b>📍 Adresse:</b> {order.address}</p>
-              <p><b>💶 Total:</b> {order.total}€</p>
-              <p><b>🕒 Date:</b> {new Date(order.created_at).toLocaleString("fr-FR")}</p>
+              <p><b>👤 Client :</b> {order.customer_name}</p>
+              <p><b>📧 Email :</b> {order.email}</p>
+              <p><b>📍 Adresse :</b> {order.address}</p>
+              <p><b>💶 Total :</b> {order.total}€</p>
+              <p>
+                <b>🕒 Date :</b>{" "}
+                {new Date(order.created_at).toLocaleString("fr-FR")}
+              </p>
 
               <h3>🛒 Articles</h3>
 
-              <ul>
-                {order.items?.map((item: any, index: number) => (
-                  <li key={index}>
-                    {item.name} × {item.quantity} — {item.amount_total}€
-                  </li>
-                ))}
+              <ul style={styles.itemsList}>
+                {order.items?.map((item: any, index: number) => {
+                  const color = getItemColor(item);
+
+                  return (
+                    <li key={index} style={styles.item}>
+                      <b>{getItemName(item)}</b> × {item.quantity} —{" "}
+                      {item.amount_total}€
+
+                      {color && (
+                        <div style={styles.color}>
+                          Couleur : {color}
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
 
               <div style={styles.actions}>
@@ -140,6 +175,20 @@ const styles: any = {
     padding: "6px 12px",
     borderRadius: "999px",
     fontWeight: "bold",
+  },
+
+  itemsList: {
+    paddingLeft: "20px",
+  },
+
+  item: {
+    marginBottom: "10px",
+  },
+
+  color: {
+    color: "#7CFF9B",
+    fontSize: "14px",
+    marginTop: "4px",
   },
 
   actions: {
