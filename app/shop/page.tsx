@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { supabase } from "@/lib/supabase";
 import ProductCard from "@/components/ProductCard";
 
 export default function Shop() {
@@ -11,13 +11,18 @@ export default function Shop() {
 
   useEffect(() => {
     async function loadProducts() {
-      const { data, error } = await supabaseAdmin
+      const { data, error } = await supabase
         .from("products")
         .select("*")
         .eq("active", true)
         .order("created_at", { ascending: true });
 
-      if (!error && data) {
+      if (error) {
+        console.error("Products load error:", error);
+        return;
+      }
+
+      if (data) {
         setProducts(data);
       }
     }
@@ -62,11 +67,17 @@ export default function Shop() {
       <h1 style={styles.title}>Laime3D Shop</h1>
 
       <div style={styles.categories}>
-        {["all", "cats", "dogs", "dragons", "reptiles", "keychains"].map((cat) => (
-          <button key={cat} style={styles.catBtn} onClick={() => setCategory(cat)}>
-            {cat}
-          </button>
-        ))}
+        {["all", "cats", "dogs", "dragons", "reptiles", "keychains"].map(
+          (cat) => (
+            <button
+              key={cat}
+              style={styles.catBtn}
+              onClick={() => setCategory(cat)}
+            >
+              {cat}
+            </button>
+          )
+        )}
       </div>
 
       <div style={styles.layout}>
@@ -119,17 +130,20 @@ const styles: any = {
     color: "#e8f5e9",
     fontFamily: "Arial",
   },
+
   title: {
     fontSize: "36px",
     color: "#7CFF9B",
     marginBottom: "15px",
   },
+
   categories: {
     display: "flex",
     gap: "10px",
     marginBottom: "20px",
     flexWrap: "wrap",
   },
+
   catBtn: {
     padding: "10px 14px",
     background: "#102a1c",
@@ -138,16 +152,19 @@ const styles: any = {
     borderRadius: "8px",
     cursor: "pointer",
   },
+
   layout: {
     display: "flex",
     gap: "20px",
   },
+
   grid: {
     flex: 1,
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
     gap: "15px",
   },
+
   cart: {
     width: "320px",
     padding: "15px",
@@ -156,11 +173,13 @@ const styles: any = {
     position: "sticky",
     top: "20px",
   },
+
   cartItem: {
     display: "flex",
     justifyContent: "space-between",
     marginTop: "10px",
   },
+
   checkout: {
     marginTop: "20px",
     width: "100%",
