@@ -14,10 +14,36 @@ async function createProduct(formData: FormData) {
     .map((c) => c.trim())
     .filter(Boolean);
 
-  const images = String(formData.get("images"))
-    .split(",")
-    .map((i) => i.trim())
-    .filter(Boolean);
+  const files = formData.getAll("images") as File[];
+  const imageUrls: string[] = [];
+
+  for (const file of files) {
+    if (!file || file.size === 0) continue;
+
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${Date.now()}-${Math.random()
+      .toString(36)
+      .substring(2)}.${fileExt}`;
+
+    const filePath = `${fileName}`;
+
+    const { error } = await supabaseAdmin.storage
+      .from("product-images")
+      .upload(filePath, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    const { data } = supabaseAdmin.storage
+      .from("product-images")
+      .getPublicUrl(filePath);
+
+    imageUrls.push(data.publicUrl);
+  }
 
   await supabaseAdmin.from("products").insert({
     name,
@@ -25,7 +51,7 @@ async function createProduct(formData: FormData) {
     price,
     description,
     colors,
-    images,
+    images: imageUrls,
     active: true,
   });
 
@@ -63,10 +89,7 @@ export default function NewProductPage() {
         />
 
         <label>Description</label>
-        <textarea
-          name="description"
-          style={styles.textarea}
-        />
+        <textarea name="description" style={styles.textarea} />
 
         <label>Couleurs disponibles</label>
         <input
@@ -75,16 +98,16 @@ export default function NewProductPage() {
           style={styles.input}
         />
 
-        <label>Images</label>
-        <textarea
+        <label>Images du produit</label>
+        <input
           name="images"
-          placeholder="/images/chat1.jpg, /images/chat2.jpg"
-          style={styles.textarea}
+          type="file"
+          accept="image/*"
+          multiple
+          style={styles.input}
         />
 
-        <button style={styles.button}>
-          Ajouter le produit
-        </button>
+        <button style={styles.button}>Ajouter le produit</button>
       </form>
     </main>
   );
