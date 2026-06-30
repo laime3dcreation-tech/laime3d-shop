@@ -2,22 +2,20 @@
 
 import { useState } from "react";
 
-export default function AdminLogin() {
+export default function AdminPage() {
   const [password, setPassword] = useState("");
 
   function login() {
     document.cookie = `admin_password=${password}; path=/; max-age=86400`;
-    window.location.href = "/admin/orders";
+    window.location.href = "/admin/dashboard";
   }
 
   return (
     <main style={styles.page}>
       <div style={styles.card}>
-        <h1>🔐 Admin Laime3D</h1>
+        <h1 style={styles.title}>🔐 Administration Laime3D</h1>
 
-        <p style={styles.text}>
-          Entrez le mot de passe administrateur
-        </p>
+        <p style={styles.text}>Entrez le mot de passe administrateur</p>
 
         <input
           type="password"
@@ -43,6 +41,7 @@ const styles: any = {
     justifyContent: "center",
     alignItems: "center",
     fontFamily: "Arial",
+    padding: "20px",
   },
 
   card: {
@@ -54,10 +53,15 @@ const styles: any = {
     boxShadow: "0 0 25px rgba(0,0,0,0.35)",
   },
 
+  title: {
+    color: "#7CFF9B",
+    fontSize: "28px",
+    marginBottom: "15px",
+  },
+
   text: {
-    marginTop: "10px",
-    marginBottom: "20px",
     color: "#b8d9c4",
+    marginBottom: "20px",
   },
 
   input: {

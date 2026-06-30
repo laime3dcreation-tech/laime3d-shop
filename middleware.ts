@@ -5,7 +5,11 @@ export function middleware(req: NextRequest) {
   const password = req.cookies.get("admin_password")?.value;
   const correctPassword = process.env.ADMIN_PASSWORD;
 
-  if (req.nextUrl.pathname.startsWith("/admin/orders")) {
+  const isAdminLoginPage = req.nextUrl.pathname === "/admin";
+  const isProtectedAdminPage =
+    req.nextUrl.pathname.startsWith("/admin/") && !isAdminLoginPage;
+
+  if (isProtectedAdminPage) {
     if (!password || password !== correctPassword) {
       return NextResponse.redirect(new URL("/admin", req.url));
     }
@@ -15,5 +19,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/orders/:path*"],
+  matcher: ["/admin/:path*"],
 };
