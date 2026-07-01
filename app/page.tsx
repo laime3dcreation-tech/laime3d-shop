@@ -31,23 +31,6 @@ const collections = [
   },
 ];
 
-const faq = [
-  {
-    question: "Puis-je choisir la couleur ?",
-    answer: "Oui, les couleurs disponibles sont indiquées sur chaque produit.",
-  },
-  {
-    question: "Puis-je demander une création personnalisée ?",
-    answer:
-      "Oui, vous pouvez nous parler de votre idée et nous verrons ce qu'il est possible de créer.",
-  },
-  {
-    question: "Comment se passe la livraison ?",
-    answer:
-      "Les commandes sont préparées avec soin puis envoyées à l'adresse indiquée lors du paiement.",
-  },
-];
-
 export default function HomePage() {
   const [featured, setFeatured] = useState<any[]>([]);
   const [latest, setLatest] = useState<any[]>([]);
@@ -93,10 +76,17 @@ export default function HomePage() {
     <main style={styles.page}>
       <nav style={styles.nav}>
         <strong style={styles.logo}>LAIME3D</strong>
+
         <div style={styles.navLinks}>
-          <a href="/shop" style={styles.navLink}>Collections</a>
-          <a href="#faq" style={styles.navLink}>FAQ</a>
-          <a href="#contact" style={styles.navLink}>Contact</a>
+          <a href="/shop" style={styles.navLink}>
+            Collections
+          </a>
+          <a href="#about" style={styles.navLink}>
+            À propos
+          </a>
+          <a href="#contact" style={styles.navLink}>
+            Contact
+          </a>
         </div>
       </nav>
 
@@ -124,7 +114,11 @@ export default function HomePage() {
 
         <div style={styles.collections}>
           {collections.map((collection) => (
-            <a key={collection.title} href={collection.href} style={styles.collectionCard}>
+            <a
+              key={collection.title}
+              href={collection.href}
+              style={styles.collectionCard}
+            >
               <span style={styles.collectionEmoji}>{collection.emoji}</span>
               <h3>{collection.title}</h3>
               <p>{collection.text}</p>
@@ -136,9 +130,14 @@ export default function HomePage() {
       {featured.length > 0 && (
         <section style={styles.section}>
           <h2 style={styles.sectionTitle}>⭐ Nos coups de cœur</h2>
+
           <div style={styles.grid}>
             {featured.map((product) => (
-              <ProductCard key={product.id} product={product} addToCart={addToCart} />
+              <ProductCard
+                key={product.id}
+                product={product}
+                addToCart={addToCart}
+              />
             ))}
           </div>
         </section>
@@ -149,7 +148,11 @@ export default function HomePage() {
 
         <div style={styles.grid}>
           {latest.map((product) => (
-            <ProductCard key={product.id} product={product} addToCart={addToCart} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              addToCart={addToCart}
+            />
           ))}
         </div>
 
@@ -169,7 +172,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section style={styles.infoSection}>
+      <section id="about" style={styles.infoSection}>
         <div>
           <h2 style={styles.sectionTitle}>À propos</h2>
           <p style={styles.text}>
@@ -188,19 +191,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="faq" style={styles.section}>
-        <h2 style={styles.sectionTitle}>FAQ</h2>
-
-        <div style={styles.faqList}>
-          {faq.map((item) => (
-            <div key={item.question} style={styles.faqItem}>
-              <h3>{item.question}</h3>
-              <p>{item.answer}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
       <section id="contact" style={styles.idea}>
         <h2 style={styles.ideaTitle}>Une idée en tête ?</h2>
 
@@ -213,15 +203,37 @@ export default function HomePage() {
           donner vie.
         </p>
 
-        <a href="mailto:contact@laime3d.fr" style={styles.mainButton}>
-          Discutons de votre projet
+        <a href="mailto:laime3dcreation@gmail.com" style={styles.mainButton}>
+          Parlons de votre projet
         </a>
       </section>
 
       <footer style={styles.footer}>
-        <strong>LAIME3D</strong>
-        <p>Créé avec le cœur. Imprimé avec passion.</p>
-        <p>Contact : contact@laime3d.fr</p>
+        <h2 style={styles.footerLogo}>LAIME3D</h2>
+
+        <p style={styles.footerText}>
+          Créé avec le cœur.
+          <br />
+          Imprimé avec passion.
+        </p>
+
+        <div style={styles.footerContacts}>
+          <a
+            href="mailto:laime3dcreation@gmail.com"
+            style={styles.footerLink}
+          >
+            ✉️ laime3dcreation@gmail.com
+          </a>
+
+          <a
+            href="https://instagram.com/laime3d"
+            target="_blank"
+            rel="noreferrer"
+            style={styles.footerLink}
+          >
+            📷 @laime3d
+          </a>
+        </div>
       </footer>
     </main>
   );
@@ -241,6 +253,8 @@ const styles: any = {
     justifyContent: "space-between",
     alignItems: "center",
     borderBottom: "1px solid #1f4d33",
+    flexWrap: "wrap",
+    gap: "14px",
   },
 
   logo: {
@@ -376,18 +390,6 @@ const styles: any = {
     fontSize: "17px",
   },
 
-  faqList: {
-    display: "grid",
-    gap: "16px",
-  },
-
-  faqItem: {
-    background: "#10251a",
-    border: "1px solid #1f4d33",
-    borderRadius: "14px",
-    padding: "20px",
-  },
-
   idea: {
     margin: "40px",
     padding: "50px 30px",
@@ -403,9 +405,36 @@ const styles: any = {
   },
 
   footer: {
-    padding: "40px",
+    padding: "45px 40px",
     textAlign: "center",
     color: "#b8d9c4",
     borderTop: "1px solid #1f4d33",
+  },
+
+  footerLogo: {
+    color: "#7CFF9B",
+    fontSize: "32px",
+    letterSpacing: "5px",
+    marginBottom: "15px",
+  },
+
+  footerText: {
+    color: "#b8d9c4",
+    marginBottom: "25px",
+    lineHeight: "1.7",
+  },
+
+  footerContacts: {
+    display: "flex",
+    justifyContent: "center",
+    gap: "25px",
+    flexWrap: "wrap",
+  },
+
+  footerLink: {
+    color: "#7CFF9B",
+    textDecoration: "none",
+    fontWeight: "bold",
+    fontSize: "17px",
   },
 };
