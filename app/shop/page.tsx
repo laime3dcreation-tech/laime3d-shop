@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import ProductCard from "@/components/ProductCard";
 
@@ -13,11 +14,24 @@ const categories = [
 ];
 
 export default function Shop() {
+  const searchParams = useSearchParams();
+
   const [products, setProducts] = useState<any[]>([]);
   const [cart, setCart] = useState<any[]>([]);
   const [category, setCategory] = useState("all");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("newest");
+
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get("category");
+
+    if (
+      categoryFromUrl &&
+      categories.some((cat) => cat.value === categoryFromUrl)
+    ) {
+      setCategory(categoryFromUrl);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     async function loadProducts() {
@@ -129,6 +143,21 @@ export default function Shop() {
 
   return (
     <main style={styles.page}>
+      <nav style={styles.nav}>
+        <a href="/" style={styles.logo}>
+          LAIME3D
+        </a>
+
+        <div style={styles.navLinks}>
+          <a href="/" style={styles.navLink}>
+            Accueil
+          </a>
+          <a href="/shop" style={styles.navLink}>
+            Boutique
+          </a>
+        </div>
+      </nav>
+
       <section style={styles.hero}>
         <h1 style={styles.title}>Boutique Laime3D</h1>
         <p style={styles.subtitle}>
@@ -251,6 +280,35 @@ const styles: any = {
     background: "#0b1f14",
     color: "#e8f5e9",
     fontFamily: "Arial",
+  },
+
+  nav: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "35px",
+    gap: "16px",
+    flexWrap: "wrap",
+  },
+
+  logo: {
+    color: "#7CFF9B",
+    textDecoration: "none",
+    fontSize: "24px",
+    fontWeight: "bold",
+    letterSpacing: "4px",
+  },
+
+  navLinks: {
+    display: "flex",
+    gap: "18px",
+    flexWrap: "wrap",
+  },
+
+  navLink: {
+    color: "#e8f5e9",
+    textDecoration: "none",
+    fontWeight: "bold",
   },
 
   hero: {
