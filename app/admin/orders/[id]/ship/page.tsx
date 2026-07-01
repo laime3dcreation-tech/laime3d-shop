@@ -1,226 +1,139 @@
-"use client";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { Resend } from "resend";
 
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import ProductCard from "@/components/ProductCard";
-import ContactModal from "@/components/ContactModal";
+export const dynamic = "force-dynamic";
 
-const collections = [
-  {
-    title: "Figurines flexibles",
-    text: "Créations articulées, ludiques et originales.",
-    emoji: "🐉",
-    href: "/shop?category=flexible",
-  },
-  {
-    title: "Lampes",
-    text: "Objets lumineux pour une ambiance unique.",
-    emoji: "💡",
-    href: "/shop?category=lamps",
-  },
-  {
-    title: "Vases",
-    text: "Décoration imprimée en 3D avec soin.",
-    emoji: "🏺",
-    href: "/shop?category=vases",
-  },
-  {
-    title: "Porte-clés",
-    text: "Petites créations à offrir ou à garder.",
-    emoji: "🔑",
-    href: "/shop?category=keychains",
-  },
-];
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-export default function HomePage() {
-  const [featured, setFeatured] = useState<any[]>([]);
-  const [latest, setLatest] = useState<any[]>([]);
+async function shipOrder(formData: FormData) {
+  "use server";
 
-  useEffect(() => {
-    async function loadProducts() {
-      const { data } = await supabase
-        .from("products")
-        .select("*")
-        .eq("active", true)
-        .order("created_at", { ascending: false });
+  const orderId = String(formData.get("orderId"));
+  const trackingNumber = String(formData.get("trackingNumber") || "").trim();
 
-      if (!data) return;
+  const { data: order } = await supabaseAdmin
+    .from("orders")
+    .select("*")
+    .eq("id", orderId)
+    .single();
 
-      setLatest(data.slice(0, 4));
-      setFeatured(data.filter((p) => p.featured).slice(0, 4));
-    }
+  if (!order) {
+    redirect("/admin/orders");
+  }
 
-    loadProducts();
-  }, []);
+  await supabaseAdmin
+    .from("orders")
+    .update({
+      status: "shipped",
+      tracking_number: trackingNumber,
+    })
+    .eq("id", orderId);
 
-  function addToCart(product: any) {
-    const saved = localStorage.getItem("cart");
-    const cart = saved ? JSON.parse(saved) : [];
+  if (order.email) {
+    await resend.emails.send({
+      from: "LAIME3D <contact@laime3d.com>",
+      to: [order.email],
+      bcc: ["laime3dcontact@yahoo.com"],
+      subject: "Votre commande LAIME3D est expédiée 📦",
+      html: `
+        <div style="font-family: Arial, sans-serif; background:#0b1f14; color:#e8f5e9; padding:30px;">
+          <div style="max-width:640px; margin:auto; background:#10251a; border:1px solid #1f4d33; border-radius:18px; padding:26px;">
+            <h1 style="color:#7CFF9B;">Votre commande est en route 📦</h1>
 
-    const found = cart.find(
-      (item: any) =>
-        item.id === product.id && item.selectedColor === product.selectedColor
+            <p>Bonjour ${order.first_name || order.customer_name || ""},</p>
+
+            <p>
+              Bonne nouvelle ! Votre commande LAIME3D vient d’être expédiée.
+            </p>
+
+            ${
+              trackingNumber
+                ? `<p><b>Numéro de suivi :</b> ${trackingNumber}</p>`
+                : `<p>Le numéro de suivi sera disponible prochainement.</p>`
+            }
+
+            <p>
+              Vous pouvez suivre votre colis sur le site du transporteur.
+            </p>
+
+            <p>
+              Merci encore pour votre commande ❤️
+            </p>
+
+            <p style="color:#7CFF9B;"><b>Créé avec le cœur. Imprimé avec passion.</b></p>
+          </div>
+        </div>
+      `,
+    });
+  }
+
+  revalidatePath("/admin/orders");
+  redirect("/admin/orders");
+}
+
+export default async function ShipOrderPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
+  const { data: order } = await supabaseAdmin
+    .from("orders")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (!order) {
+    return (
+      <main style={styles.page}>
+        <h1>Commande introuvable</h1>
+        <a href="/admin/orders" style={styles.link}>
+          ← Retour aux commandes
+        </a>
+      </main>
     );
-
-    const updatedCart = found
-      ? cart.map((item: any) =>
-          item.id === product.id && item.selectedColor === product.selectedColor
-            ? { ...item, qty: item.qty + 1 }
-            : item
-        )
-      : [...cart, { ...product, qty: 1 }];
-
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
   }
 
   return (
-<main style={styles.page}>
-<nav style={styles.nav}>
-        <a href="/" style={styles.logo}>
-          LAIME3D
-        </a>
+    <main style={styles.page}>
+      <a href="/admin/orders" style={styles.link}>
+        ← Retour aux commandes
+      </a>
 
-        <div style={styles.navLinks}>
-          <a href="/shop" style={styles.navLink}>Collections</a>
-          <a href="#about" style={styles.navLink}>À propos</a>
-          <a href="#contact" style={styles.navLink}>Contact</a>
-        </div>
-      </nav>
-
-      <section style={styles.hero}>
-        <p style={styles.brand}>LAIME3D</p>
-
-        <h1 style={styles.title}>
-          Créé avec le cœur.
-          <br />
-          Imprimé avec passion.
-        </h1>
-
-        <p style={styles.subtitle}>
-          Des créations 3D pensées avec soin, pour offrir, décorer ou faire plaisir.
-        </p>
-
-        <a href="/shop" style={styles.mainButton}>
-          Découvrir nos créations
-        </a>
-      </section>
-
-      <section style={styles.section}>
-        <h2 style={styles.sectionTitle}>Nos collections</h2>
-
-        <div style={styles.collections}>
-          {collections.map((collection) => (
-            <a key={collection.title} href={collection.href} style={styles.collectionCard}>
-              <span style={styles.collectionEmoji}>{collection.emoji}</span>
-              <h3>{collection.title}</h3>
-              <p>{collection.text}</p>
-            </a>
-          ))}
-        </div>
-      </section>
-
-      {featured.length > 0 && (
-        <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>⭐ Nos coups de cœur</h2>
-
-          <div style={styles.grid}>
-            {featured.map((product) => (
-              <ProductCard key={product.id} product={product} addToCart={addToCart} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      <section style={styles.section}>
-        <h2 style={styles.sectionTitle}>🆕 Nouveautés</h2>
-
-        <div style={styles.grid}>
-          {latest.map((product) => (
-            <ProductCard key={product.id} product={product} addToCart={addToCart} />
-          ))}
-        </div>
-
-        <a href="/shop" style={styles.secondaryButton}>
-          Voir toute la boutique
-        </a>
-      </section>
-
-      <section style={styles.section}>
-        <h2 style={styles.sectionTitle}>Pourquoi Laime3D ?</h2>
-
-        <div style={styles.reasons}>
-          <div style={styles.reason}>❤️ Créé avec passion</div>
-          <div style={styles.reason}>🎨 Plusieurs couleurs disponibles</div>
-          <div style={styles.reason}>✨ Fabrication artisanale</div>
-          <div style={styles.reason}>📦 Envoi soigné avec suivi</div>
-        </div>
-      </section>
-
-      <section id="about" style={styles.infoSection}>
-        <div>
-          <h2 style={styles.sectionTitle}>À propos</h2>
-          <p style={styles.text}>
-            Laime3D est une petite boutique de créations imprimées en 3D.
-            Chaque pièce est préparée avec attention, du choix du modèle à la finition.
-          </p>
-        </div>
-
-        <div>
-          <h2 style={styles.sectionTitle}>Livraison</h2>
-          <p style={styles.text}>
-            Toutes nos créations sont préparées avec soin avant l'expédition.
-            <br />
-            <br />
-            Les commandes sont généralement expédiées sous <b>24 à 72 heures</b>.
-            Selon la complexité du modèle, les couleurs choisies ou le volume de
-            commandes en cours, ce délai peut être légèrement prolongé.
-            <br />
-            <br />
-            Les colis sont expédiés via <b>Mondial Relay</b> avec un numéro de suivi.
-            Chaque création est soigneusement emballée afin d'arriver en parfait état.
-          </p>
-        </div>
-      </section>
-
-      <section id="contact" style={styles.idea}>
-        <h2 style={styles.ideaTitle}>Une idée en tête ?</h2>
-
-        <h3>Vous rêvez d'une création unique ?</h3>
-
-        <p>Nous adorons relever de nouveaux défis.</p>
+      <div style={styles.card}>
+        <h1 style={styles.title}>📦 Expédier la commande</h1>
 
         <p>
-          Parlez-nous de votre idée, et nous ferons tout notre possible pour lui
-          donner vie.
+          <b>Commande :</b> #{order.id}
         </p>
 
-        <ContactModal />
-      </section>
-
-      <footer style={styles.footer}>
-        <h2 style={styles.footerLogo}>LAIME3D</h2>
-
-        <p style={styles.footerText}>
-          Créé avec le cœur.
-          <br />
-          Imprimé avec passion.
+        <p>
+          <b>Client :</b> {order.customer_name || "Non renseigné"}
         </p>
 
-        <div style={styles.footerContacts}>
-          <a href="mailto:laime3dcontact@yahoo.com" style={styles.footerLink}>
-            ✉️ laime3dcontact@yahoo.com
-          </a>
+        <p>
+          <b>Email :</b> {order.email || "Non renseigné"}
+        </p>
 
-          <a
-            href="https://instagram.com/laime3d"
-            target="_blank"
-            rel="noreferrer"
-            style={styles.footerLink}
-          >
-            📷 @laime3d
-          </a>
-        </div>
-      </footer>
+        <form action={shipOrder} style={styles.form}>
+          <input type="hidden" name="orderId" value={order.id} />
+
+          <label>Numéro de suivi</label>
+          <input
+            name="trackingNumber"
+            defaultValue={order.tracking_number || ""}
+            placeholder="Ex: 123456789"
+            style={styles.input}
+          />
+
+          <button style={styles.button}>
+            Enregistrer et envoyer l’email
+          </button>
+        </form>
+      </div>
     </main>
   );
 }
@@ -228,174 +141,55 @@ export default function HomePage() {
 const styles: any = {
   page: {
     minHeight: "100vh",
+    padding: "40px",
     background: "#0b1f14",
     color: "#e8f5e9",
     fontFamily: "Arial",
   },
-  nav: {
-    padding: "24px 40px",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderBottom: "1px solid #1f4d33",
-    flexWrap: "wrap",
-    gap: "14px",
-  },
-  logo: {
+
+  link: {
     color: "#7CFF9B",
-    letterSpacing: "3px",
-    fontSize: "20px",
     textDecoration: "none",
     fontWeight: "bold",
+    display: "inline-block",
+    marginBottom: "25px",
   },
-  navLinks: {
-    display: "flex",
-    gap: "20px",
-    flexWrap: "wrap",
-  },
-  navLink: {
-    color: "#e8f5e9",
-    textDecoration: "none",
-    fontWeight: "bold",
-  },
-  hero: {
-    minHeight: "70vh",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    textAlign: "center",
-    padding: "40px",
-  },
-  brand: {
-    color: "#7CFF9B",
-    fontSize: "72px",
-    letterSpacing: "8px",
-    fontWeight: "bold",
-    margin: 0,
-  },
-  title: {
-    fontSize: "34px",
-    lineHeight: "1.25",
-    margin: "22px 0 10px",
-  },
-  subtitle: {
+
+  card: {
     maxWidth: "620px",
-    color: "#b8d9c4",
-    fontSize: "18px",
-    lineHeight: "1.6",
-  },
-  mainButton: {
-    display: "inline-block",
-    marginTop: "22px",
-    padding: "14px 24px",
-    background: "#7CFF9B",
-    color: "#03140a",
-    borderRadius: "12px",
-    textDecoration: "none",
-    fontWeight: "bold",
-  },
-  secondaryButton: {
-    display: "inline-block",
-    marginTop: "25px",
-    padding: "12px 20px",
-    background: "#1f4d33",
-    color: "#e8f5e9",
-    borderRadius: "10px",
-    textDecoration: "none",
-    fontWeight: "bold",
-  },
-  section: {
-    padding: "60px 40px",
-  },
-  sectionTitle: {
-    color: "#7CFF9B",
-    fontSize: "34px",
-    marginBottom: "24px",
-  },
-  collections: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: "18px",
-  },
-  collectionCard: {
     background: "#10251a",
     border: "1px solid #1f4d33",
     borderRadius: "18px",
-    padding: "26px",
-    color: "#e8f5e9",
-    textDecoration: "none",
+    padding: "28px",
   },
-  collectionEmoji: {
-    fontSize: "42px",
+
+  title: {
+    color: "#7CFF9B",
+    marginBottom: "20px",
   },
-  grid: {
+
+  form: {
+    marginTop: "25px",
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
-    gap: "18px",
+    gap: "12px",
   },
-  reasons: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: "16px",
-  },
-  reason: {
-    background: "#10251a",
+
+  input: {
+    padding: "12px",
+    borderRadius: "10px",
     border: "1px solid #1f4d33",
-    borderRadius: "14px",
-    padding: "20px",
+    background: "#0b1f14",
+    color: "#fff",
+  },
+
+  button: {
+    marginTop: "12px",
+    padding: "14px",
+    background: "#7CFF9B",
+    color: "#03140a",
+    border: "none",
+    borderRadius: "10px",
     fontWeight: "bold",
-  },
-  infoSection: {
-    padding: "60px 40px",
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-    gap: "24px",
-  },
-  text: {
-    color: "#c8facc",
-    lineHeight: "1.7",
-    fontSize: "17px",
-  },
-  idea: {
-    margin: "40px",
-    padding: "50px 30px",
-    background: "#10251a",
-    border: "1px solid #1f4d33",
-    borderRadius: "24px",
-    textAlign: "center",
-  },
-  ideaTitle: {
-    color: "#7CFF9B",
-    fontSize: "38px",
-  },
-  footer: {
-    padding: "45px 40px",
-    textAlign: "center",
-    color: "#b8d9c4",
-    borderTop: "1px solid #1f4d33",
-  },
-  footerLogo: {
-    color: "#7CFF9B",
-    fontSize: "32px",
-    letterSpacing: "5px",
-    marginBottom: "15px",
-  },
-  footerText: {
-    color: "#b8d9c4",
-    marginBottom: "25px",
-    lineHeight: "1.7",
-  },
-  footerContacts: {
-    display: "flex",
-    justifyContent: "center",
-    gap: "25px",
-    flexWrap: "wrap",
-  },
-  footerLink: {
-    color: "#7CFF9B",
-    textDecoration: "none",
-    fontWeight: "bold",
-    fontSize: "17px",
+    cursor: "pointer",
   },
 };
