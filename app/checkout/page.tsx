@@ -6,6 +6,13 @@ const FREE_SHIPPING_FROM = 69;
 const MONDIAL_RELAY_PRICE = 4.9;
 const HOME_DELIVERY_PRICE = 7.9;
 
+declare global {
+  interface Window {
+    $: any;
+    jQuery: any;
+  }
+}
+
 export default function Checkout() {
   const [cart, setCart] = useState<any[]>([]);
   const [deliveryMethod, setDeliveryMethod] = useState("mondial_relay");
@@ -21,20 +28,112 @@ export default function Checkout() {
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("France");
 
+  const [relaySearchPostalCode, setRelaySearchPostalCode] = useState("");
   const [relay, setRelay] = useState({
     id: "",
     name: "",
     address: "",
     postalCode: "",
     city: "",
+    country: "FR",
   });
 
+  const [widgetReady, setWidgetReady] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("cart");
     if (saved) setCart(JSON.parse(saved));
   }, []);
+
+  useEffect(() => {
+    if (deliveryMethod !== "mondial_relay") return;
+
+    async function loadMondialRelayWidget() {
+      function loadScript(src: string) {
+        return new Promise<void>((resolve, reject) => {
+          if (document.querySelector(`script[src="${src}"]`)) {
+            resolve();
+            return;
+          }
+
+          const script = document.createElement("script");
+          script.src = src;
+          script.async = true;
+          script.onload = () => resolve();
+          script.onerror = () => reject();
+          document.body.appendChild(script);
+        });
+      }
+
+      function loadCss(href: string) {
+        if (document.querySelector(`link[href="${href}"]`)) return;
+
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = href;
+        document.head.appendChild(link);
+      }
+
+      try {
+        loadCss("https://unpkg.com/leaflet/dist/leaflet.css");
+
+        await loadScript("https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js");
+        await loadScript("https://unpkg.com/leaflet/dist/leaflet.js");
+        await loadScript(
+          "https://widget.mondialrelay.com/parcelshoppicker/jquery.plugin.mondialrelay.parcelshoppicker.min.js"
+        );
+
+        setWidgetReady(true);
+      } catch (error) {
+        console.error("Erreur chargement Mondial Relay:", error);
+      }
+    }
+
+    loadMondialRelayWidget();
+  }, [deliveryMethod]);
+
+  useEffect(() => {
+    if (!widgetReady) return;
+    if (deliveryMethod !== "mondial_relay") return;
+    if (!relaySearchPostalCode || relaySearchPostalCode.length < 4) return;
+
+    const brand = process.env.NEXT_PUBLIC_MONDIAL_RELAY_BRAND;
+
+    if (!brand) {
+      console.error("NEXT_PUBLIC_MONDIAL_RELAY_BRAND manquant");
+      return;
+    }
+
+    const $ = window.$;
+
+    if (!$ || !$("#Zone_Widget").MR_ParcelShopPicker) {
+      return;
+    }
+
+    $("#Zone_Widget").empty();
+
+    $("#Zone_Widget").MR_ParcelShopPicker({
+      Target: "#RelayId",
+      Brand: brand,
+      Country: "FR",
+      PostCode: relaySearchPostalCode,
+      ColLivMod: "24R",
+      NbResults: 7,
+      ShowResultsOnMap: true,
+      MapScrollWheel: false,
+      OnParcelShopSelected: function (data: any) {
+        setRelay({
+          id: data.ID || "",
+          name: data.Nom || "",
+          address: data.Adresse1 || "",
+          postalCode: data.CP || "",
+          city: data.Ville || "",
+          country: data.Pays || "FR",
+        });
+      },
+    });
+  }, [widgetReady, deliveryMethod, relaySearchPostalCode]);
 
   const productsTotal = cart.reduce(
     (sum, item) => sum + Number(item.price) * item.qty,
@@ -56,16 +155,6 @@ export default function Checkout() {
     FREE_SHIPPING_FROM - productsTotal
   );
 
-  function fakeChooseRelay() {
-    setRelay({
-      id: "MR-DEMO",
-      name: "Point Relais à connecter",
-      address: "Sélection Mondial Relay bientôt disponible",
-      postalCode: "",
-      city: "",
-    });
-  }
-
   async function order() {
     if (!cart.length) {
       alert("Votre panier est vide.");
@@ -84,8 +173,8 @@ export default function Checkout() {
       }
     }
 
-    if (deliveryMethod === "mondial_relay" && !relay.name) {
-      alert("Merci de choisir un Point Relais.");
+    if (deliveryMethod === "mondial_relay" && !relay.id) {
+      alert("Merci de choisir un Point Relais Mondial Relay.");
       return;
     }
 
@@ -215,9 +304,7 @@ export default function Checkout() {
               >
                 <strong>Mondial Relay</strong>
                 <span>
-                  {productsTotal >= FREE_SHIPPING_FROM
-                    ? "Offert"
-                    : "4,90 €"}
+                  {productsTotal >= FREE_SHIPPING_FROM ? "Offert" : "4,90 €"}
                 </span>
               </button>
 
@@ -233,9 +320,7 @@ export default function Checkout() {
               >
                 <strong>Livraison à domicile</strong>
                 <span>
-                  {productsTotal >= FREE_SHIPPING_FROM
-                    ? "Offert"
-                    : "7,90 €"}
+                  {productsTotal >= FREE_SHIPPING_FROM ? "Offert" : "7,90 €"}
                 </span>
               </button>
             </div>
@@ -243,32 +328,41 @@ export default function Checkout() {
             {deliveryMethod === "mondial_relay" && (
               <div style={styles.deliveryBox}>
                 <p style={styles.text}>
-                  Choisissez un Point Relais Mondial Relay pour recevoir votre
-                  commande.
+                  Entrez votre code postal, puis choisissez votre Point Relais
+                  sur la carte Mondial Relay.
                 </p>
 
-                <button
-                  type="button"
-                  onClick={fakeChooseRelay}
-                  style={styles.secondaryButton}
-                >
-                  Choisir un Point Relais
-                </button>
+                <input
+                  placeholder="Code postal pour trouver un Point Relais *"
+                  value={relaySearchPostalCode}
+                  onChange={(e) => {
+                    setRelaySearchPostalCode(e.target.value);
+                    setRelay({
+                      id: "",
+                      name: "",
+                      address: "",
+                      postalCode: "",
+                      city: "",
+                      country: "FR",
+                    });
+                  }}
+                  style={styles.input}
+                />
 
-                {relay.name && (
+                <input id="RelayId" type="hidden" />
+
+                <div id="Zone_Widget" style={styles.widget} />
+
+                {relay.id && (
                   <div style={styles.relayBox}>
                     <strong>📍 {relay.name}</strong>
                     <p>{relay.address}</p>
                     <p>
                       {relay.postalCode} {relay.city}
                     </p>
+                    <p>Point Relais : {relay.id}</p>
                   </div>
                 )}
-
-                <p style={styles.note}>
-                  Le vrai widget Mondial Relay sera connecté dans l’étape
-                  suivante avec ton compte Pro.
-                </p>
               </div>
             )}
 
@@ -491,14 +585,13 @@ const styles: any = {
     lineHeight: "1.6",
   },
 
-  secondaryButton: {
-    padding: "13px",
-    background: "#1f4d33",
-    color: "#e8f5e9",
-    border: "none",
-    borderRadius: "10px",
-    cursor: "pointer",
-    fontWeight: "bold",
+  widget: {
+    background: "#ffffff",
+    color: "#000000",
+    borderRadius: "12px",
+    overflow: "hidden",
+    minHeight: "420px",
+    padding: "10px",
   },
 
   relayBox: {
@@ -506,11 +599,6 @@ const styles: any = {
     border: "1px solid #1f4d33",
     borderRadius: "12px",
     padding: "14px",
-  },
-
-  note: {
-    color: "#ffd166",
-    fontSize: "13px",
   },
 
   payButton: {
