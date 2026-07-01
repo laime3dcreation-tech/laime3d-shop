@@ -10,6 +10,7 @@ export default function ProductCard({
   addToCart: (product: any) => void;
 }) {
   const [activeImage, setActiveImage] = useState(0);
+
   const [selectedColor, setSelectedColor] = useState(
     product.colors?.[0] || ""
   );
@@ -23,11 +24,16 @@ export default function ProductCard({
 
   return (
     <div style={styles.card}>
-      <img
-        src={product.images?.[activeImage]}
-        alt={product.name}
-        style={styles.mainImage}
-      />
+      <a
+        href={`/product/${product.id}`}
+        style={{ textDecoration: "none", color: "inherit" }}
+      >
+        <img
+          src={product.images?.[activeImage]}
+          alt={product.name}
+          style={styles.mainImage}
+        />
+      </a>
 
       <div style={styles.thumbs}>
         {product.images?.map((img: string, index: number) => (
@@ -47,15 +53,24 @@ export default function ProductCard({
         ))}
       </div>
 
-      <h3 style={styles.name}>{product.name}</h3>
+      <a
+        href={`/product/${product.id}`}
+        style={styles.titleLink}
+      >
+        <h3 style={styles.name}>{product.name}</h3>
+      </a>
 
       {product.description && (
-        <p style={styles.description}>{product.description}</p>
+        <p style={styles.description}>
+          {product.description.length > 90
+            ? product.description.slice(0, 90) + "..."
+            : product.description}
+        </p>
       )}
 
       {product.colors?.length > 0 && (
         <div style={styles.colorsBlock}>
-          <p style={styles.label}>Couleur :</p>
+          <p style={styles.label}>Couleur</p>
 
           <select
             value={selectedColor}
@@ -63,7 +78,7 @@ export default function ProductCard({
             style={styles.select}
           >
             {product.colors.map((color: string) => (
-              <option key={color} value={color}>
+              <option key={color}>
                 {color}
               </option>
             ))}
@@ -73,9 +88,21 @@ export default function ProductCard({
 
       <p style={styles.price}>{product.price} €</p>
 
-      <button onClick={handleAddToCart} style={styles.button}>
-        Ajouter au panier
-      </button>
+      <div style={styles.buttons}>
+        <a
+          href={`/product/${product.id}`}
+          style={styles.detailsButton}
+        >
+          Voir le produit
+        </a>
+
+        <button
+          onClick={handleAddToCart}
+          style={styles.cartButton}
+        >
+          Ajouter
+        </button>
+      </div>
     </div>
   );
 }
@@ -84,41 +111,52 @@ const styles: any = {
   card: {
     background: "#102a1c",
     border: "1px solid #1f4d33",
-    borderRadius: "14px",
-    padding: "12px",
+    borderRadius: "16px",
+    padding: "14px",
     color: "#e8f5e9",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
   },
 
   mainImage: {
     width: "100%",
-    height: "180px",
+    height: "220px",
     objectFit: "cover",
-    borderRadius: "10px",
+    borderRadius: "12px",
+    cursor: "pointer",
   },
 
   thumbs: {
     display: "flex",
-    gap: 6,
-    marginTop: 10,
+    gap: "6px",
+    marginTop: "10px",
     flexWrap: "wrap",
   },
 
   thumb: {
-    width: 40,
-    height: 40,
+    width: "48px",
+    height: "48px",
     objectFit: "cover",
+    borderRadius: "8px",
     cursor: "pointer",
-    borderRadius: 6,
+  },
+
+  titleLink: {
+    textDecoration: "none",
+    color: "#7CFF9B",
   },
 
   name: {
-    marginTop: 10,
+    marginTop: "12px",
+    marginBottom: "8px",
   },
 
   description: {
-    color: "#c8facc",
     fontSize: "14px",
-    lineHeight: "1.4",
+    color: "#c8facc",
+    lineHeight: "1.5",
+    minHeight: "45px",
   },
 
   colorsBlock: {
@@ -132,7 +170,7 @@ const styles: any = {
 
   select: {
     width: "100%",
-    padding: "8px",
+    padding: "10px",
     borderRadius: "8px",
     border: "1px solid #1f4d33",
     background: "#0b1f14",
@@ -140,17 +178,36 @@ const styles: any = {
   },
 
   price: {
+    marginTop: "15px",
+    fontSize: "22px",
     color: "#7CFF9B",
     fontWeight: "bold",
-    marginTop: "12px",
   },
 
-  button: {
-    marginTop: 10,
-    width: "100%",
-    padding: 8,
+  buttons: {
+    display: "flex",
+    gap: "10px",
+    marginTop: "16px",
+  },
+
+  detailsButton: {
+    flex: 1,
+    textAlign: "center",
+    padding: "11px",
+    background: "#1f4d33",
+    color: "#ffffff",
+    borderRadius: "8px",
+    textDecoration: "none",
+    fontWeight: "bold",
+  },
+
+  cartButton: {
+    flex: 1,
+    padding: "11px",
     background: "#7CFF9B",
+    color: "#03140a",
     border: "none",
+    borderRadius: "8px",
     cursor: "pointer",
     fontWeight: "bold",
   },
