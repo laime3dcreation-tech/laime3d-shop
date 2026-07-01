@@ -4,6 +4,13 @@ import { revalidatePath } from "next/cache";
 
 export const dynamic = "force-dynamic";
 
+const categories = [
+  { value: "flexible", label: "Figurines flexibles" },
+  { value: "lamps", label: "Lampes" },
+  { value: "vases", label: "Vases" },
+  { value: "keychains", label: "Porte-clés" },
+];
+
 async function updateProduct(formData: FormData) {
   "use server";
 
@@ -41,9 +48,7 @@ async function updateProduct(formData: FormData) {
         upsert: false,
       });
 
-    if (error) {
-      throw new Error(error.message);
-    }
+    if (error) throw new Error(error.message);
 
     const { data } = supabaseAdmin.storage
       .from("product-images")
@@ -66,6 +71,7 @@ async function updateProduct(formData: FormData) {
 
   revalidatePath("/admin/products");
   revalidatePath("/shop");
+  revalidatePath("/");
 
   redirect("/admin/products");
 }
@@ -104,6 +110,7 @@ export default async function EditProductPage({
 
       <form action={updateProduct} style={styles.form}>
         <input type="hidden" name="id" value={product.id} />
+
         <input
           type="hidden"
           name="existingImages"
@@ -114,7 +121,18 @@ export default async function EditProductPage({
         <input name="name" defaultValue={product.name} style={styles.input} />
 
         <label>Catégorie</label>
-        <input name="category" defaultValue={product.category} style={styles.input} />
+        <select
+          name="category"
+          defaultValue={product.category}
+          style={styles.input}
+          required
+        >
+          {categories.map((cat) => (
+            <option key={cat.value} value={cat.value}>
+              {cat.label}
+            </option>
+          ))}
+        </select>
 
         <label>Prix (€)</label>
         <input
@@ -147,7 +165,8 @@ export default async function EditProductPage({
             <label key={img} style={styles.imageBox}>
               <img src={img} alt={product.name} style={styles.image} />
               <span>
-                <input type="checkbox" name="removeImages" value={img} /> Supprimer
+                <input type="checkbox" name="removeImages" value={img} />{" "}
+                Supprimer
               </span>
             </label>
           ))}
