@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { revalidatePath } from "next/cache";
 
@@ -81,6 +82,13 @@ export default async function AdminProductsPage() {
                   </button>
                 </form>
               )}
+
+              <a
+                href={`/admin/products/${product.id}/delete`}
+                style={styles.deleteLink}
+              >
+                🗑️ Supprimer
+              </a>
             </div>
           </div>
         ))}
@@ -183,6 +191,16 @@ const styles: any = {
     border: "none",
     borderRadius: "8px",
     cursor: "pointer",
+    fontWeight: "bold",
+  },
+
+  deleteLink: {
+    display: "inline-block",
+    padding: "10px 14px",
+    background: "#ff4d4d",
+    color: "#ffffff",
+    borderRadius: "8px",
+    textDecoration: "none",
     fontWeight: "bold",
   },
 };
