@@ -10,7 +10,6 @@ declare global {
   interface Window {
     $: any;
     jQuery: any;
-    L: any;
   }
 }
 
@@ -54,7 +53,7 @@ export default function Checkout() {
   useEffect(() => {
     if (deliveryMethod !== "mondial_relay") return;
 
-    async function loadMondialRelayWidget() {
+    async function loadWidget() {
       function loadScript(src: string) {
         return new Promise<void>((resolve, reject) => {
           if (document.querySelector(`script[src="${src}"]`)) {
@@ -81,34 +80,38 @@ export default function Checkout() {
       }
 
       try {
-        setRelayStatus("Chargement du module Mondial Relay...");
+        setRelayStatus("Chargement de Mondial Relay...");
 
         loadCss("https://unpkg.com/leaflet/dist/leaflet.css");
 
-        await loadScript("https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js");
-        await loadScript("https://unpkg.com/leaflet/dist/leaflet.js");
         await loadScript(
-         "https://widget.mondialrelay.com/parcelshoppicker/jquery.plugin.mondialrelay.parcelshoppicker.min.js"
+          "https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"
+        );
+
+        window.jQuery = window.$;
+
+        await loadScript("https://unpkg.com/leaflet/dist/leaflet.js");
+
+        await loadScript(
+          "https://widget.mondialrelay.com/parcelshop-picker/jquery.plugin.mondialrelay.parcelshoppicker.min.js"
         );
 
         setWidgetReady(true);
         setRelayStatus("Entrez votre code postal pour afficher les Points Relais.");
       } catch (error) {
-        console.error("Erreur chargement Mondial Relay:", error);
-        setRelayStatus(
-          "Impossible de charger Mondial Relay. Vérifiez votre connexion ou réessayez."
-        );
+        console.error("Mondial Relay loading error:", error);
+        setRelayStatus("Impossible de charger Mondial Relay.");
       }
     }
 
-    loadMondialRelayWidget();
+    loadWidget();
   }, [deliveryMethod]);
 
   useEffect(() => {
     if (!widgetReady) return;
     if (deliveryMethod !== "mondial_relay") return;
 
-    if (!relaySearchPostalCode || relaySearchPostalCode.length < 4) {
+    if (relaySearchPostalCode.length < 4) {
       setRelayStatus("Entrez votre code postal pour afficher les Points Relais.");
       return;
     }
@@ -123,43 +126,47 @@ export default function Checkout() {
     const $ = window.$;
 
     if (!$ || !$.fn || !$.fn.MR_ParcelShopPicker) {
-      setRelayStatus("Le module Mondial Relay n'est pas encore prêt.");
+      setRelayStatus("Le module Mondial Relay n'est pas prêt.");
       return;
     }
 
     setRelayStatus("Recherche des Points Relais...");
 
-    $("#Zone_Widget").empty();
+    setTimeout(() => {
+      try {
+        $("#Zone_Widget").empty();
 
-    try {
-      $("#Zone_Widget").MR_ParcelShopPicker({
-        Target: "#RelayId",
-        Brand: brand,
-        Country: "FR",
-        PostCode: relaySearchPostalCode,
-        ColLivMod: "24R",
-        NbResults: 7,
-        Responsive: true,
-        ShowResultsOnMap: true,
-        MapScrollWheel: false,
-        Theme: "mondialrelay",
-        OnParcelShopSelected: function (data: any) {
-          setRelay({
-            id: data.ID || "",
-            name: data.Nom || "",
-            address: data.Adresse1 || "",
-            postalCode: data.CP || "",
-            city: data.Ville || "",
-            country: data.Pays || "FR",
-          });
+        $("#Zone_Widget").MR_ParcelShopPicker({
+          Target: "#RelayId",
+          TargetDisplay: "#RelayDisplay",
+          TargetDisplayInfoPR: "#RelayInfo",
+          Brand: brand,
+          Country: "FR",
+          PostCode: relaySearchPostalCode,
+          ColLivMod: "24R",
+          NbResults: 7,
+          Responsive: true,
+          ShowResultsOnMap: true,
+          MapScrollWheel: false,
+          Theme: "mondialrelay",
+          OnParcelShopSelected: function (data: any) {
+            setRelay({
+              id: data.ID || "",
+              name: data.Nom || "",
+              address: data.Adresse1 || "",
+              postalCode: data.CP || "",
+              city: data.Ville || "",
+              country: data.Pays || "FR",
+            });
 
-          setRelayStatus("Point Relais sélectionné.");
-        },
-      });
-    } catch (error) {
-      console.error("Erreur initialisation Mondial Relay:", error);
-      setRelayStatus("Erreur lors de l'affichage des Points Relais.");
-    }
+            setRelayStatus("Point Relais sélectionné.");
+          },
+        });
+      } catch (error) {
+        console.error("Mondial Relay init error:", error);
+        setRelayStatus("Erreur lors de l'affichage des Points Relais.");
+      }
+    }, 300);
   }, [widgetReady, deliveryMethod, relaySearchPostalCode]);
 
   const productsTotal = cart.reduce(
@@ -377,6 +384,8 @@ export default function Checkout() {
                 <p style={styles.status}>{relayStatus}</p>
 
                 <input id="RelayId" type="hidden" />
+                <input id="RelayDisplay" type="hidden" />
+                <div id="RelayInfo" style={{ display: "none" }} />
 
                 {relaySearchPostalCode.length >= 4 && (
                   <div id="Zone_Widget" style={styles.widget} />
@@ -607,7 +616,7 @@ const styles: any = {
     color: "#000000",
     borderRadius: "12px",
     overflow: "hidden",
-    minHeight: "520px",
+    minHeight: "560px",
     padding: "10px",
   },
   relayBox: {
