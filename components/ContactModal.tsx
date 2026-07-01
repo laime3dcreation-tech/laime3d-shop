@@ -46,6 +46,12 @@ export default function ContactModal() {
     }
   }
 
+  function closeModal() {
+    setOpen(false);
+    setSent(false);
+    setError("");
+  }
+
   return (
     <>
       <button onClick={() => setOpen(true)} style={styles.mainButton}>
@@ -55,30 +61,73 @@ export default function ContactModal() {
       {open && (
         <div style={styles.overlay}>
           <div style={styles.modal}>
-            <button onClick={() => setOpen(false)} style={styles.close}>
+            <button onClick={closeModal} style={styles.close}>
               ×
             </button>
 
             <h2 style={styles.title}>Une idée en tête ?</h2>
 
             {!sent ? (
-              <form onSubmit={sendMessage} style={styles.form}>
-                <input name="firstName" placeholder="Prénom" required style={styles.input} />
-                <input name="lastName" placeholder="Nom" required style={styles.input} />
-                <input name="email" type="email" placeholder="Email" required style={styles.input} />
-                <input name="phone" placeholder="Téléphone" style={styles.input} />
-                <textarea name="message" placeholder="Votre idée..." required style={styles.textarea} />
+              <>
+                <p style={styles.intro}>
+                  Vous rêvez d'une création unique ? Parlez-nous de votre idée,
+                  nous serons ravis de vous répondre.
+                </p>
 
-                {error && <p style={styles.error}>{error}</p>}
+                <form onSubmit={sendMessage} style={styles.form}>
+                  <input
+                    name="firstName"
+                    placeholder="Prénom"
+                    required
+                    style={styles.input}
+                  />
 
-                <button disabled={loading} style={styles.submit}>
-                  {loading ? "Envoi..." : "Envoyer"}
-                </button>
-              </form>
+                  <input
+                    name="lastName"
+                    placeholder="Nom"
+                    required
+                    style={styles.input}
+                  />
+
+                  <input
+                    name="email"
+                    type="email"
+                    placeholder="Email"
+                    required
+                    style={styles.input}
+                  />
+
+                  <input
+                    name="phone"
+                    placeholder="Téléphone"
+                    style={styles.input}
+                  />
+
+                  <textarea
+                    name="message"
+                    placeholder="Votre idée..."
+                    required
+                    style={styles.textarea}
+                  />
+
+                  {error && <p style={styles.error}>{error}</p>}
+
+                  <button disabled={loading} style={styles.submit}>
+                    {loading ? "Envoi..." : "Envoyer"}
+                  </button>
+                </form>
+              </>
             ) : (
-              <p style={styles.success}>
-                Merci pour votre message ! Nous vous répondrons dès que possible.
-              </p>
+              <div style={styles.successBox}>
+                <h3 style={styles.successTitle}>Merci pour votre message !</h3>
+                <p style={styles.success}>
+                  Nous vous répondrons dès que possible.
+                </p>
+
+                <button onClick={closeModal} style={styles.submit}>
+                  Fermer
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -130,7 +179,12 @@ const styles: any = {
   },
   title: {
     color: "#7CFF9B",
-    marginBottom: "20px",
+    marginBottom: "12px",
+  },
+  intro: {
+    color: "#c8facc",
+    lineHeight: "1.6",
+    marginBottom: "18px",
   },
   form: {
     display: "grid",
@@ -160,6 +214,13 @@ const styles: any = {
     borderRadius: "10px",
     fontWeight: "bold",
     cursor: "pointer",
+  },
+  successBox: {
+    display: "grid",
+    gap: "12px",
+  },
+  successTitle: {
+    color: "#7CFF9B",
   },
   success: {
     fontSize: "18px",
