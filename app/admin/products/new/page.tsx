@@ -1,6 +1,16 @@
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { redirect } from "next/navigation";
 
+const categories = [
+  { value: "cats", label: "Chats" },
+  { value: "dogs", label: "Chiens" },
+  { value: "dragons", label: "Dragons" },
+  { value: "reptiles", label: "Reptiles" },
+  { value: "keychains", label: "Porte-clés" },
+  { value: "lamps", label: "Lampes" },
+  { value: "vases", label: "Vases" },
+];
+
 async function createProduct(formData: FormData) {
   "use server";
 
@@ -25,22 +35,18 @@ async function createProduct(formData: FormData) {
       .toString(36)
       .substring(2)}.${fileExt}`;
 
-    const filePath = `${fileName}`;
-
     const { error } = await supabaseAdmin.storage
       .from("product-images")
-      .upload(filePath, file, {
+      .upload(fileName, file, {
         cacheControl: "3600",
         upsert: false,
       });
 
-    if (error) {
-      throw new Error(error.message);
-    }
+    if (error) throw new Error(error.message);
 
     const { data } = supabaseAdmin.storage
       .from("product-images")
-      .getPublicUrl(filePath);
+      .getPublicUrl(fileName);
 
     imageUrls.push(data.publicUrl);
   }
@@ -72,12 +78,13 @@ export default function NewProductPage() {
         <input name="name" style={styles.input} required />
 
         <label>Catégorie</label>
-        <input
-          name="category"
-          placeholder="cats, dogs, reptiles..."
-          style={styles.input}
-          required
-        />
+        <select name="category" style={styles.input} required>
+          {categories.map((cat) => (
+            <option key={cat.value} value={cat.value}>
+              {cat.label}
+            </option>
+          ))}
+        </select>
 
         <label>Prix (€)</label>
         <input
@@ -121,26 +128,22 @@ const styles: any = {
     color: "#e8f5e9",
     fontFamily: "Arial",
   },
-
   title: {
     color: "#7CFF9B",
     fontSize: "36px",
     marginBottom: "20px",
   },
-
   link: {
     color: "#7CFF9B",
     display: "inline-block",
     marginBottom: "25px",
   },
-
   form: {
     maxWidth: "600px",
     display: "flex",
     flexDirection: "column",
     gap: "10px",
   },
-
   input: {
     padding: "12px",
     borderRadius: "8px",
@@ -148,7 +151,6 @@ const styles: any = {
     background: "#102a1c",
     color: "#fff",
   },
-
   textarea: {
     padding: "12px",
     borderRadius: "8px",
@@ -158,7 +160,6 @@ const styles: any = {
     minHeight: "110px",
     resize: "vertical",
   },
-
   button: {
     marginTop: "20px",
     padding: "14px",
