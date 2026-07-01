@@ -10,6 +10,7 @@ declare global {
   interface Window {
     $: any;
     jQuery: any;
+    L: any;
   }
 }
 
@@ -29,6 +30,10 @@ export default function Checkout() {
   const [country, setCountry] = useState("France");
 
   const [relaySearchPostalCode, setRelaySearchPostalCode] = useState("");
+  const [relayStatus, setRelayStatus] = useState(
+    "Entrez votre code postal pour afficher les Points Relais."
+  );
+
   const [relay, setRelay] = useState({
     id: "",
     name: "",
@@ -59,9 +64,9 @@ export default function Checkout() {
 
           const script = document.createElement("script");
           script.src = src;
-          script.async = true;
+          script.async = false;
           script.onload = () => resolve();
-          script.onerror = () => reject();
+          script.onerror = () => reject(new Error(src));
           document.body.appendChild(script);
         });
       }
@@ -76,17 +81,23 @@ export default function Checkout() {
       }
 
       try {
+        setRelayStatus("Chargement du module Mondial Relay...");
+
         loadCss("https://unpkg.com/leaflet/dist/leaflet.css");
 
         await loadScript("https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js");
         await loadScript("https://unpkg.com/leaflet/dist/leaflet.js");
         await loadScript(
-          "https://widget.mondialrelay.com/parcelshoppicker/jquery.plugin.mondialrelay.parcelshoppicker.min.js"
+          "https://widget.mondialrelay.com/parcelshop-picker/jquery.plugin.mondialrelay.parcelshoppicker.min.js"
         );
 
         setWidgetReady(true);
+        setRelayStatus("Entrez votre code postal pour afficher les Points Relais.");
       } catch (error) {
         console.error("Erreur chargement Mondial Relay:", error);
+        setRelayStatus(
+          "Impossible de charger Mondial Relay. Vérifiez votre connexion ou réessayez."
+        );
       }
     }
 
@@ -96,43 +107,59 @@ export default function Checkout() {
   useEffect(() => {
     if (!widgetReady) return;
     if (deliveryMethod !== "mondial_relay") return;
-    if (!relaySearchPostalCode || relaySearchPostalCode.length < 4) return;
+
+    if (!relaySearchPostalCode || relaySearchPostalCode.length < 4) {
+      setRelayStatus("Entrez votre code postal pour afficher les Points Relais.");
+      return;
+    }
 
     const brand = process.env.NEXT_PUBLIC_MONDIAL_RELAY_BRAND;
 
     if (!brand) {
-      console.error("NEXT_PUBLIC_MONDIAL_RELAY_BRAND manquant");
+      setRelayStatus("Configuration Mondial Relay manquante.");
       return;
     }
 
     const $ = window.$;
 
-    if (!$ || !$("#Zone_Widget").MR_ParcelShopPicker) {
+    if (!$ || !$.fn || !$.fn.MR_ParcelShopPicker) {
+      setRelayStatus("Le module Mondial Relay n'est pas encore prêt.");
       return;
     }
 
+    setRelayStatus("Recherche des Points Relais...");
+
     $("#Zone_Widget").empty();
 
-    $("#Zone_Widget").MR_ParcelShopPicker({
-      Target: "#RelayId",
-      Brand: brand,
-      Country: "FR",
-      PostCode: relaySearchPostalCode,
-      ColLivMod: "24R",
-      NbResults: 7,
-      ShowResultsOnMap: true,
-      MapScrollWheel: false,
-      OnParcelShopSelected: function (data: any) {
-        setRelay({
-          id: data.ID || "",
-          name: data.Nom || "",
-          address: data.Adresse1 || "",
-          postalCode: data.CP || "",
-          city: data.Ville || "",
-          country: data.Pays || "FR",
-        });
-      },
-    });
+    try {
+      $("#Zone_Widget").MR_ParcelShopPicker({
+        Target: "#RelayId",
+        Brand: brand,
+        Country: "FR",
+        PostCode: relaySearchPostalCode,
+        ColLivMod: "24R",
+        NbResults: 7,
+        Responsive: true,
+        ShowResultsOnMap: true,
+        MapScrollWheel: false,
+        Theme: "mondialrelay",
+        OnParcelShopSelected: function (data: any) {
+          setRelay({
+            id: data.ID || "",
+            name: data.Nom || "",
+            address: data.Adresse1 || "",
+            postalCode: data.CP || "",
+            city: data.Ville || "",
+            country: data.Pays || "FR",
+          });
+
+          setRelayStatus("Point Relais sélectionné.");
+        },
+      });
+    } catch (error) {
+      console.error("Erreur initialisation Mondial Relay:", error);
+      setRelayStatus("Erreur lors de l'affichage des Points Relais.");
+    }
   }, [widgetReady, deliveryMethod, relaySearchPostalCode]);
 
   const productsTotal = cart.reduce(
@@ -286,9 +313,7 @@ export default function Checkout() {
                 pour profiter de la livraison offerte 🎁
               </p>
             ) : (
-              <p style={styles.freeShippingSuccess}>
-                🎉 Livraison offerte !
-              </p>
+              <p style={styles.freeShippingSuccess}>🎉 Livraison offerte !</p>
             )}
 
             <div style={styles.deliveryOptions}>
@@ -349,9 +374,13 @@ export default function Checkout() {
                   style={styles.input}
                 />
 
+                <p style={styles.status}>{relayStatus}</p>
+
                 <input id="RelayId" type="hidden" />
 
-                <div id="Zone_Widget" style={styles.widget} />
+                {relaySearchPostalCode.length >= 4 && (
+                  <div id="Zone_Widget" style={styles.widget} />
+                )}
 
                 {relay.id && (
                   <div style={styles.relayBox}>
@@ -468,7 +497,6 @@ const styles: any = {
     padding: "40px",
     fontFamily: "Arial",
   },
-
   nav: {
     display: "flex",
     justifyContent: "space-between",
@@ -477,7 +505,6 @@ const styles: any = {
     flexWrap: "wrap",
     gap: "12px",
   },
-
   logo: {
     color: "#7CFF9B",
     textDecoration: "none",
@@ -485,31 +512,26 @@ const styles: any = {
     fontWeight: "bold",
     letterSpacing: "4px",
   },
-
   navLink: {
     color: "#7CFF9B",
     textDecoration: "none",
     fontWeight: "bold",
   },
-
   title: {
     color: "#7CFF9B",
     fontSize: "38px",
     marginBottom: "30px",
   },
-
   layout: {
     display: "grid",
     gridTemplateColumns: "1fr 380px",
     gap: "24px",
     alignItems: "start",
   },
-
   form: {
     display: "grid",
     gap: "20px",
   },
-
   card: {
     background: "#10251a",
     border: "1px solid #1f4d33",
@@ -518,13 +540,11 @@ const styles: any = {
     display: "grid",
     gap: "14px",
   },
-
   twoColumns: {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
     gap: "12px",
   },
-
   input: {
     width: "100%",
     padding: "13px",
@@ -534,14 +554,12 @@ const styles: any = {
     color: "#fff",
     boxSizing: "border-box",
   },
-
   freeShippingInfo: {
     color: "#ffd166",
     background: "#1a2d19",
     padding: "12px",
     borderRadius: "10px",
   },
-
   freeShippingSuccess: {
     color: "#7CFF9B",
     background: "#12301f",
@@ -549,13 +567,11 @@ const styles: any = {
     borderRadius: "10px",
     fontWeight: "bold",
   },
-
   deliveryOptions: {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
     gap: "12px",
   },
-
   deliveryButton: {
     padding: "16px",
     borderRadius: "12px",
@@ -568,39 +584,38 @@ const styles: any = {
     gap: "8px",
     textAlign: "left",
   },
-
   deliveryButtonActive: {
     border: "2px solid #7CFF9B",
     background: "#12301f",
   },
-
   deliveryBox: {
     display: "grid",
     gap: "12px",
     marginTop: "10px",
   },
-
   text: {
     color: "#c8facc",
     lineHeight: "1.6",
   },
-
+  status: {
+    color: "#ffd166",
+    fontSize: "14px",
+    margin: 0,
+  },
   widget: {
     background: "#ffffff",
     color: "#000000",
     borderRadius: "12px",
     overflow: "hidden",
-    minHeight: "420px",
+    minHeight: "520px",
     padding: "10px",
   },
-
   relayBox: {
     background: "#0b1f14",
     border: "1px solid #1f4d33",
     borderRadius: "12px",
     padding: "14px",
   },
-
   payButton: {
     padding: "16px",
     background: "#7CFF9B",
@@ -611,7 +626,6 @@ const styles: any = {
     fontWeight: "bold",
     fontSize: "16px",
   },
-
   summary: {
     background: "#10251a",
     border: "1px solid #1f4d33",
@@ -620,25 +634,21 @@ const styles: any = {
     position: "sticky",
     top: "20px",
   },
-
   item: {
     display: "flex",
     justifyContent: "space-between",
     gap: "12px",
     marginBottom: "14px",
   },
-
   color: {
     color: "#7CFF9B",
     fontSize: "13px",
   },
-
   totalRow: {
     display: "flex",
     justifyContent: "space-between",
     marginTop: "12px",
   },
-
   finalTotal: {
     display: "flex",
     justifyContent: "space-between",
