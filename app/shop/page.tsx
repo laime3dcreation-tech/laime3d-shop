@@ -6,13 +6,10 @@ import ProductCard from "@/components/ProductCard";
 
 const categories = [
   { value: "all", label: "Tous" },
-  { value: "cats", label: "Chats" },
-  { value: "dogs", label: "Chiens" },
-  { value: "dragons", label: "Dragons" },
-  { value: "reptiles", label: "Reptiles" },
-  { value: "keychains", label: "Porte-clés" },
+  { value: "flexible", label: "Figurines flexibles" },
   { value: "lamps", label: "Lampes" },
   { value: "vases", label: "Vases" },
+  { value: "keychains", label: "Porte-clés" },
 ];
 
 export default function Shop() {
@@ -135,7 +132,7 @@ export default function Shop() {
       <section style={styles.hero}>
         <h1 style={styles.title}>Boutique Laime3D</h1>
         <p style={styles.subtitle}>
-          Créations 3D originales, personnalisables et fabriquées avec soin.
+          Créé avec le cœur. Imprimé avec passion.
         </p>
       </section>
 
@@ -199,16 +196,12 @@ export default function Shop() {
                 <strong>{item.name}</strong>
 
                 {item.selectedColor && (
-                  <div style={styles.color}>
-                    Couleur : {item.selectedColor}
-                  </div>
+                  <div style={styles.color}>Couleur : {item.selectedColor}</div>
                 )}
 
                 <div style={styles.qty}>
                   <button
-                    onClick={() =>
-                      decreaseQty(item.id, item.selectedColor)
-                    }
+                    onClick={() => decreaseQty(item.id, item.selectedColor)}
                     style={styles.qtyButton}
                   >
                     -
@@ -217,9 +210,7 @@ export default function Shop() {
                   <span>{item.qty}</span>
 
                   <button
-                    onClick={() =>
-                      increaseQty(item.id, item.selectedColor)
-                    }
+                    onClick={() => increaseQty(item.id, item.selectedColor)}
                     style={styles.qtyButton}
                   >
                     +
@@ -231,9 +222,7 @@ export default function Shop() {
                 <div>{Number(item.price) * item.qty}€</div>
 
                 <button
-                  onClick={() =>
-                    removeItem(item.id, item.selectedColor)
-                  }
+                  onClick={() => removeItem(item.id, item.selectedColor)}
                   style={styles.remove}
                 >
                   Retirer
@@ -247,9 +236,7 @@ export default function Shop() {
           <h3>Total : {total}€</h3>
 
           <a href="/checkout">
-            <button style={styles.checkout}>
-              Procéder au paiement →
-            </button>
+            <button style={styles.checkout}>Procéder au paiement →</button>
           </a>
         </aside>
       </div>
