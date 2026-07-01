@@ -1,24 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
-export default function ProductPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function ProductPage() {
+  const params = useParams();
+  const id = params.id as string;
+
   const [product, setProduct] = useState<any>(null);
   const [activeImage, setActiveImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState("");
   const [qty, setQty] = useState(1);
 
   useEffect(() => {
+    if (!id) return;
+
     async function loadProduct() {
       const { data, error } = await supabase
         .from("products")
         .select("*")
-        .eq("id", params.id)
+        .eq("id", id)
         .single();
 
       if (error) {
@@ -31,7 +33,7 @@ export default function ProductPage({
     }
 
     loadProduct();
-  }, [params.id]);
+  }, [id]);
 
   function addToCart() {
     if (!product) return;
@@ -146,10 +148,7 @@ export default function ProductPage({
 
             <span style={styles.qtyNumber}>{qty}</span>
 
-            <button
-              onClick={() => setQty(qty + 1)}
-              style={styles.qtyButton}
-            >
+            <button onClick={() => setQty(qty + 1)} style={styles.qtyButton}>
               +
             </button>
           </div>
