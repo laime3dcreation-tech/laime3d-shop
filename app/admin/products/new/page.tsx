@@ -2,13 +2,10 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { redirect } from "next/navigation";
 
 const categories = [
-  { value: "cats", label: "Chats" },
-  { value: "dogs", label: "Chiens" },
-  { value: "dragons", label: "Dragons" },
-  { value: "reptiles", label: "Reptiles" },
-  { value: "keychains", label: "Porte-clés" },
+  { value: "flexible", label: "Figurines flexibles" },
   { value: "lamps", label: "Lampes" },
   { value: "vases", label: "Vases" },
+  { value: "keychains", label: "Porte-clés" },
 ];
 
 async function createProduct(formData: FormData) {
@@ -59,6 +56,7 @@ async function createProduct(formData: FormData) {
     colors,
     images: imageUrls,
     active: true,
+    featured: false,
   });
 
   redirect("/admin/products");
@@ -128,22 +126,26 @@ const styles: any = {
     color: "#e8f5e9",
     fontFamily: "Arial",
   },
+
   title: {
     color: "#7CFF9B",
     fontSize: "36px",
     marginBottom: "20px",
   },
+
   link: {
     color: "#7CFF9B",
     display: "inline-block",
     marginBottom: "25px",
   },
+
   form: {
     maxWidth: "600px",
     display: "flex",
     flexDirection: "column",
     gap: "10px",
   },
+
   input: {
     padding: "12px",
     borderRadius: "8px",
@@ -151,6 +153,7 @@ const styles: any = {
     background: "#102a1c",
     color: "#fff",
   },
+
   textarea: {
     padding: "12px",
     borderRadius: "8px",
@@ -160,6 +163,7 @@ const styles: any = {
     minHeight: "110px",
     resize: "vertical",
   },
+
   button: {
     marginTop: "20px",
     padding: "14px",
