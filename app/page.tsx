@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import ProductCard from "@/components/ProductCard";
+import ContactModal from "@/components/ContactModal";
 
 const collections = [
   {
@@ -191,9 +192,7 @@ export default function HomePage() {
           donner vie.
         </p>
 
-        <a href="mailto:laime3dcreation@gmail.com" style={styles.mainButton}>
-          Parlons de votre projet
-        </a>
+        <ContactModal />
       </section>
 
       <footer style={styles.footer}>
