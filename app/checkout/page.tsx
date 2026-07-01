@@ -88,7 +88,7 @@ export default function Checkout() {
         await loadScript("https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js");
         await loadScript("https://unpkg.com/leaflet/dist/leaflet.js");
         await loadScript(
-          "https://widget.mondialrelay.com/parcelshop-picker/jquery.plugin.mondialrelay.parcelshoppicker.min.js"
+         "https://widget.mondialrelay.com/parcelshoppicker/jquery.plugin.mondialrelay.parcelshoppicker.min.js"
         );
 
         setWidgetReady(true);
