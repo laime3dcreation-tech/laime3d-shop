@@ -5,10 +5,47 @@ import { supabase } from "@/lib/supabase";
 import ProductCard from "@/components/ProductCard";
 
 const collections = [
-  { title: "Figurines flexibles", emoji: "🐉", href: "/shop?category=flexible" },
-  { title: "Lampes", emoji: "💡", href: "/shop?category=lamps" },
-  { title: "Vases", emoji: "🏺", href: "/shop?category=vases" },
-  { title: "Porte-clés", emoji: "🔑", href: "/shop?category=keychains" },
+  {
+    title: "Figurines flexibles",
+    text: "Créations articulées, ludiques et originales.",
+    emoji: "🐉",
+    href: "/shop?category=flexible",
+  },
+  {
+    title: "Lampes",
+    text: "Objets lumineux pour une ambiance unique.",
+    emoji: "💡",
+    href: "/shop?category=lamps",
+  },
+  {
+    title: "Vases",
+    text: "Décoration imprimée en 3D avec soin.",
+    emoji: "🏺",
+    href: "/shop?category=vases",
+  },
+  {
+    title: "Porte-clés",
+    text: "Petites créations à offrir ou à garder.",
+    emoji: "🔑",
+    href: "/shop?category=keychains",
+  },
+];
+
+const faq = [
+  {
+    question: "Puis-je choisir la couleur ?",
+    answer: "Oui, les couleurs disponibles sont indiquées sur chaque produit.",
+  },
+  {
+    question: "Puis-je demander une création personnalisée ?",
+    answer:
+      "Oui, vous pouvez nous parler de votre idée et nous verrons ce qu'il est possible de créer.",
+  },
+  {
+    question: "Comment se passe la livraison ?",
+    answer:
+      "Les commandes sont préparées avec soin puis envoyées à l'adresse indiquée lors du paiement.",
+  },
 ];
 
 export default function HomePage() {
@@ -41,36 +78,45 @@ export default function HomePage() {
         item.id === product.id && item.selectedColor === product.selectedColor
     );
 
-    let updatedCart;
-
-    if (found) {
-      updatedCart = cart.map((item: any) =>
-        item.id === product.id && item.selectedColor === product.selectedColor
-          ? { ...item, qty: item.qty + 1 }
-          : item
-      );
-    } else {
-      updatedCart = [...cart, { ...product, qty: 1 }];
-    }
+    const updatedCart = found
+      ? cart.map((item: any) =>
+          item.id === product.id && item.selectedColor === product.selectedColor
+            ? { ...item, qty: item.qty + 1 }
+            : item
+        )
+      : [...cart, { ...product, qty: 1 }];
 
     localStorage.setItem("cart", JSON.stringify(updatedCart));
   }
 
   return (
     <main style={styles.page}>
-      <section style={styles.hero}>
-        <div>
-          <p style={styles.small}>LAIME3D</p>
-          <h1 style={styles.heroTitle}>
-            Créé avec le cœur.
-            <br />
-            Imprimé avec passion.
-          </h1>
-
-          <a href="/shop" style={styles.mainButton}>
-            Découvrir nos créations
-          </a>
+      <nav style={styles.nav}>
+        <strong style={styles.logo}>LAIME3D</strong>
+        <div style={styles.navLinks}>
+          <a href="/shop" style={styles.navLink}>Collections</a>
+          <a href="#faq" style={styles.navLink}>FAQ</a>
+          <a href="#contact" style={styles.navLink}>Contact</a>
         </div>
+      </nav>
+
+      <section style={styles.hero}>
+        <p style={styles.brand}>LAIME3D</p>
+
+        <h1 style={styles.title}>
+          Créé avec le cœur.
+          <br />
+          Imprimé avec passion.
+        </h1>
+
+        <p style={styles.subtitle}>
+          Des créations 3D pensées avec soin, pour offrir, décorer ou faire
+          plaisir.
+        </p>
+
+        <a href="/shop" style={styles.mainButton}>
+          Découvrir nos créations
+        </a>
       </section>
 
       <section style={styles.section}>
@@ -81,6 +127,7 @@ export default function HomePage() {
             <a key={collection.title} href={collection.href} style={styles.collectionCard}>
               <span style={styles.collectionEmoji}>{collection.emoji}</span>
               <h3>{collection.title}</h3>
+              <p>{collection.text}</p>
             </a>
           ))}
         </div>
@@ -89,7 +136,6 @@ export default function HomePage() {
       {featured.length > 0 && (
         <section style={styles.section}>
           <h2 style={styles.sectionTitle}>⭐ Nos coups de cœur</h2>
-
           <div style={styles.grid}>
             {featured.map((product) => (
               <ProductCard key={product.id} product={product} addToCart={addToCart} />
@@ -123,6 +169,38 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section style={styles.infoSection}>
+        <div>
+          <h2 style={styles.sectionTitle}>À propos</h2>
+          <p style={styles.text}>
+            Laime3D est une petite boutique de créations imprimées en 3D.
+            Chaque pièce est préparée avec attention, du choix du modèle à la
+            finition.
+          </p>
+        </div>
+
+        <div>
+          <h2 style={styles.sectionTitle}>Livraison</h2>
+          <p style={styles.text}>
+            Les commandes sont préparées avec soin. Les délais peuvent varier
+            selon les créations, les couleurs choisies et la destination.
+          </p>
+        </div>
+      </section>
+
+      <section id="faq" style={styles.section}>
+        <h2 style={styles.sectionTitle}>FAQ</h2>
+
+        <div style={styles.faqList}>
+          {faq.map((item) => (
+            <div key={item.question} style={styles.faqItem}>
+              <h3>{item.question}</h3>
+              <p>{item.answer}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section id="contact" style={styles.idea}>
         <h2 style={styles.ideaTitle}>Une idée en tête ?</h2>
 
@@ -135,7 +213,7 @@ export default function HomePage() {
           donner vie.
         </p>
 
-        <a href="/shop" style={styles.mainButton}>
+        <a href="mailto:contact@laime3d.fr" style={styles.mainButton}>
           Discutons de votre projet
         </a>
       </section>
@@ -143,6 +221,7 @@ export default function HomePage() {
       <footer style={styles.footer}>
         <strong>LAIME3D</strong>
         <p>Créé avec le cœur. Imprimé avec passion.</p>
+        <p>Contact : contact@laime3d.fr</p>
       </footer>
     </main>
   );
@@ -156,30 +235,66 @@ const styles: any = {
     fontFamily: "Arial",
   },
 
-  hero: {
-    minHeight: "75vh",
+  nav: {
+    padding: "24px 40px",
     display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderBottom: "1px solid #1f4d33",
+  },
+
+  logo: {
+    color: "#7CFF9B",
+    letterSpacing: "3px",
+    fontSize: "20px",
+  },
+
+  navLinks: {
+    display: "flex",
+    gap: "20px",
+    flexWrap: "wrap",
+  },
+
+  navLink: {
+    color: "#e8f5e9",
+    textDecoration: "none",
+    fontWeight: "bold",
+  },
+
+  hero: {
+    minHeight: "70vh",
+    display: "flex",
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
     textAlign: "center",
     padding: "40px",
   },
 
-  small: {
+  brand: {
     color: "#7CFF9B",
-    letterSpacing: "6px",
+    fontSize: "72px",
+    letterSpacing: "8px",
     fontWeight: "bold",
+    margin: 0,
   },
 
-  heroTitle: {
-    fontSize: "56px",
-    lineHeight: "1.15",
-    margin: "20px 0",
+  title: {
+    fontSize: "34px",
+    lineHeight: "1.25",
+    margin: "22px 0 10px",
+  },
+
+  subtitle: {
+    maxWidth: "620px",
+    color: "#b8d9c4",
+    fontSize: "18px",
+    lineHeight: "1.6",
   },
 
   mainButton: {
     display: "inline-block",
-    marginTop: "20px",
+    marginTop: "22px",
     padding: "14px 24px",
     background: "#7CFF9B",
     color: "#03140a",
@@ -248,6 +363,31 @@ const styles: any = {
     fontWeight: "bold",
   },
 
+  infoSection: {
+    padding: "60px 40px",
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+    gap: "24px",
+  },
+
+  text: {
+    color: "#c8facc",
+    lineHeight: "1.7",
+    fontSize: "17px",
+  },
+
+  faqList: {
+    display: "grid",
+    gap: "16px",
+  },
+
+  faqItem: {
+    background: "#10251a",
+    border: "1px solid #1f4d33",
+    borderRadius: "14px",
+    padding: "20px",
+  },
+
   idea: {
     margin: "40px",
     padding: "50px 30px",
@@ -266,5 +406,6 @@ const styles: any = {
     padding: "40px",
     textAlign: "center",
     color: "#b8d9c4",
+    borderTop: "1px solid #1f4d33",
   },
 };
