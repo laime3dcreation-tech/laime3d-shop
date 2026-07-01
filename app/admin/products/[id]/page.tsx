@@ -2,6 +2,8 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
+export const dynamic = "force-dynamic";
+
 async function updateProduct(formData: FormData) {
   "use server";
 
@@ -16,6 +18,40 @@ async function updateProduct(formData: FormData) {
     .map((color) => color.trim())
     .filter(Boolean);
 
+  const existingImages = String(formData.get("existingImages") || "[]");
+  let images: string[] = JSON.parse(existingImages);
+
+  const removeImages = formData.getAll("removeImages").map(String);
+  images = images.filter((img) => !removeImages.includes(img));
+
+  const files = formData.getAll("newImages") as File[];
+
+  for (const file of files) {
+    if (!file || file.size === 0) continue;
+
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${Date.now()}-${Math.random()
+      .toString(36)
+      .substring(2)}.${fileExt}`;
+
+    const { error } = await supabaseAdmin.storage
+      .from("product-images")
+      .upload(fileName, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    const { data } = supabaseAdmin.storage
+      .from("product-images")
+      .getPublicUrl(fileName);
+
+    images.push(data.publicUrl);
+  }
+
   await supabaseAdmin
     .from("products")
     .update({
@@ -24,6 +60,7 @@ async function updateProduct(formData: FormData) {
       price,
       description,
       colors,
+      images,
     })
     .eq("id", id);
 
@@ -67,16 +104,17 @@ export default async function EditProductPage({
 
       <form action={updateProduct} style={styles.form}>
         <input type="hidden" name="id" value={product.id} />
+        <input
+          type="hidden"
+          name="existingImages"
+          value={JSON.stringify(product.images || [])}
+        />
 
         <label>Nom</label>
         <input name="name" defaultValue={product.name} style={styles.input} />
 
         <label>Catégorie</label>
-        <input
-          name="category"
-          defaultValue={product.category}
-          style={styles.input}
-        />
+        <input name="category" defaultValue={product.category} style={styles.input} />
 
         <label>Prix (€)</label>
         <input
@@ -99,6 +137,28 @@ export default async function EditProductPage({
           name="colors"
           defaultValue={(product.colors || []).join(", ")}
           placeholder="Noir, Blanc, Rouge, Bleu..."
+          style={styles.input}
+        />
+
+        <h3>Images actuelles</h3>
+
+        <div style={styles.imagesGrid}>
+          {(product.images || []).map((img: string) => (
+            <label key={img} style={styles.imageBox}>
+              <img src={img} alt={product.name} style={styles.image} />
+              <span>
+                <input type="checkbox" name="removeImages" value={img} /> Supprimer
+              </span>
+            </label>
+          ))}
+        </div>
+
+        <label>Ajouter de nouvelles images</label>
+        <input
+          name="newImages"
+          type="file"
+          accept="image/*"
+          multiple
           style={styles.input}
         />
 
@@ -127,7 +187,7 @@ const styles: any = {
     marginBottom: "25px",
   },
   form: {
-    maxWidth: "520px",
+    maxWidth: "700px",
     display: "flex",
     flexDirection: "column",
     gap: "10px",
@@ -147,6 +207,25 @@ const styles: any = {
     background: "#102a1c",
     color: "#fff",
     resize: "vertical",
+  },
+  imagesGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+    gap: "12px",
+  },
+  imageBox: {
+    background: "#10251a",
+    border: "1px solid #1f4d33",
+    borderRadius: "10px",
+    padding: "10px",
+    display: "grid",
+    gap: "8px",
+  },
+  image: {
+    width: "100%",
+    height: "120px",
+    objectFit: "cover",
+    borderRadius: "8px",
   },
   button: {
     marginTop: "15px",
