@@ -5,11 +5,45 @@ import { useState } from "react";
 export default function ContactModal() {
   const [open, setOpen] = useState(false);
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  function sendMessage(e: any) {
+  async function sendMessage(e: any) {
     e.preventDefault();
 
-    setSent(true);
+    setLoading(true);
+    setError("");
+
+    const form = e.currentTarget;
+
+    const data = {
+      firstName: form.firstName.value,
+      lastName: form.lastName.value,
+      email: form.email.value,
+      phone: form.phone.value,
+      message: form.message.value,
+    };
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur d'envoi");
+      }
+
+      setSent(true);
+      form.reset();
+    } catch (err) {
+      setError("Une erreur est survenue. Merci de réessayer.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -29,13 +63,17 @@ export default function ContactModal() {
 
             {!sent ? (
               <form onSubmit={sendMessage} style={styles.form}>
-                <input placeholder="Prénom" required style={styles.input} />
-                <input placeholder="Nom" required style={styles.input} />
-                <input type="email" placeholder="Email" required style={styles.input} />
-                <input placeholder="Téléphone" style={styles.input} />
-                <textarea placeholder="Votre idée..." required style={styles.textarea} />
+                <input name="firstName" placeholder="Prénom" required style={styles.input} />
+                <input name="lastName" placeholder="Nom" required style={styles.input} />
+                <input name="email" type="email" placeholder="Email" required style={styles.input} />
+                <input name="phone" placeholder="Téléphone" style={styles.input} />
+                <textarea name="message" placeholder="Votre idée..." required style={styles.textarea} />
 
-                <button style={styles.submit}>Envoyer</button>
+                {error && <p style={styles.error}>{error}</p>}
+
+                <button disabled={loading} style={styles.submit}>
+                  {loading ? "Envoi..." : "Envoyer"}
+                </button>
               </form>
             ) : (
               <p style={styles.success}>
@@ -126,5 +164,9 @@ const styles: any = {
   success: {
     fontSize: "18px",
     lineHeight: "1.6",
+  },
+  error: {
+    color: "#ff8a8a",
+    margin: 0,
   },
 };
