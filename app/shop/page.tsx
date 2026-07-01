@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import ProductCard from "@/components/ProductCard";
@@ -13,7 +13,15 @@ const categories = [
   { value: "keychains", label: "Porte-clés" },
 ];
 
-export default function Shop() {
+export default function ShopPage() {
+  return (
+    <Suspense fallback={<main style={styles.page}>Chargement...</main>}>
+      <Shop />
+    </Suspense>
+  );
+}
+
+function Shop() {
   const searchParams = useSearchParams();
 
   const [products, setProducts] = useState<any[]>([]);
