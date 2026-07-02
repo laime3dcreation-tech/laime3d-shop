@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +10,7 @@ async function updateOrderStatus(orderId: string, status: string) {
   await supabaseAdmin.from("orders").update({ status }).eq("id", orderId);
 
   revalidatePath("/admin/orders");
+  redirect("/admin/orders");
 }
 
 function getStatus(status: string) {
@@ -22,7 +24,7 @@ function getStatus(status: string) {
     case "completed":
       return "✅ Terminé";
     default:
-      return status || "🟢 Nouveau";
+      return "🟢 Nouveau";
   }
 }
 
@@ -68,9 +70,38 @@ export default async function OrdersPage() {
     );
   }
 
+  const totalOrders = orders?.length || 0;
+  const newOrders = orders?.filter((o: any) => o.status === "new").length || 0;
+  const processingOrders =
+    orders?.filter((o: any) => o.status === "processing").length || 0;
+  const shippedOrders =
+    orders?.filter((o: any) => o.status === "shipped").length || 0;
+
   return (
     <main style={styles.page}>
       <h1 style={styles.title}>📦 Commandes Laime3D</h1>
+
+      <div style={styles.statsGrid}>
+        <div style={styles.statCard}>
+          <span>Total</span>
+          <strong>{totalOrders}</strong>
+        </div>
+
+        <div style={styles.statCard}>
+          <span>Nouvelles</span>
+          <strong>{newOrders}</strong>
+        </div>
+
+        <div style={styles.statCard}>
+          <span>En préparation</span>
+          <strong>{processingOrders}</strong>
+        </div>
+
+        <div style={styles.statCard}>
+          <span>Expédiées</span>
+          <strong>{shippedOrders}</strong>
+        </div>
+      </div>
 
       {!orders || orders.length === 0 ? (
         <p>Aucune commande.</p>
@@ -124,20 +155,18 @@ export default async function OrdersPage() {
                       </p>
                     </>
                   ) : (
-                    <>
-                      <p>
-                        <b>Adresse :</b>{" "}
-                        {[
-                          order.shipping_address || order.address,
-                          order.address_extra,
-                          order.postal_code,
-                          order.city,
-                          order.country,
-                        ]
-                          .filter(Boolean)
-                          .join(", ") || "Non renseignée"}
-                      </p>
-                    </>
+                    <p>
+                      <b>Adresse :</b>{" "}
+                      {[
+                        order.shipping_address || order.address,
+                        order.address_extra,
+                        order.postal_code,
+                        order.city,
+                        order.country,
+                      ]
+                        .filter(Boolean)
+                        .join(", ") || "Non renseignée"}
+                    </p>
                   )}
                 </div>
 
@@ -183,9 +212,7 @@ export default async function OrdersPage() {
                       <b>{getItemName(item)}</b> × {item.quantity} —{" "}
                       {Number(item.amount_total || 0).toFixed(2)}€
 
-                      {color && (
-                        <div style={styles.color}>Couleur : {color}</div>
-                      )}
+                      {color && <div style={styles.color}>Couleur : {color}</div>}
                     </li>
                   );
                 })}
@@ -193,23 +220,27 @@ export default async function OrdersPage() {
 
               <div style={styles.actions}>
                 <form action={updateOrderStatus.bind(null, order.id, "new")}>
-                  <button style={styles.button}>🟢 Nouveau</button>
+                  <button type="submit" style={styles.button}>
+                    🟢 Nouveau
+                  </button>
                 </form>
 
-                <form
-                  action={updateOrderStatus.bind(null, order.id, "processing")}
-                >
-                  <button style={styles.button}>🟡 En préparation</button>
+                <form action={updateOrderStatus.bind(null, order.id, "processing")}>
+                  <button type="submit" style={styles.button}>
+                    🟡 En préparation
+                  </button>
                 </form>
 
                 <form action={updateOrderStatus.bind(null, order.id, "shipped")}>
-                  <button style={styles.button}>📦 Expédié</button>
+                  <button type="submit" style={styles.button}>
+                    📦 Expédié
+                  </button>
                 </form>
 
-                <form
-                  action={updateOrderStatus.bind(null, order.id, "completed")}
-                >
-                  <button style={styles.button}>✅ Terminé</button>
+                <form action={updateOrderStatus.bind(null, order.id, "completed")}>
+                  <button type="submit" style={styles.button}>
+                    ✅ Terminé
+                  </button>
                 </form>
               </div>
             </div>
@@ -233,6 +264,22 @@ const styles: any = {
     color: "#7CFF9B",
     fontSize: "36px",
     marginBottom: "30px",
+  },
+
+  statsGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+    gap: "14px",
+    marginBottom: "28px",
+  },
+
+  statCard: {
+    background: "#10251a",
+    border: "1px solid #1f4d33",
+    borderRadius: "14px",
+    padding: "16px",
+    display: "grid",
+    gap: "8px",
   },
 
   list: {
