@@ -1,226 +1,250 @@
-"use client";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import ProductCard from "@/components/ProductCard";
-import ContactModal from "@/components/ContactModal";
+export const dynamic = "force-dynamic";
 
-const collections = [
-  {
-    title: "Figurines flexibles",
-    text: "Créations articulées, ludiques et originales.",
-    emoji: "🐉",
-    href: "/shop?category=flexible",
-  },
-  {
-    title: "Lampes",
-    text: "Objets lumineux pour une ambiance unique.",
-    emoji: "💡",
-    href: "/shop?category=lamps",
-  },
-  {
-    title: "Vases",
-    text: "Décoration imprimée en 3D avec soin.",
-    emoji: "🏺",
-    href: "/shop?category=vases",
-  },
-  {
-    title: "Porte-clés",
-    text: "Petites créations à offrir ou à garder.",
-    emoji: "🔑",
-    href: "/shop?category=keychains",
-  },
-];
+async function updateOrderStatus(orderId: string, status: string) {
+  "use server";
 
-export default function HomePage() {
-  const [featured, setFeatured] = useState<any[]>([]);
-  const [latest, setLatest] = useState<any[]>([]);
+  await supabaseAdmin.from("orders").update({ status }).eq("id", orderId);
 
-  useEffect(() => {
-    async function loadProducts() {
-      const { data } = await supabase
-        .from("products")
-        .select("*")
-        .eq("active", true)
-        .order("created_at", { ascending: false });
+  revalidatePath("/admin/orders");
+  redirect("/admin/orders");
+}
 
-      if (!data) return;
+function getStatus(status: string) {
+  switch (status) {
+    case "new":
+      return "🟢 Nouveau";
+    case "processing":
+      return "🟡 En préparation";
+    case "shipped":
+      return "📦 Expédié";
+    case "completed":
+      return "✅ Terminé";
+    default:
+      return "🟢 Nouveau";
+  }
+}
 
-      setLatest(data.slice(0, 4));
-      setFeatured(data.filter((p) => p.featured).slice(0, 4));
-    }
+function getDeliveryLabel(order: any) {
+  if (order.delivery_method === "home") return "Livraison à domicile";
+  if (order.delivery_method === "mondial_relay") return "Mondial Relay";
+  return "Non renseigné";
+}
 
-    loadProducts();
-  }, []);
+function getItemColor(item: any) {
+  if (item.color) return item.color;
+  if (item.selectedColor) return item.selectedColor;
 
-  function addToCart(product: any) {
-    const saved = localStorage.getItem("cart");
-    const cart = saved ? JSON.parse(saved) : [];
-
-    const found = cart.find(
-      (item: any) =>
-        item.id === product.id && item.selectedColor === product.selectedColor
-    );
-
-    const updatedCart = found
-      ? cart.map((item: any) =>
-          item.id === product.id && item.selectedColor === product.selectedColor
-            ? { ...item, qty: item.qty + 1 }
-            : item
-        )
-      : [...cart, { ...product, qty: 1 }];
-
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  const name = item.name || "";
+  if (name.includes("Couleur :")) {
+    return name.split("Couleur :")[1]?.trim();
   }
 
+  return "";
+}
+
+function getItemName(item: any) {
+  const name = item.name || "";
+  if (name.includes(" - Couleur :")) {
+    return name.split(" - Couleur :")[0];
+  }
+
+  return name;
+}
+
+export default async function OrdersPage() {
+  const { data: orders, error } = await supabaseAdmin
+    .from("orders")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    return (
+      <main style={styles.page}>
+        <h1 style={styles.title}>Erreur</h1>
+        <p>{error.message}</p>
+      </main>
+    );
+  }
+
+  const totalOrders = orders?.length || 0;
+  const newOrders = orders?.filter((o: any) => o.status === "new").length || 0;
+  const processingOrders =
+    orders?.filter((o: any) => o.status === "processing").length || 0;
+  const shippedOrders =
+    orders?.filter((o: any) => o.status === "shipped").length || 0;
+
   return (
-<main style={styles.page}>
-<nav style={styles.nav}>
-        <a href="/" style={styles.logo}>
-          LAIME3D
-        </a>
+    <main style={styles.page}>
+      <h1 style={styles.title}>📦 Commandes Laime3D</h1>
 
-        <div style={styles.navLinks}>
-          <a href="/shop" style={styles.navLink}>Collections</a>
-          <a href="#about" style={styles.navLink}>À propos</a>
-          <a href="#contact" style={styles.navLink}>Contact</a>
+      <div style={styles.statsGrid}>
+        <div style={styles.statCard}>
+          <span>Total</span>
+          <strong>{totalOrders}</strong>
         </div>
-      </nav>
 
-      <section style={styles.hero}>
-        <p style={styles.brand}>LAIME3D</p>
+        <div style={styles.statCard}>
+          <span>Nouvelles</span>
+          <strong>{newOrders}</strong>
+        </div>
 
-        <h1 style={styles.title}>
-          Créé avec le cœur.
-          <br />
-          Imprimé avec passion.
-        </h1>
+        <div style={styles.statCard}>
+          <span>En préparation</span>
+          <strong>{processingOrders}</strong>
+        </div>
 
-        <p style={styles.subtitle}>
-          Des créations 3D pensées avec soin, pour offrir, décorer ou faire plaisir.
-        </p>
+        <div style={styles.statCard}>
+          <span>Expédiées</span>
+          <strong>{shippedOrders}</strong>
+        </div>
+      </div>
 
-        <a href="/shop" style={styles.mainButton}>
-          Découvrir nos créations
-        </a>
-      </section>
+      {!orders || orders.length === 0 ? (
+        <p>Aucune commande.</p>
+      ) : (
+        <div style={styles.list}>
+          {orders.map((order: any) => (
+            <div key={order.id} style={styles.card}>
+              <div style={styles.header}>
+                <h2>Commande #{order.id}</h2>
+                <span style={styles.badge}>{getStatus(order.status)}</span>
+              </div>
 
-      <section style={styles.section}>
-        <h2 style={styles.sectionTitle}>Nos collections</h2>
+              <div style={styles.infoGrid}>
+                <div style={styles.infoBox}>
+                  <h3>👤 Client</h3>
+                  <p>
+                    <b>Nom :</b>{" "}
+                    {order.customer_name ||
+                      `${order.first_name || ""} ${order.last_name || ""}`.trim() ||
+                      "Non renseigné"}
+                  </p>
+                  <p>
+                    <b>Email :</b> {order.email || "Non renseigné"}
+                  </p>
+                  <p>
+                    <b>Téléphone :</b> {order.phone || "Non renseigné"}
+                  </p>
+                </div>
 
-        <div style={styles.collections}>
-          {collections.map((collection) => (
-            <a key={collection.title} href={collection.href} style={styles.collectionCard}>
-              <span style={styles.collectionEmoji}>{collection.emoji}</span>
-              <h3>{collection.title}</h3>
-              <p>{collection.text}</p>
-            </a>
+                <div style={styles.infoBox}>
+                  <h3>🚚 Livraison</h3>
+                  <p>
+                    <b>Méthode :</b> {getDeliveryLabel(order)}
+                  </p>
+
+                  {order.delivery_method === "mondial_relay" ? (
+                    <>
+                      <p>
+                        <b>Point Relais :</b>{" "}
+                        {order.relay_name || "Non renseigné"}
+                      </p>
+                      <p>
+                        <b>Adresse :</b>{" "}
+                        {[order.relay_address, order.relay_postal_code, order.relay_city]
+                          .filter(Boolean)
+                          .join(", ") || "Non renseignée"}
+                      </p>
+                      <p>
+                        <b>ID Point Relais :</b>{" "}
+                        {order.relay_id || "Non renseigné"}
+                      </p>
+                    </>
+                  ) : (
+                    <p>
+                      <b>Adresse :</b>{" "}
+                      {[
+                        order.shipping_address || order.address,
+                        order.address_extra,
+                        order.postal_code,
+                        order.city,
+                        order.country,
+                      ]
+                        .filter(Boolean)
+                        .join(", ") || "Non renseignée"}
+                    </p>
+                  )}
+                </div>
+
+                <div style={styles.infoBox}>
+                  <h3>💶 Paiement</h3>
+                  <p>
+                    <b>Sous-total :</b>{" "}
+                    {Number(order.products_total || 0).toFixed(2)}€
+                  </p>
+                  <p>
+                    <b>Livraison :</b>{" "}
+                    {Number(order.delivery_price || 0) === 0
+                      ? "Offerte"
+                      : `${Number(order.delivery_price || 0).toFixed(2)}€`}
+                  </p>
+                  <p>
+                    <b>Total :</b>{" "}
+                    {Number(order.final_total || order.total || 0).toFixed(2)}€
+                  </p>
+                </div>
+
+                <div style={styles.infoBox}>
+                  <h3>🕒 Infos</h3>
+                  <p>
+                    <b>Date :</b>{" "}
+                    {new Date(order.created_at).toLocaleString("fr-FR")}
+                  </p>
+                  <p>
+                    <b>Tracking :</b>{" "}
+                    {order.tracking_number || "Pas encore ajouté"}
+                  </p>
+                </div>
+              </div>
+
+              <h3>🛒 Articles</h3>
+
+              <ul style={styles.itemsList}>
+                {order.items?.map((item: any, index: number) => {
+                  const color = getItemColor(item);
+
+                  return (
+                    <li key={index} style={styles.item}>
+                      <b>{getItemName(item)}</b> × {item.quantity} —{" "}
+                      {Number(item.amount_total || 0).toFixed(2)}€
+
+                      {color && <div style={styles.color}>Couleur : {color}</div>}
+                    </li>
+                  );
+                })}
+              </ul>
+
+              <div style={styles.actions}>
+                <form action={updateOrderStatus.bind(null, order.id, "new")}>
+                  <button type="submit" style={styles.button}>
+                    🟢 Nouveau
+                  </button>
+                </form>
+
+                <form action={updateOrderStatus.bind(null, order.id, "processing")}>
+                  <button type="submit" style={styles.button}>
+                    🟡 En préparation
+                  </button>
+                </form>
+
+                <a href={`/admin/orders/${order.id}/ship`} style={styles.buttonLink}>
+                  📦 {order.status === "shipped" ? "Modifier le suivi" : "Expédié"}
+                </a>
+
+                <form action={updateOrderStatus.bind(null, order.id, "completed")}>
+                  <button type="submit" style={styles.button}>
+                    ✅ Terminé
+                  </button>
+                </form>
+              </div>
+            </div>
           ))}
         </div>
-      </section>
-
-      {featured.length > 0 && (
-        <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>⭐ Nos coups de cœur</h2>
-
-          <div style={styles.grid}>
-            {featured.map((product) => (
-              <ProductCard key={product.id} product={product} addToCart={addToCart} />
-            ))}
-          </div>
-        </section>
       )}
-
-      <section style={styles.section}>
-        <h2 style={styles.sectionTitle}>🆕 Nouveautés</h2>
-
-        <div style={styles.grid}>
-          {latest.map((product) => (
-            <ProductCard key={product.id} product={product} addToCart={addToCart} />
-          ))}
-        </div>
-
-        <a href="/shop" style={styles.secondaryButton}>
-          Voir toute la boutique
-        </a>
-      </section>
-
-      <section style={styles.section}>
-        <h2 style={styles.sectionTitle}>Pourquoi Laime3D ?</h2>
-
-        <div style={styles.reasons}>
-          <div style={styles.reason}>❤️ Créé avec passion</div>
-          <div style={styles.reason}>🎨 Plusieurs couleurs disponibles</div>
-          <div style={styles.reason}>✨ Fabrication artisanale</div>
-          <div style={styles.reason}>📦 Envoi soigné avec suivi</div>
-        </div>
-      </section>
-
-      <section id="about" style={styles.infoSection}>
-        <div>
-          <h2 style={styles.sectionTitle}>À propos</h2>
-          <p style={styles.text}>
-            Laime3D est une petite boutique de créations imprimées en 3D.
-            Chaque pièce est préparée avec attention, du choix du modèle à la finition.
-          </p>
-        </div>
-
-        <div>
-          <h2 style={styles.sectionTitle}>Livraison</h2>
-          <p style={styles.text}>
-            Toutes nos créations sont préparées avec soin avant l'expédition.
-            <br />
-            <br />
-            Les commandes sont généralement expédiées sous <b>24 à 72 heures</b>.
-            Selon la complexité du modèle, les couleurs choisies ou le volume de
-            commandes en cours, ce délai peut être légèrement prolongé.
-            <br />
-            <br />
-            Les colis sont expédiés via <b>Mondial Relay</b> avec un numéro de suivi.
-            Chaque création est soigneusement emballée afin d'arriver en parfait état.
-          </p>
-        </div>
-      </section>
-
-      <section id="contact" style={styles.idea}>
-        <h2 style={styles.ideaTitle}>Une idée en tête ?</h2>
-
-        <h3>Vous rêvez d'une création unique ?</h3>
-
-        <p>Nous adorons relever de nouveaux défis.</p>
-
-        <p>
-          Parlez-nous de votre idée, et nous ferons tout notre possible pour lui
-          donner vie.
-        </p>
-
-        <ContactModal />
-      </section>
-
-      <footer style={styles.footer}>
-        <h2 style={styles.footerLogo}>LAIME3D</h2>
-
-        <p style={styles.footerText}>
-          Créé avec le cœur.
-          <br />
-          Imprimé avec passion.
-        </p>
-
-        <div style={styles.footerContacts}>
-          <a href="mailto:laime3dcontact@yahoo.com" style={styles.footerLink}>
-            ✉️ laime3dcontact@yahoo.com
-          </a>
-
-          <a
-            href="https://instagram.com/laime3d"
-            target="_blank"
-            rel="noreferrer"
-            style={styles.footerLink}
-          >
-            📷 @laime3d
-          </a>
-        </div>
-      </footer>
     </main>
   );
 }
@@ -228,174 +252,116 @@ export default function HomePage() {
 const styles: any = {
   page: {
     minHeight: "100vh",
+    padding: "40px",
     background: "#0b1f14",
     color: "#e8f5e9",
     fontFamily: "Arial",
   },
-  nav: {
-    padding: "24px 40px",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderBottom: "1px solid #1f4d33",
-    flexWrap: "wrap",
-    gap: "14px",
-  },
-  logo: {
-    color: "#7CFF9B",
-    letterSpacing: "3px",
-    fontSize: "20px",
-    textDecoration: "none",
-    fontWeight: "bold",
-  },
-  navLinks: {
-    display: "flex",
-    gap: "20px",
-    flexWrap: "wrap",
-  },
-  navLink: {
-    color: "#e8f5e9",
-    textDecoration: "none",
-    fontWeight: "bold",
-  },
-  hero: {
-    minHeight: "70vh",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    textAlign: "center",
-    padding: "40px",
-  },
-  brand: {
-    color: "#7CFF9B",
-    fontSize: "72px",
-    letterSpacing: "8px",
-    fontWeight: "bold",
-    margin: 0,
-  },
+
   title: {
-    fontSize: "34px",
-    lineHeight: "1.25",
-    margin: "22px 0 10px",
-  },
-  subtitle: {
-    maxWidth: "620px",
-    color: "#b8d9c4",
-    fontSize: "18px",
-    lineHeight: "1.6",
-  },
-  mainButton: {
-    display: "inline-block",
-    marginTop: "22px",
-    padding: "14px 24px",
-    background: "#7CFF9B",
-    color: "#03140a",
-    borderRadius: "12px",
-    textDecoration: "none",
-    fontWeight: "bold",
-  },
-  secondaryButton: {
-    display: "inline-block",
-    marginTop: "25px",
-    padding: "12px 20px",
-    background: "#1f4d33",
-    color: "#e8f5e9",
-    borderRadius: "10px",
-    textDecoration: "none",
-    fontWeight: "bold",
-  },
-  section: {
-    padding: "60px 40px",
-  },
-  sectionTitle: {
     color: "#7CFF9B",
-    fontSize: "34px",
-    marginBottom: "24px",
+    fontSize: "36px",
+    marginBottom: "30px",
   },
-  collections: {
+
+  statsGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: "18px",
+    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+    gap: "14px",
+    marginBottom: "28px",
   },
-  collectionCard: {
+
+  statCard: {
     background: "#10251a",
     border: "1px solid #1f4d33",
-    borderRadius: "18px",
-    padding: "26px",
-    color: "#e8f5e9",
-    textDecoration: "none",
-  },
-  collectionEmoji: {
-    fontSize: "42px",
-  },
-  grid: {
+    borderRadius: "14px",
+    padding: "16px",
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
-    gap: "18px",
+    gap: "8px",
   },
-  reasons: {
+
+  list: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: "16px",
+    gap: "20px",
   },
-  reason: {
+
+  card: {
     background: "#10251a",
     border: "1px solid #1f4d33",
     borderRadius: "14px",
     padding: "20px",
-    fontWeight: "bold",
   },
-  infoSection: {
-    padding: "60px 40px",
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-    gap: "24px",
-  },
-  text: {
-    color: "#c8facc",
-    lineHeight: "1.7",
-    fontSize: "17px",
-  },
-  idea: {
-    margin: "40px",
-    padding: "50px 30px",
-    background: "#10251a",
-    border: "1px solid #1f4d33",
-    borderRadius: "24px",
-    textAlign: "center",
-  },
-  ideaTitle: {
-    color: "#7CFF9B",
-    fontSize: "38px",
-  },
-  footer: {
-    padding: "45px 40px",
-    textAlign: "center",
-    color: "#b8d9c4",
-    borderTop: "1px solid #1f4d33",
-  },
-  footerLogo: {
-    color: "#7CFF9B",
-    fontSize: "32px",
-    letterSpacing: "5px",
-    marginBottom: "15px",
-  },
-  footerText: {
-    color: "#b8d9c4",
-    marginBottom: "25px",
-    lineHeight: "1.7",
-  },
-  footerContacts: {
+
+  header: {
     display: "flex",
-    justifyContent: "center",
-    gap: "25px",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "15px",
+    gap: "12px",
     flexWrap: "wrap",
   },
-  footerLink: {
+
+  badge: {
+    background: "#1f4d33",
     color: "#7CFF9B",
-    textDecoration: "none",
+    padding: "6px 12px",
+    borderRadius: "999px",
     fontWeight: "bold",
-    fontSize: "17px",
+  },
+
+  infoGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+    gap: "14px",
+    marginBottom: "22px",
+  },
+
+  infoBox: {
+    background: "#0b1f14",
+    border: "1px solid #1f4d33",
+    borderRadius: "12px",
+    padding: "14px",
+  },
+
+  itemsList: {
+    paddingLeft: "20px",
+  },
+
+  item: {
+    marginBottom: "10px",
+  },
+
+  color: {
+    color: "#7CFF9B",
+    fontSize: "14px",
+    marginTop: "4px",
+  },
+
+  actions: {
+    display: "flex",
+    gap: "10px",
+    marginTop: "20px",
+    flexWrap: "wrap",
+  },
+
+  button: {
+    padding: "10px 12px",
+    background: "#7CFF9B",
+    color: "#03140a",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontWeight: "bold",
+  },
+
+  buttonLink: {
+    display: "inline-block",
+    padding: "10px 12px",
+    background: "#7CFF9B",
+    color: "#03140a",
+    borderRadius: "8px",
+    textDecoration: "none",
+    cursor: "pointer",
+    fontWeight: "bold",
   },
 };
