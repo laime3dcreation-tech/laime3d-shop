@@ -19,6 +19,8 @@ async function updateProduct(formData: FormData) {
   const category = String(formData.get("category"));
   const price = Number(formData.get("price"));
   const description = String(formData.get("description"));
+  const stock = Number(formData.get("stock") || 0);
+  const unlimitedStock = formData.get("unlimited_stock") === "on";
 
   const colors = String(formData.get("colors"))
     .split(",")
@@ -66,6 +68,8 @@ async function updateProduct(formData: FormData) {
       description,
       colors,
       images,
+      stock,
+      unlimited_stock: unlimitedStock,
     })
     .eq("id", id);
 
@@ -158,6 +162,34 @@ export default async function EditProductPage({
           style={styles.input}
         />
 
+        <label>Stock disponible</label>
+        <input
+          name="stock"
+          type="number"
+          min="0"
+          defaultValue={product.stock ?? 10}
+          style={styles.input}
+        />
+
+        <label style={styles.checkboxLabel}>
+          <input
+            name="unlimited_stock"
+            type="checkbox"
+            defaultChecked={Boolean(product.unlimited_stock)}
+          />
+          Stock illimité / fabrication à la demande
+        </label>
+
+        <div style={styles.stockInfo}>
+          {product.unlimited_stock ? (
+            <span>♾️ Stock illimité activé</span>
+          ) : Number(product.stock || 0) > 0 ? (
+            <span>📦 Stock actuel : {product.stock}</span>
+          ) : (
+            <span>⚠️ Rupture de stock</span>
+          )}
+        </div>
+
         <h3>Images actuelles</h3>
 
         <div style={styles.imagesGrid}>
@@ -226,6 +258,21 @@ const styles: any = {
     background: "#102a1c",
     color: "#fff",
     resize: "vertical",
+  },
+  checkboxLabel: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    marginTop: "6px",
+    color: "#c8facc",
+  },
+  stockInfo: {
+    background: "#0b1f14",
+    border: "1px solid #1f4d33",
+    borderRadius: "10px",
+    padding: "12px",
+    color: "#7CFF9B",
+    fontWeight: "bold",
   },
   imagesGrid: {
     display: "grid",

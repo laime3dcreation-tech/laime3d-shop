@@ -7,6 +7,29 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+async function decreaseProductStock(metadataItems: any[]) {
+  for (const item of metadataItems) {
+    if (!item.id || !item.qty) continue;
+
+    const { data: product } = await supabaseAdmin
+      .from("products")
+      .select("id, stock, unlimited_stock")
+      .eq("id", item.id)
+      .single();
+
+    if (!product) continue;
+    if (product.unlimited_stock) continue;
+
+    const currentStock = Number(product.stock || 0);
+    const newStock = Math.max(0, currentStock - Number(item.qty || 0));
+
+    await supabaseAdmin
+      .from("products")
+      .update({ stock: newStock })
+      .eq("id", item.id);
+  }
+}
+
 async function createReceiptPdf(order: any) {
   const pdfDoc = await PDFDocument.create();
   const page = pdfDoc.addPage([595, 842]);
@@ -17,7 +40,7 @@ async function createReceiptPdf(order: any) {
   let y = 790;
 
   function draw(text: string, x = 50, size = 11, isBold = false) {
-    page.drawText(text, {
+    page.drawText(String(text || ""), {
       x,
       y,
       size,
@@ -60,17 +83,19 @@ async function createReceiptPdf(order: any) {
   draw("ARTICLES", 50, 14, true);
 
   order.items.forEach((item: any) => {
-    const line = `${item.name} x${item.quantity} - ${Number(
-      item.amount_total || 0
-    ).toFixed(2)} EUR`;
-
-    draw(line, 50, 11);
+    draw(
+      `${item.name} x${item.quantity} - ${Number(
+        item.amount_total || 0
+      ).toFixed(2)} EUR`,
+      50,
+      11
+    );
   });
 
   y -= 10;
 
-  draw(`Sous-total : ${Number(order.productsTotal || 0).toFixed(2)} EUR`, 50, 12);
-  draw(`Livraison : ${Number(order.deliveryPrice || 0).toFixed(2)} EUR`, 50, 12);
+  draw(`Sous-total : ${Number(order.productsTotal || 0).toFixed(2)} EUR`);
+  draw(`Livraison : ${Number(order.deliveryPrice || 0).toFixed(2)} EUR`);
   draw(`TOTAL : ${Number(order.total || 0).toFixed(2)} EUR`, 50, 15, true);
 
   y -= 25;
@@ -121,6 +146,14 @@ export async function POST(req: Request) {
         amount_total: item.amount_total ? item.amount_total / 100 : 0,
         currency: item.currency,
       }));
+
+      let metadataItems: any[] = [];
+
+      try {
+        metadataItems = JSON.parse(metadata.items || "[]");
+      } catch {
+        metadataItems = [];
+      }
 
       const firstName = metadata.first_name || "";
       const lastName = metadata.last_name || "";
@@ -199,6 +232,8 @@ export async function POST(req: Request) {
           { status: 500 }
         );
       }
+
+      await decreaseProductStock(metadataItems);
 
       const pdfBase64 = await createReceiptPdf({
         orderNumber: insertedOrder?.id || orderNumber,

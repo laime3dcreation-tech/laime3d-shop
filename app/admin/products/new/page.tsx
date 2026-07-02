@@ -15,6 +15,8 @@ async function createProduct(formData: FormData) {
   const category = String(formData.get("category"));
   const price = Number(formData.get("price"));
   const description = String(formData.get("description"));
+  const stock = Number(formData.get("stock") || 0);
+  const unlimitedStock = formData.get("unlimited_stock") === "on";
 
   const colors = String(formData.get("colors"))
     .split(",")
@@ -57,6 +59,8 @@ async function createProduct(formData: FormData) {
     images: imageUrls,
     active: true,
     featured: false,
+    stock,
+    unlimited_stock: unlimitedStock,
   });
 
   redirect("/admin/products");
@@ -102,6 +106,20 @@ export default function NewProductPage() {
           placeholder="Noir, Blanc, Rouge"
           style={styles.input}
         />
+
+        <label>Stock disponible</label>
+        <input
+          name="stock"
+          type="number"
+          min="0"
+          defaultValue="10"
+          style={styles.input}
+        />
+
+        <label style={styles.checkboxLabel}>
+          <input name="unlimited_stock" type="checkbox" />
+          Stock illimité / fabrication à la demande
+        </label>
 
         <label>Images du produit</label>
         <input
@@ -162,6 +180,14 @@ const styles: any = {
     color: "#fff",
     minHeight: "110px",
     resize: "vertical",
+  },
+
+  checkboxLabel: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    marginTop: "6px",
+    color: "#c8facc",
   },
 
   button: {

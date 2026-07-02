@@ -15,7 +15,13 @@ export default function ProductCard({
     product.colors?.[0] || ""
   );
 
+  const unlimitedStock = Boolean(product.unlimited_stock);
+  const stock = Number(product.stock || 0);
+  const isOutOfStock = !unlimitedStock && stock <= 0;
+
   function handleAddToCart() {
+    if (isOutOfStock) return;
+
     addToCart({
       ...product,
       selectedColor,
@@ -24,39 +30,43 @@ export default function ProductCard({
 
   return (
     <div style={styles.card}>
+      {isOutOfStock && <div style={styles.soldOutBadge}>Rupture de stock</div>}
+
       <a
         href={`/product/${product.id}`}
         style={{ textDecoration: "none", color: "inherit" }}
       >
         <img
-          src={product.images?.[activeImage]}
+          src={product.images?.[activeImage] || product.images?.[0] || ""}
           alt={product.name}
-          style={styles.mainImage}
+          style={{
+            ...styles.mainImage,
+            ...(isOutOfStock ? styles.imageDisabled : {}),
+          }}
         />
       </a>
 
-      <div style={styles.thumbs}>
-        {product.images?.map((img: string, index: number) => (
-          <img
-            key={index}
-            src={img}
-            alt={product.name}
-            onClick={() => setActiveImage(index)}
-            style={{
-              ...styles.thumb,
-              border:
-                index === activeImage
-                  ? "2px solid #7CFF9B"
-                  : "1px solid transparent",
-            }}
-          />
-        ))}
-      </div>
+      {product.images?.length > 1 && (
+        <div style={styles.thumbs}>
+          {product.images.map((img: string, index: number) => (
+            <img
+              key={index}
+              src={img}
+              alt={product.name}
+              onClick={() => setActiveImage(index)}
+              style={{
+                ...styles.thumb,
+                border:
+                  index === activeImage
+                    ? "2px solid #7CFF9B"
+                    : "1px solid transparent",
+              }}
+            />
+          ))}
+        </div>
+      )}
 
-      <a
-        href={`/product/${product.id}`}
-        style={styles.titleLink}
-      >
+      <a href={`/product/${product.id}`} style={styles.titleLink}>
         <h3 style={styles.name}>{product.name}</h3>
       </a>
 
@@ -68,6 +78,18 @@ export default function ProductCard({
         </p>
       )}
 
+      <div style={styles.stockLine}>
+        {unlimitedStock ? (
+          <span>♾️ Fabrication à la demande</span>
+        ) : isOutOfStock ? (
+          <span style={styles.stockDanger}>⚠️ Indisponible</span>
+        ) : stock <= 3 ? (
+          <span style={styles.stockWarning}>🔥 Plus que {stock} disponible(s)</span>
+        ) : (
+          <span>📦 Disponible</span>
+        )}
+      </div>
+
       {product.colors?.length > 0 && (
         <div style={styles.colorsBlock}>
           <p style={styles.label}>Couleur</p>
@@ -76,31 +98,31 @@ export default function ProductCard({
             value={selectedColor}
             onChange={(e) => setSelectedColor(e.target.value)}
             style={styles.select}
+            disabled={isOutOfStock}
           >
             {product.colors.map((color: string) => (
-              <option key={color}>
-                {color}
-              </option>
+              <option key={color}>{color}</option>
             ))}
           </select>
         </div>
       )}
 
-      <p style={styles.price}>{product.price} €</p>
+      <p style={styles.price}>{Number(product.price || 0).toFixed(2)} €</p>
 
       <div style={styles.buttons}>
-        <a
-          href={`/product/${product.id}`}
-          style={styles.detailsButton}
-        >
+        <a href={`/product/${product.id}`} style={styles.detailsButton}>
           Voir le produit
         </a>
 
         <button
           onClick={handleAddToCart}
-          style={styles.cartButton}
+          disabled={isOutOfStock}
+          style={{
+            ...styles.cartButton,
+            ...(isOutOfStock ? styles.cartButtonDisabled : {}),
+          }}
         >
-          Ajouter
+          {isOutOfStock ? "Indisponible" : "Ajouter"}
         </button>
       </div>
     </div>
@@ -109,6 +131,7 @@ export default function ProductCard({
 
 const styles: any = {
   card: {
+    position: "relative",
     background: "#102a1c",
     border: "1px solid #1f4d33",
     borderRadius: "16px",
@@ -119,12 +142,30 @@ const styles: any = {
     justifyContent: "space-between",
   },
 
+  soldOutBadge: {
+    position: "absolute",
+    top: "16px",
+    left: "16px",
+    zIndex: 2,
+    background: "#ff8a8a",
+    color: "#03140a",
+    padding: "7px 10px",
+    borderRadius: "999px",
+    fontWeight: "bold",
+    fontSize: "13px",
+  },
+
   mainImage: {
     width: "100%",
     height: "220px",
     objectFit: "cover",
     borderRadius: "12px",
     cursor: "pointer",
+  },
+
+  imageDisabled: {
+    opacity: 0.55,
+    filter: "grayscale(0.5)",
   },
 
   thumbs: {
@@ -157,6 +198,21 @@ const styles: any = {
     color: "#c8facc",
     lineHeight: "1.5",
     minHeight: "45px",
+  },
+
+  stockLine: {
+    marginTop: "8px",
+    color: "#b8d9c4",
+    fontSize: "14px",
+    fontWeight: "bold",
+  },
+
+  stockWarning: {
+    color: "#ffd166",
+  },
+
+  stockDanger: {
+    color: "#ff8a8a",
   },
 
   colorsBlock: {
@@ -210,5 +266,11 @@ const styles: any = {
     borderRadius: "8px",
     cursor: "pointer",
     fontWeight: "bold",
+  },
+
+  cartButtonDisabled: {
+    background: "#62756a",
+    color: "#d4ddd7",
+    cursor: "not-allowed",
   },
 };
