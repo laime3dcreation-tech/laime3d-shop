@@ -17,11 +17,12 @@ async function decreaseProductStock(metadataItems: any[]) {
       .eq("id", item.id)
       .single();
 
-    if (!product) continue;
-    if (product.unlimited_stock) continue;
+    if (!product || product.unlimited_stock) continue;
 
-    const currentStock = Number(product.stock || 0);
-    const newStock = Math.max(0, currentStock - Number(item.qty || 0));
+    const newStock = Math.max(
+      0,
+      Number(product.stock || 0) - Number(item.qty || 0)
+    );
 
     await supabaseAdmin
       .from("products")
@@ -53,17 +54,17 @@ async function createReceiptPdf(order: any) {
   page.drawText("LAIME3D", {
     x: 50,
     y,
-    size: 28,
+    size: 30,
     font: bold,
     color: rgb(0.15, 0.6, 0.25),
   });
 
   y -= 45;
 
-  draw("RECU DE COMMANDE", 50, 18, true);
-  draw(`Commande : ${order.orderNumber}`, 50, 12);
-  draw(`Date : ${new Date().toLocaleDateString("fr-FR")}`, 50, 12);
-  draw("www.laime3d.com", 50, 12);
+  draw("REÇU DE COMMANDE", 50, 18, true);
+  draw(`Commande : ${order.orderNumber}`);
+  draw(`Date : ${new Date().toLocaleDateString("fr-FR")}`);
+  draw("www.laime3d.com");
 
   y -= 15;
 
@@ -86,9 +87,7 @@ async function createReceiptPdf(order: any) {
     draw(
       `${item.name} x${item.quantity} - ${Number(
         item.amount_total || 0
-      ).toFixed(2)} EUR`,
-      50,
-      11
+      ).toFixed(2)} EUR`
     );
   });
 
@@ -101,7 +100,7 @@ async function createReceiptPdf(order: any) {
   y -= 25;
 
   draw("Merci pour votre commande chez LAIME3D.", 50, 12, true);
-  draw("Cree avec le coeur. Imprime avec passion.", 50, 11);
+  draw("Créé avec le cœur. Imprimé avec passion.");
 
   const pdfBytes = await pdfDoc.save();
   return Buffer.from(pdfBytes).toString("base64");
@@ -187,8 +186,6 @@ export async function POST(req: Request) {
         Number(metadata.final_total || 0) ||
         (session.amount_total ? session.amount_total / 100 : 0);
 
-      const orderNumber = `LAIME3D-${Date.now()}`;
-
       const orderPayload = {
         customer_name: fullName,
         first_name: firstName,
@@ -235,8 +232,10 @@ export async function POST(req: Request) {
 
       await decreaseProductStock(metadataItems);
 
+      const orderNumber = insertedOrder?.id || `LAIME3D-${Date.now()}`;
+
       const pdfBase64 = await createReceiptPdf({
-        orderNumber: insertedOrder?.id || orderNumber,
+        orderNumber,
         customerName: fullName,
         email: orderPayload.email,
         phone: orderPayload.phone,
@@ -253,26 +252,48 @@ export async function POST(req: Request) {
           from: "LAIME3D <contact@laime3d.com>",
           to: [orderPayload.email],
           bcc: ["laime3dcontact@yahoo.com"],
-          subject: "Merci pour votre commande LAIME3D",
+          subject: "Merci pour votre commande LAIME3D ❤️",
           html: `
             <div style="font-family: Arial, sans-serif; background:#0b1f14; color:#e8f5e9; padding:30px;">
-              <div style="max-width:640px; margin:auto; background:#10251a; border:1px solid #1f4d33; border-radius:18px; padding:26px;">
-                <h1 style="color:#7CFF9B;">Merci pour votre commande ❤️</h1>
+              <div style="max-width:660px; margin:auto; background:#10251a; border:1px solid #1f4d33; border-radius:20px; padding:30px;">
+
+                <div style="text-align:center; margin-bottom:28px;">
+                  <div style="color:#7CFF9B; font-size:30px; font-weight:bold; letter-spacing:4px;">
+                    LAIME3D
+                  </div>
+                  <p style="color:#b8d9c4; margin:8px 0 0;">
+                    Créé avec le cœur. Imprimé avec passion.
+                  </p>
+                </div>
+
+                <h1 style="color:#7CFF9B; text-align:center;">
+                  Merci pour votre commande ❤️
+                </h1>
 
                 <p>Bonjour ${firstName || fullName || ""},</p>
 
                 <p>
-                  Nous avons bien reçu votre commande LAIME3D.
+                  Nous avons bien reçu votre commande <b>#${orderNumber}</b>.
                   Votre reçu est joint à cet e-mail au format PDF.
                 </p>
 
-                <p><b>Commande :</b> ${insertedOrder?.id || orderNumber}</p>
-                <p><b>Total :</b> ${finalTotal.toFixed(2)} €</p>
+                <div style="background:#0b1f14; border:1px solid #1f4d33; border-radius:14px; padding:18px; margin:22px 0;">
+                  <p style="margin:0 0 8px; color:#b8d9c4;">Total de la commande</p>
+                  <p style="margin:0; color:#7CFF9B; font-size:24px; font-weight:bold;">
+                    ${finalTotal.toFixed(2)} €
+                  </p>
+                </div>
+
                 <p><b>Livraison :</b> ${deliveryLabel}</p>
+                <p><b>Adresse :</b> ${address || "Non renseignée"}</p>
 
                 <p>
                   Chaque création est préparée avec soin.
                   L’expédition se fait généralement sous 24 à 72 heures selon le modèle.
+                </p>
+
+                <p>
+                  Merci de soutenir une petite boutique française ❤️
                 </p>
 
                 <p style="color:#7CFF9B;"><b>Créé avec le cœur. Imprimé avec passion.</b></p>
@@ -281,7 +302,7 @@ export async function POST(req: Request) {
           `,
           attachments: [
             {
-              filename: `LAIME3D-recu-${insertedOrder?.id || orderNumber}.pdf`,
+              filename: `LAIME3D-recu-${orderNumber}.pdf`,
               content: pdfBase64,
             },
           ],

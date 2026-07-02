@@ -1,13 +1,77 @@
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { Resend } from "resend";
 
 export const dynamic = "force-dynamic";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+async function sendProcessingEmail(orderId: string) {
+  const { data: order } = await supabaseAdmin
+    .from("orders")
+    .select("*")
+    .eq("id", orderId)
+    .single();
+
+  if (!order?.email) return;
+
+  await resend.emails.send({
+    from: "LAIME3D <contact@laime3d.com>",
+    to: [order.email],
+    bcc: ["laime3dcontact@yahoo.com"],
+    subject: "Votre commande LAIME3D est en préparation 🟡",
+    html: `
+      <div style="font-family: Arial, sans-serif; background:#0b1f14; color:#e8f5e9; padding:30px;">
+        <div style="max-width:660px; margin:auto; background:#10251a; border:1px solid #1f4d33; border-radius:20px; padding:30px;">
+          <div style="text-align:center; margin-bottom:28px;">
+            <div style="color:#7CFF9B; font-size:30px; font-weight:bold; letter-spacing:4px;">
+              LAIME3D
+            </div>
+            <p style="color:#b8d9c4; margin:8px 0 0;">
+              Créé avec le cœur. Imprimé avec passion.
+            </p>
+          </div>
+
+          <h1 style="color:#7CFF9B; text-align:center;">
+            Votre commande est en préparation 🟡
+          </h1>
+
+          <p>Bonjour ${order.first_name || order.customer_name || ""},</p>
+
+          <p>
+            Nous préparons actuellement votre commande <b>#${order.id}</b> avec soin.
+          </p>
+
+          <div style="background:#0b1f14; border:1px solid #1f4d33; border-radius:14px; padding:18px; margin:22px 0;">
+            <p style="margin:0; color:#7CFF9B; font-size:20px; font-weight:bold;">
+              Votre création est entre nos mains ❤️
+            </p>
+            <p style="margin:10px 0 0; color:#b8d9c4;">
+              L’expédition se fait généralement sous 24 à 72 heures selon le modèle.
+            </p>
+          </div>
+
+          <p>
+            Vous recevrez un nouvel e-mail dès que votre commande sera expédiée,
+            avec le numéro de suivi.
+          </p>
+
+          <p style="color:#7CFF9B;"><b>Créé avec le cœur. Imprimé avec passion.</b></p>
+        </div>
+      </div>
+    `,
+  });
+}
 
 async function updateOrderStatus(orderId: string, status: string) {
   "use server";
 
   await supabaseAdmin.from("orders").update({ status }).eq("id", orderId);
+
+  if (status === "processing") {
+    await sendProcessingEmail(orderId);
+  }
 
   revalidatePath("/admin/orders");
   redirect("/admin/orders");
