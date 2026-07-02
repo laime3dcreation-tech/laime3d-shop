@@ -77,19 +77,13 @@ export default function HomePage() {
     <main style={styles.page}>
       <nav style={styles.nav}>
         <a href="/" style={styles.logo}>
-  LAIME3D
-</a>
+          LAIME3D
+        </a>
 
         <div style={styles.navLinks}>
-          <a href="/shop" style={styles.navLink}>
-            Collections
-          </a>
-          <a href="#about" style={styles.navLink}>
-            À propos
-          </a>
-          <a href="#contact" style={styles.navLink}>
-            Contact
-          </a>
+          <a href="/shop" style={styles.navLink}>Collections</a>
+          <a href="#about" style={styles.navLink}>À propos</a>
+          <a href="#contact" style={styles.navLink}>Contact</a>
         </div>
       </nav>
 
@@ -103,8 +97,7 @@ export default function HomePage() {
         </h1>
 
         <p style={styles.subtitle}>
-          Des créations 3D pensées avec soin, pour offrir, décorer ou faire
-          plaisir.
+          Des créations 3D pensées avec soin, pour offrir, décorer ou faire plaisir.
         </p>
 
         <a href="/shop" style={styles.mainButton}>
@@ -117,11 +110,7 @@ export default function HomePage() {
 
         <div style={styles.collections}>
           {collections.map((collection) => (
-            <a
-              key={collection.title}
-              href={collection.href}
-              style={styles.collectionCard}
-            >
+            <a key={collection.title} href={collection.href} style={styles.collectionCard}>
               <span style={styles.collectionEmoji}>{collection.emoji}</span>
               <h3>{collection.title}</h3>
               <p>{collection.text}</p>
@@ -136,11 +125,7 @@ export default function HomePage() {
 
           <div style={styles.grid}>
             {featured.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                addToCart={addToCart}
-              />
+              <ProductCard key={product.id} product={product} addToCart={addToCart} />
             ))}
           </div>
         </section>
@@ -151,11 +136,7 @@ export default function HomePage() {
 
         <div style={styles.grid}>
           {latest.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              addToCart={addToCart}
-            />
+            <ProductCard key={product.id} product={product} addToCart={addToCart} />
           ))}
         </div>
 
@@ -180,8 +161,7 @@ export default function HomePage() {
           <h2 style={styles.sectionTitle}>À propos</h2>
           <p style={styles.text}>
             Laime3D est une petite boutique de créations imprimées en 3D.
-            Chaque pièce est préparée avec attention, du choix du modèle à la
-            finition.
+            Chaque pièce est préparée avec attention, du choix du modèle à la finition.
           </p>
         </div>
 
@@ -196,9 +176,8 @@ export default function HomePage() {
             commandes en cours, ce délai peut être légèrement prolongé.
             <br />
             <br />
-            Les colis sont expédiés via <b>Mondial Relay</b> avec un numéro de
-            suivi. Chaque création est soigneusement emballée afin d'arriver en
-            parfait état.
+            Les colis sont expédiés via <b>Mondial Relay</b> avec un numéro de suivi.
+            Chaque création est soigneusement emballée afin d'arriver en parfait état.
           </p>
         </div>
       </section>
@@ -263,12 +242,11 @@ const styles: any = {
     gap: "14px",
   },
   logo: {
-  color: "#7CFF9B",
-  letterSpacing: "3px",
-  fontSize: "20px",
-  textDecoration: "none",
-  fontWeight: "bold",
-},
+    color: "#7CFF9B",
+    letterSpacing: "3px",
+    fontSize: "20px",
+    textDecoration: "none",
+    fontWeight: "bold",
   },
   navLinks: {
     display: "flex",
