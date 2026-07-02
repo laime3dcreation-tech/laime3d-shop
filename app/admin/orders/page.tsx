@@ -1,13 +1,12 @@
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { revalidatePath } from "next/cache";
 
+export const dynamic = "force-dynamic";
+
 async function updateOrderStatus(orderId: string, status: string) {
   "use server";
 
-  await supabaseAdmin
-    .from("orders")
-    .update({ status })
-    .eq("id", orderId);
+  await supabaseAdmin.from("orders").update({ status }).eq("id", orderId);
 
   revalidatePath("/admin/orders");
 }
@@ -23,8 +22,14 @@ function getStatus(status: string) {
     case "completed":
       return "✅ Terminé";
     default:
-      return status;
+      return status || "🟢 Nouveau";
   }
+}
+
+function getDeliveryLabel(order: any) {
+  if (order.delivery_method === "home") return "Livraison à domicile";
+  if (order.delivery_method === "mondial_relay") return "Mondial Relay";
+  return "Non renseigné";
 }
 
 function getItemColor(item: any) {
@@ -78,14 +83,94 @@ export default async function OrdersPage() {
                 <span style={styles.badge}>{getStatus(order.status)}</span>
               </div>
 
-              <p><b>👤 Client :</b> {order.customer_name}</p>
-              <p><b>📧 Email :</b> {order.email}</p>
-              <p><b>📍 Adresse :</b> {order.address}</p>
-              <p><b>💶 Total :</b> {order.total}€</p>
-              <p>
-                <b>🕒 Date :</b>{" "}
-                {new Date(order.created_at).toLocaleString("fr-FR")}
-              </p>
+              <div style={styles.infoGrid}>
+                <div style={styles.infoBox}>
+                  <h3>👤 Client</h3>
+                  <p>
+                    <b>Nom :</b>{" "}
+                    {order.customer_name ||
+                      `${order.first_name || ""} ${order.last_name || ""}`.trim() ||
+                      "Non renseigné"}
+                  </p>
+                  <p>
+                    <b>Email :</b> {order.email || "Non renseigné"}
+                  </p>
+                  <p>
+                    <b>Téléphone :</b> {order.phone || "Non renseigné"}
+                  </p>
+                </div>
+
+                <div style={styles.infoBox}>
+                  <h3>🚚 Livraison</h3>
+                  <p>
+                    <b>Méthode :</b> {getDeliveryLabel(order)}
+                  </p>
+
+                  {order.delivery_method === "mondial_relay" ? (
+                    <>
+                      <p>
+                        <b>Point Relais :</b>{" "}
+                        {order.relay_name || "Non renseigné"}
+                      </p>
+                      <p>
+                        <b>Adresse :</b>{" "}
+                        {[order.relay_address, order.relay_postal_code, order.relay_city]
+                          .filter(Boolean)
+                          .join(", ") || "Non renseignée"}
+                      </p>
+                      <p>
+                        <b>ID Point Relais :</b>{" "}
+                        {order.relay_id || "Non renseigné"}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p>
+                        <b>Adresse :</b>{" "}
+                        {[
+                          order.shipping_address || order.address,
+                          order.address_extra,
+                          order.postal_code,
+                          order.city,
+                          order.country,
+                        ]
+                          .filter(Boolean)
+                          .join(", ") || "Non renseignée"}
+                      </p>
+                    </>
+                  )}
+                </div>
+
+                <div style={styles.infoBox}>
+                  <h3>💶 Paiement</h3>
+                  <p>
+                    <b>Sous-total :</b>{" "}
+                    {Number(order.products_total || 0).toFixed(2)}€
+                  </p>
+                  <p>
+                    <b>Livraison :</b>{" "}
+                    {Number(order.delivery_price || 0) === 0
+                      ? "Offerte"
+                      : `${Number(order.delivery_price || 0).toFixed(2)}€`}
+                  </p>
+                  <p>
+                    <b>Total :</b>{" "}
+                    {Number(order.final_total || order.total || 0).toFixed(2)}€
+                  </p>
+                </div>
+
+                <div style={styles.infoBox}>
+                  <h3>🕒 Infos</h3>
+                  <p>
+                    <b>Date :</b>{" "}
+                    {new Date(order.created_at).toLocaleString("fr-FR")}
+                  </p>
+                  <p>
+                    <b>Tracking :</b>{" "}
+                    {order.tracking_number || "Pas encore ajouté"}
+                  </p>
+                </div>
+              </div>
 
               <h3>🛒 Articles</h3>
 
@@ -96,12 +181,10 @@ export default async function OrdersPage() {
                   return (
                     <li key={index} style={styles.item}>
                       <b>{getItemName(item)}</b> × {item.quantity} —{" "}
-                      {item.amount_total}€
+                      {Number(item.amount_total || 0).toFixed(2)}€
 
                       {color && (
-                        <div style={styles.color}>
-                          Couleur : {color}
-                        </div>
+                        <div style={styles.color}>Couleur : {color}</div>
                       )}
                     </li>
                   );
@@ -113,7 +196,9 @@ export default async function OrdersPage() {
                   <button style={styles.button}>🟢 Nouveau</button>
                 </form>
 
-                <form action={updateOrderStatus.bind(null, order.id, "processing")}>
+                <form
+                  action={updateOrderStatus.bind(null, order.id, "processing")}
+                >
                   <button style={styles.button}>🟡 En préparation</button>
                 </form>
 
@@ -121,7 +206,9 @@ export default async function OrdersPage() {
                   <button style={styles.button}>📦 Expédié</button>
                 </form>
 
-                <form action={updateOrderStatus.bind(null, order.id, "completed")}>
+                <form
+                  action={updateOrderStatus.bind(null, order.id, "completed")}
+                >
                   <button style={styles.button}>✅ Terminé</button>
                 </form>
               </div>
@@ -175,6 +262,20 @@ const styles: any = {
     padding: "6px 12px",
     borderRadius: "999px",
     fontWeight: "bold",
+  },
+
+  infoGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+    gap: "14px",
+    marginBottom: "22px",
+  },
+
+  infoBox: {
+    background: "#0b1f14",
+    border: "1px solid #1f4d33",
+    borderRadius: "12px",
+    padding: "14px",
   },
 
   itemsList: {
