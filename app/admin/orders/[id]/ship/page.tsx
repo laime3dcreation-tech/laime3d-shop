@@ -7,11 +7,20 @@ export const dynamic = "force-dynamic";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+function getTrackingUrl(trackingNumber: string) {
+  if (!trackingNumber) return "https://www.mondialrelay.fr/suivi-de-colis/";
+
+  return `https://www.mondialrelay.fr/suivi-de-colis/?numeroExpedition=${encodeURIComponent(
+    trackingNumber
+  )}`;
+}
+
 async function shipOrder(formData: FormData) {
   "use server";
 
   const orderId = String(formData.get("orderId"));
   const trackingNumber = String(formData.get("trackingNumber") || "").trim();
+  const trackingUrl = getTrackingUrl(trackingNumber);
 
   const { data: order } = await supabaseAdmin
     .from("orders")
@@ -39,19 +48,47 @@ async function shipOrder(formData: FormData) {
       subject: "Votre commande LAIME3D est expédiée 📦",
       html: `
         <div style="font-family: Arial, sans-serif; background:#0b1f14; color:#e8f5e9; padding:30px;">
-          <div style="max-width:640px; margin:auto; background:#10251a; border:1px solid #1f4d33; border-radius:18px; padding:26px;">
-            <h1 style="color:#7CFF9B;">Votre commande est en route 📦</h1>
+          <div style="max-width:660px; margin:auto; background:#10251a; border:1px solid #1f4d33; border-radius:20px; padding:30px;">
+            
+            <div style="text-align:center; margin-bottom:28px;">
+              <div style="color:#7CFF9B; font-size:30px; font-weight:bold; letter-spacing:4px;">
+                LAIME3D
+              </div>
+              <p style="color:#b8d9c4; margin:8px 0 0;">
+                Créé avec le cœur. Imprimé avec passion.
+              </p>
+            </div>
+
+            <h1 style="color:#7CFF9B; text-align:center;">
+              Votre commande est en route 📦
+            </h1>
 
             <p>Bonjour ${order.first_name || order.customer_name || ""},</p>
 
             <p>
-              Bonne nouvelle ! Votre commande LAIME3D vient d’être expédiée.
+              Bonne nouvelle ! Votre commande <b>#${order.id}</b> vient d’être expédiée.
             </p>
+
+            <div style="background:#0b1f14; border:1px solid #1f4d33; border-radius:14px; padding:18px; margin:22px 0;">
+              <p style="margin:0 0 8px; color:#b8d9c4;">Numéro de suivi</p>
+              <p style="margin:0; color:#7CFF9B; font-size:22px; font-weight:bold;">
+                ${trackingNumber || "Disponible prochainement"}
+              </p>
+            </div>
 
             ${
               trackingNumber
-                ? `<p><b>Numéro de suivi :</b> ${trackingNumber}</p>`
-                : `<p>Le numéro de suivi sera disponible prochainement.</p>`
+                ? `
+                  <div style="text-align:center; margin:28px 0;">
+                    <a
+                      href="${trackingUrl}"
+                      style="display:inline-block; background:#7CFF9B; color:#03140a; padding:14px 24px; border-radius:12px; text-decoration:none; font-weight:bold;"
+                    >
+                      Suivre mon colis
+                    </a>
+                  </div>
+                `
+                : ""
             }
 
             <p>
@@ -59,7 +96,7 @@ async function shipOrder(formData: FormData) {
             </p>
 
             <p>
-              Merci encore pour votre commande ❤️
+              Merci encore pour votre commande et pour votre soutien ❤️
             </p>
 
             <p style="color:#7CFF9B;"><b>Créé avec le cœur. Imprimé avec passion.</b></p>
@@ -106,22 +143,29 @@ export default async function ShipOrderPage({
       <div style={styles.card}>
         <h1 style={styles.title}>📦 Expédier la commande</h1>
 
-        <p>
-          <b>Commande :</b> #{order.id}
-        </p>
+        <div style={styles.infoBox}>
+          <p>
+            <b>Commande :</b> #{order.id}
+          </p>
 
-        <p>
-          <b>Client :</b> {order.customer_name || "Non renseigné"}
-        </p>
+          <p>
+            <b>Client :</b> {order.customer_name || "Non renseigné"}
+          </p>
 
-        <p>
-          <b>Email :</b> {order.email || "Non renseigné"}
-        </p>
+          <p>
+            <b>Email :</b> {order.email || "Non renseigné"}
+          </p>
+
+          <p>
+            <b>Tracking actuel :</b>{" "}
+            {order.tracking_number || "Pas encore ajouté"}
+          </p>
+        </div>
 
         <form action={shipOrder} style={styles.form}>
           <input type="hidden" name="orderId" value={order.id} />
 
-          <label>Numéro de suivi</label>
+          <label>Numéro de suivi Mondial Relay</label>
           <input
             name="trackingNumber"
             defaultValue={order.tracking_number || ""}
@@ -156,7 +200,7 @@ const styles: any = {
   },
 
   card: {
-    maxWidth: "620px",
+    maxWidth: "680px",
     background: "#10251a",
     border: "1px solid #1f4d33",
     borderRadius: "18px",
@@ -166,6 +210,14 @@ const styles: any = {
   title: {
     color: "#7CFF9B",
     marginBottom: "20px",
+  },
+
+  infoBox: {
+    background: "#0b1f14",
+    border: "1px solid #1f4d33",
+    borderRadius: "14px",
+    padding: "16px",
+    marginBottom: "22px",
   },
 
   form: {
