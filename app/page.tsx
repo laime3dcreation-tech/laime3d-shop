@@ -76,7 +76,9 @@ export default function HomePage() {
   return (
     <main style={styles.page}>
       <nav style={styles.nav}>
-        <strong style={styles.logo}>LAIME3D</strong>
+        <a href="/" style={styles.logo}>
+  LAIME3D
+</a>
 
         <div style={styles.navLinks}>
           <a href="/shop" style={styles.navLink}>
@@ -261,9 +263,12 @@ const styles: any = {
     gap: "14px",
   },
   logo: {
-    color: "#7CFF9B",
-    letterSpacing: "3px",
-    fontSize: "20px",
+  color: "#7CFF9B",
+  letterSpacing: "3px",
+  fontSize: "20px",
+  textDecoration: "none",
+  fontWeight: "bold",
+},
   },
   navLinks: {
     display: "flex",
