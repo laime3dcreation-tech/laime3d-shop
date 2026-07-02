@@ -81,28 +81,24 @@ export default function HomePage() {
         </a>
 
         <div style={styles.navLinks}>
-          <a href="/shop" style={styles.navLink}>Collections</a>
-          <a href="#about" style={styles.navLink}>À propos</a>
-          <a href="#contact" style={styles.navLink}>Contact</a>
+          <a href="/shop" style={styles.navLink}>
+            Collections
+          </a>
+          <a href="#about" style={styles.navLink}>
+            À propos
+          </a>
+          <a href="#contact" style={styles.navLink}>
+            Contact
+          </a>
         </div>
       </nav>
 
-      <section style={styles.hero}>
-        <p style={styles.brand}>LAIME3D</p>
-
-        <h1 style={styles.title}>
-          Créé avec le cœur.
-          <br />
-          Imprimé avec passion.
-        </h1>
-
-        <p style={styles.subtitle}>
-          Des créations 3D pensées avec soin, pour offrir, décorer ou faire plaisir.
-        </p>
-
-        <a href="/shop" style={styles.mainButton}>
-          Découvrir nos créations
-        </a>
+      <section style={styles.heroBanner}>
+        <div style={styles.heroOverlay}>
+          <a href="/shop" style={styles.mainButton}>
+            Découvrir nos créations
+          </a>
+        </div>
       </section>
 
       <section style={styles.section}>
@@ -110,7 +106,11 @@ export default function HomePage() {
 
         <div style={styles.collections}>
           {collections.map((collection) => (
-            <a key={collection.title} href={collection.href} style={styles.collectionCard}>
+            <a
+              key={collection.title}
+              href={collection.href}
+              style={styles.collectionCard}
+            >
               <span style={styles.collectionEmoji}>{collection.emoji}</span>
               <h3>{collection.title}</h3>
               <p>{collection.text}</p>
@@ -125,7 +125,11 @@ export default function HomePage() {
 
           <div style={styles.grid}>
             {featured.map((product) => (
-              <ProductCard key={product.id} product={product} addToCart={addToCart} />
+              <ProductCard
+                key={product.id}
+                product={product}
+                addToCart={addToCart}
+              />
             ))}
           </div>
         </section>
@@ -136,7 +140,11 @@ export default function HomePage() {
 
         <div style={styles.grid}>
           {latest.map((product) => (
-            <ProductCard key={product.id} product={product} addToCart={addToCart} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              addToCart={addToCart}
+            />
           ))}
         </div>
 
@@ -161,7 +169,8 @@ export default function HomePage() {
           <h2 style={styles.sectionTitle}>À propos</h2>
           <p style={styles.text}>
             Laime3D est une petite boutique de créations imprimées en 3D.
-            Chaque pièce est préparée avec attention, du choix du modèle à la finition.
+            Chaque pièce est préparée avec attention, du choix du modèle à la
+            finition.
           </p>
         </div>
 
@@ -176,8 +185,9 @@ export default function HomePage() {
             commandes en cours, ce délai peut être légèrement prolongé.
             <br />
             <br />
-            Les colis sont expédiés via <b>Mondial Relay</b> avec un numéro de suivi.
-            Chaque création est soigneusement emballée afin d'arriver en parfait état.
+            Les colis sont expédiés via <b>Mondial Relay</b> avec un numéro de
+            suivi. Chaque création est soigneusement emballée afin d'arriver en
+            parfait état.
           </p>
         </div>
       </section>
@@ -232,6 +242,7 @@ const styles: any = {
     color: "#e8f5e9",
     fontFamily: "Arial",
   },
+
   nav: {
     padding: "24px 40px",
     display: "flex",
@@ -241,6 +252,7 @@ const styles: any = {
     flexWrap: "wrap",
     gap: "14px",
   },
+
   logo: {
     color: "#7CFF9B",
     letterSpacing: "3px",
@@ -248,53 +260,51 @@ const styles: any = {
     textDecoration: "none",
     fontWeight: "bold",
   },
+
   navLinks: {
     display: "flex",
     gap: "20px",
     flexWrap: "wrap",
   },
+
   navLink: {
     color: "#e8f5e9",
     textDecoration: "none",
     fontWeight: "bold",
   },
-  hero: {
-    minHeight: "70vh",
+
+  heroBanner: {
+    minHeight: "78vh",
+    backgroundImage: "url('/banner.png')",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
     display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
+    alignItems: "flex-end",
     justifyContent: "center",
-    textAlign: "center",
-    padding: "40px",
   },
-  brand: {
-    color: "#7CFF9B",
-    fontSize: "72px",
-    letterSpacing: "8px",
-    fontWeight: "bold",
-    margin: 0,
+
+  heroOverlay: {
+    width: "100%",
+    padding: "0 40px 55px",
+    display: "flex",
+    justifyContent: "center",
+    background:
+      "linear-gradient(to top, rgba(11,31,20,0.95), rgba(11,31,20,0.05))",
   },
-  title: {
-    fontSize: "34px",
-    lineHeight: "1.25",
-    margin: "22px 0 10px",
-  },
-  subtitle: {
-    maxWidth: "620px",
-    color: "#b8d9c4",
-    fontSize: "18px",
-    lineHeight: "1.6",
-  },
+
   mainButton: {
     display: "inline-block",
-    marginTop: "22px",
-    padding: "14px 24px",
+    padding: "16px 30px",
     background: "#7CFF9B",
     color: "#03140a",
-    borderRadius: "12px",
+    borderRadius: "14px",
     textDecoration: "none",
     fontWeight: "bold",
+    fontSize: "18px",
+    boxShadow: "0 12px 30px rgba(0,0,0,0.35)",
   },
+
   secondaryButton: {
     display: "inline-block",
     marginTop: "25px",
@@ -305,19 +315,23 @@ const styles: any = {
     textDecoration: "none",
     fontWeight: "bold",
   },
+
   section: {
     padding: "60px 40px",
   },
+
   sectionTitle: {
     color: "#7CFF9B",
     fontSize: "34px",
     marginBottom: "24px",
   },
+
   collections: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
     gap: "18px",
   },
+
   collectionCard: {
     background: "#10251a",
     border: "1px solid #1f4d33",
@@ -326,19 +340,23 @@ const styles: any = {
     color: "#e8f5e9",
     textDecoration: "none",
   },
+
   collectionEmoji: {
     fontSize: "42px",
   },
+
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
     gap: "18px",
   },
+
   reasons: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
     gap: "16px",
   },
+
   reason: {
     background: "#10251a",
     border: "1px solid #1f4d33",
@@ -346,17 +364,20 @@ const styles: any = {
     padding: "20px",
     fontWeight: "bold",
   },
+
   infoSection: {
     padding: "60px 40px",
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
     gap: "24px",
   },
+
   text: {
     color: "#c8facc",
     lineHeight: "1.7",
     fontSize: "17px",
   },
+
   idea: {
     margin: "40px",
     padding: "50px 30px",
@@ -365,33 +386,39 @@ const styles: any = {
     borderRadius: "24px",
     textAlign: "center",
   },
+
   ideaTitle: {
     color: "#7CFF9B",
     fontSize: "38px",
   },
+
   footer: {
     padding: "45px 40px",
     textAlign: "center",
     color: "#b8d9c4",
     borderTop: "1px solid #1f4d33",
   },
+
   footerLogo: {
     color: "#7CFF9B",
     fontSize: "32px",
     letterSpacing: "5px",
     marginBottom: "15px",
   },
+
   footerText: {
     color: "#b8d9c4",
     marginBottom: "25px",
     lineHeight: "1.7",
   },
+
   footerContacts: {
     display: "flex",
     justifyContent: "center",
     gap: "25px",
     flexWrap: "wrap",
   },
+
   footerLink: {
     color: "#7CFF9B",
     textDecoration: "none",
