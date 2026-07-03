@@ -94,6 +94,11 @@ export default function HomePage() {
       </nav>
 
       <section style={styles.heroBanner}>
+        <picture style={styles.picture}>
+          <source media="(max-width: 768px)" srcSet="/banner-mobile.png" />
+          <img src="/banner.png" alt="LAIME3D" style={styles.heroImage} />
+        </picture>
+
         <div style={styles.heroOverlay}>
           <a href="/shop" style={styles.mainButton}>
             Découvrir nos créations
@@ -274,17 +279,34 @@ const styles: any = {
   },
 
   heroBanner: {
+    position: "relative",
+    width: "100%",
     minHeight: "78vh",
-    backgroundImage: "url('/banner.png')",
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
+    overflow: "hidden",
     display: "flex",
     alignItems: "flex-end",
     justifyContent: "center",
+    background: "#0b1f14",
+  },
+
+  picture: {
+    position: "absolute",
+    inset: 0,
+    width: "100%",
+    height: "100%",
+  },
+
+  heroImage: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    objectPosition: "center",
+    display: "block",
   },
 
   heroOverlay: {
+    position: "relative",
+    zIndex: 2,
     width: "100%",
     padding: "0 40px 55px",
     display: "flex",
