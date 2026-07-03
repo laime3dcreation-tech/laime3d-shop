@@ -16,9 +16,8 @@ export default function CGVPage() {
         <h2 style={styles.heading}>1. Produits</h2>
         <p style={styles.text}>
           LAIME3D propose des créations imprimées en 3D. Les produits sont présentés avec
-          leurs descriptions, couleurs disponibles et prix. Les créations étant fabriquées
-          avec soin, de légères variations peuvent exister selon l’impression, la couleur
-          ou la finition.
+          leurs descriptions, couleurs disponibles et prix. De légères variations peuvent
+          exister selon l’impression, la couleur ou la finition.
         </p>
 
         <h2 style={styles.heading}>2. Prix</h2>
@@ -50,29 +49,26 @@ export default function CGVPage() {
         <p style={styles.text}>
           Les livraisons sont proposées via Mondial Relay et/ou livraison à domicile selon
           les options disponibles au moment de la commande. Un numéro de suivi est envoyé
-          au client lorsque la commande est expédiée.
+          lorsque la commande est expédiée.
         </p>
 
         <h2 style={styles.heading}>7. Droit de rétractation</h2>
         <p style={styles.text}>
-          Conformément à la réglementation applicable aux ventes à distance, le consommateur
-          dispose en principe d’un délai de <b>14 jours</b> pour exercer son droit de rétractation.
-        </p>
-        <p style={styles.text}>
-          Attention : les produits personnalisés ou réalisés selon les spécifications du client
-          peuvent ne pas bénéficier du droit de rétractation.
+          Le consommateur dispose en principe d’un délai de <b>14 jours</b> pour exercer son
+          droit de rétractation. Les produits personnalisés ou réalisés selon les spécifications
+          du client peuvent ne pas bénéficier du droit de rétractation.
         </p>
 
         <h2 style={styles.heading}>8. Retours et remboursements</h2>
         <p style={styles.text}>
-          Pour toute demande de retour, le client doit contacter LAIME3D à l’adresse :
+          Pour toute demande de retour, contactez LAIME3D à
           <a href="mailto:laime3dcontact@yahoo.com" style={styles.link}> laime3dcontact@yahoo.com</a>.
           Les produits doivent être retournés en bon état, complets et correctement protégés.
         </p>
 
         <h2 style={styles.heading}>9. Service client</h2>
         <p style={styles.text}>
-          Pour toute question, le client peut contacter LAIME3D par email :
+          Pour toute question :
           <a href="mailto:laime3dcontact@yahoo.com" style={styles.link}> laime3dcontact@yahoo.com</a>.
         </p>
       </section>

@@ -13,9 +13,7 @@ export default function MentionsLegalesPage() {
           Le site <b>LAIME3D</b>, accessible à l’adresse <b>https://www.laime3d.com</b>,
           est édité par <b>Droga Kristina</b>.
         </p>
-        <p style={styles.text}>
-          Adresse : 9 route de Samatan, 32200 Gimont, France.
-        </p>
+        <p style={styles.text}>Adresse : 9 route de Samatan, 32200 Gimont, France.</p>
         <p style={styles.text}>
           Email : <a href="mailto:laime3dcontact@yahoo.com" style={styles.link}>laime3dcontact@yahoo.com</a>
         </p>

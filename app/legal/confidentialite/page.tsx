@@ -33,12 +33,6 @@ export default function ConfidentialitePage() {
           bancaires des clients.
         </p>
 
-        <h2 style={styles.heading}>Conservation</h2>
-        <p style={styles.text}>
-          Les données liées aux commandes sont conservées pendant la durée nécessaire à la
-          gestion commerciale, comptable et légale.
-        </p>
-
         <h2 style={styles.heading}>Partage des données</h2>
         <p style={styles.text}>
           Les données peuvent être transmises uniquement aux prestataires nécessaires :

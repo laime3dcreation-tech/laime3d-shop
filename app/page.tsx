@@ -235,6 +235,21 @@ export default function HomePage() {
             📷 @laime3d
           </a>
         </div>
+
+        <div style={styles.footerLegal}>
+          <a href="/legal/mentions-legales" style={styles.footerLegalLink}>
+            Mentions légales
+          </a>
+          <a href="/legal/cgv" style={styles.footerLegalLink}>
+            CGV
+          </a>
+          <a href="/legal/confidentialite" style={styles.footerLegalLink}>
+            Confidentialité
+          </a>
+          <a href="/legal/livraison-retours" style={styles.footerLegalLink}>
+            Livraison & retours
+          </a>
+        </div>
       </footer>
     </main>
   );
@@ -286,7 +301,6 @@ const styles: any = {
     display: "flex",
     alignItems: "flex-end",
     justifyContent: "center",
-    background: "#0b1f14",
   },
 
   picture: {
@@ -446,5 +460,22 @@ const styles: any = {
     textDecoration: "none",
     fontWeight: "bold",
     fontSize: "17px",
+  },
+
+  footerLegal: {
+    marginTop: "28px",
+    paddingTop: "22px",
+    borderTop: "1px solid #1f4d33",
+    display: "flex",
+    justifyContent: "center",
+    gap: "18px",
+    flexWrap: "wrap",
+  },
+
+  footerLegalLink: {
+    color: "#b8d9c4",
+    textDecoration: "none",
+    fontSize: "14px",
+    fontWeight: "bold",
   },
 };
