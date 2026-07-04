@@ -31,7 +31,7 @@ export default function Checkout() {
 
   const [relaySearchPostalCode, setRelaySearchPostalCode] = useState("");
   const [relayStatus, setRelayStatus] = useState(
-    "Entrez votre code postal pour afficher les Points Relais."
+    "Entrez votre code postal à 5 chiffres pour afficher les Points Relais."
   );
 
   const [relay, setRelay] = useState({
@@ -109,7 +109,9 @@ export default function Checkout() {
         );
 
         setWidgetReady(true);
-        setRelayStatus("Entrez votre code postal pour afficher les Points Relais.");
+        setRelayStatus(
+          "Entrez votre code postal à 5 chiffres pour afficher les Points Relais."
+        );
       } catch (error) {
         console.error("Mondial Relay loading error:", error);
         setRelayStatus("Impossible de charger Mondial Relay.");
@@ -123,8 +125,18 @@ export default function Checkout() {
     if (!widgetReady) return;
     if (deliveryMethod !== "mondial_relay") return;
 
-    if (relaySearchPostalCode.length < 4) {
-      setRelayStatus("Entrez votre code postal pour afficher les Points Relais.");
+    const cleanPostCode = relaySearchPostalCode.replace(/\D/g, "").slice(0, 5);
+
+    if (cleanPostCode.length !== 5) {
+      setRelayStatus(
+        "Entrez votre code postal à 5 chiffres pour afficher les Points Relais."
+      );
+
+      const $ = window.$;
+      if ($) {
+        $("#Zone_Widget").empty();
+      }
+
       return;
     }
 
@@ -144,7 +156,7 @@ export default function Checkout() {
 
     setRelayStatus("Recherche des Points Relais...");
 
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       try {
         $("#Zone_Widget").empty();
 
@@ -154,7 +166,7 @@ export default function Checkout() {
           TargetDisplayInfoPR: "#RelayInfo",
           Brand: brand,
           Country: "FR",
-          PostCode: relaySearchPostalCode,
+          PostCode: cleanPostCode,
           ColLivMod: "24R",
           NbResults: 7,
           Responsive: true,
@@ -174,11 +186,15 @@ export default function Checkout() {
             setRelayStatus("Point Relais sélectionné.");
           },
         });
+
+        setRelayStatus("Choisissez votre Point Relais sur la carte.");
       } catch (error) {
         console.error("Mondial Relay init error:", error);
         setRelayStatus("Erreur lors de l'affichage des Points Relais.");
       }
-    }, 300);
+    }, 500);
+
+    return () => clearTimeout(timer);
   }, [widgetReady, deliveryMethod, relaySearchPostalCode]);
 
   const productsTotal = cart.reduce(
@@ -417,15 +433,19 @@ export default function Checkout() {
             {deliveryMethod === "mondial_relay" && (
               <div style={styles.deliveryBox}>
                 <p style={styles.text}>
-                  Entrez votre code postal, puis choisissez votre Point Relais
-                  sur la carte Mondial Relay.
+                  Entrez votre code postal à 5 chiffres, puis choisissez votre
+                  Point Relais sur la carte Mondial Relay.
                 </p>
 
                 <input
                   placeholder="Code postal pour trouver un Point Relais *"
+                  inputMode="numeric"
+                  maxLength={5}
                   value={relaySearchPostalCode}
                   onChange={(e) => {
-                    setRelaySearchPostalCode(e.target.value);
+                    const cleanValue = e.target.value.replace(/\D/g, "").slice(0, 5);
+
+                    setRelaySearchPostalCode(cleanValue);
                     setRelay({
                       id: "",
                       name: "",
@@ -444,8 +464,12 @@ export default function Checkout() {
                 <input id="RelayDisplay" type="hidden" />
                 <div id="RelayInfo" style={{ display: "none" }} />
 
-                {relaySearchPostalCode.length >= 4 && (
-                  <div id="Zone_Widget" style={widgetStyle} />
+                {relaySearchPostalCode.length === 5 && (
+                  <div
+                    key={relaySearchPostalCode}
+                    id="Zone_Widget"
+                    style={widgetStyle}
+                  />
                 )}
 
                 {relay.id && (
