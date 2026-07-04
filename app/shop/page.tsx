@@ -25,7 +25,6 @@ function Shop() {
   const searchParams = useSearchParams();
 
   const [products, setProducts] = useState<any[]>([]);
-  const [cart, setCart] = useState<any[]>([]);
   const [category, setCategory] = useState("all");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("newest");
@@ -60,15 +59,6 @@ function Shop() {
     loadProducts();
   }, []);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("cart");
-    if (saved) setCart(JSON.parse(saved));
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
-
   const filteredProducts = useMemo(() => {
     let result = [...products];
 
@@ -94,60 +84,25 @@ function Shop() {
   }, [products, category, search, sort]);
 
   function addToCart(product: any) {
-    setCart((prev) => {
-      const found = prev.find(
-        (item) =>
-          item.id === product.id &&
-          item.selectedColor === product.selectedColor
-      );
+    const saved = localStorage.getItem("cart");
+    const cart = saved ? JSON.parse(saved) : [];
 
-      if (found) {
-        return prev.map((item) =>
-          item.id === product.id &&
-          item.selectedColor === product.selectedColor
-            ? { ...item, qty: item.qty + 1 }
-            : item
-        );
-      }
-
-      return [...prev, { ...product, qty: 1 }];
-    });
-  }
-
-  function increaseQty(id: string, color: string) {
-    setCart((prev) =>
-      prev.map((item) =>
-        item.id === id && item.selectedColor === color
-          ? { ...item, qty: item.qty + 1 }
-          : item
-      )
+    const found = cart.find(
+      (item: any) =>
+        item.id === product.id && item.selectedColor === product.selectedColor
     );
-  }
 
-  function decreaseQty(id: string, color: string) {
-    setCart((prev) =>
-      prev
-        .map((item) =>
-          item.id === id && item.selectedColor === color
-            ? { ...item, qty: item.qty - 1 }
+    const updatedCart = found
+      ? cart.map((item: any) =>
+          item.id === product.id && item.selectedColor === product.selectedColor
+            ? { ...item, qty: Number(item.qty || 0) + 1 }
             : item
         )
-        .filter((item) => item.qty > 0)
-    );
-  }
+      : [...cart, { ...product, qty: 1 }];
 
-  function removeItem(id: string, color: string) {
-    setCart((prev) =>
-      prev.filter(
-        (item) => !(item.id === id && item.selectedColor === color)
-      )
-    );
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    window.dispatchEvent(new Event("cart-updated"));
   }
-
-  const total = cart.reduce(
-    (sum, item) => sum + Number(item.price) * item.qty,
-    0
-  );
 
   return (
     <main style={styles.page}>
@@ -207,76 +162,19 @@ function Shop() {
         ))}
       </div>
 
-      <div style={styles.layout}>
-        <section style={styles.grid}>
-          {filteredProducts.length === 0 ? (
-            <p>Aucun produit trouvé.</p>
-          ) : (
-            filteredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                addToCart={addToCart}
-              />
-            ))
-          )}
-        </section>
-
-        <aside style={styles.cart}>
-          <h2>🛒 Panier</h2>
-
-          {cart.length === 0 && <p>Votre panier est vide</p>}
-
-          {cart.map((item, index) => (
-            <div key={index} style={styles.cartItem}>
-              <div>
-                <strong>{item.name}</strong>
-
-                {item.selectedColor && (
-                  <div style={styles.color}>Couleur : {item.selectedColor}</div>
-                )}
-
-                <div style={styles.qty}>
-                  <button
-                    onClick={() => decreaseQty(item.id, item.selectedColor)}
-                    style={styles.qtyButton}
-                  >
-                    -
-                  </button>
-
-                  <span>{item.qty}</span>
-
-                  <button
-                    onClick={() => increaseQty(item.id, item.selectedColor)}
-                    style={styles.qtyButton}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
-              <div style={styles.cartRight}>
-                <div>{Number(item.price) * item.qty}€</div>
-
-                <button
-                  onClick={() => removeItem(item.id, item.selectedColor)}
-                  style={styles.remove}
-                >
-                  Retirer
-                </button>
-              </div>
-            </div>
-          ))}
-
-          <hr />
-
-          <h3>Total : {total}€</h3>
-
-          <a href="/checkout">
-            <button style={styles.checkout}>Procéder au paiement →</button>
-          </a>
-        </aside>
-      </div>
+      <section style={styles.grid}>
+        {filteredProducts.length === 0 ? (
+          <p>Aucun produit trouvé.</p>
+        ) : (
+          filteredProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              addToCart={addToCart}
+            />
+          ))
+        )}
+      </section>
     </main>
   );
 }
@@ -288,6 +186,8 @@ const styles: any = {
     background: "#0b1f14",
     color: "#e8f5e9",
     fontFamily: "Arial",
+    boxSizing: "border-box",
+    overflowX: "hidden",
   },
 
   nav: {
@@ -344,19 +244,22 @@ const styles: any = {
   search: {
     flex: 1,
     minWidth: "240px",
-    padding: "12px",
-    borderRadius: "10px",
+    padding: "14px",
+    borderRadius: "12px",
     border: "1px solid #1f4d33",
     background: "#102a1c",
     color: "#fff",
+    fontSize: "16px",
+    boxSizing: "border-box",
   },
 
   select: {
-    padding: "12px",
-    borderRadius: "10px",
+    padding: "14px",
+    borderRadius: "12px",
     border: "1px solid #1f4d33",
     background: "#102a1c",
     color: "#fff",
+    fontSize: "16px",
   },
 
   categories: {
@@ -367,12 +270,13 @@ const styles: any = {
   },
 
   catBtn: {
-    padding: "10px 14px",
+    padding: "12px 16px",
     background: "#102a1c",
     color: "#e8f5e9",
     border: "1px solid #1f4d33",
-    borderRadius: "8px",
+    borderRadius: "10px",
     cursor: "pointer",
+    fontSize: "15px",
   },
 
   catBtnActive: {
@@ -381,80 +285,10 @@ const styles: any = {
     fontWeight: "bold",
   },
 
-  layout: {
-    display: "flex",
-    gap: "20px",
-    alignItems: "flex-start",
-  },
-
   grid: {
-    flex: 1,
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
     gap: "18px",
-  },
-
-  cart: {
-    width: "350px",
-    padding: "18px",
-    background: "#0f2418",
-    borderRadius: "14px",
-    position: "sticky",
-    top: "20px",
-  },
-
-  cartItem: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: "10px",
-    marginTop: "15px",
-  },
-
-  color: {
-    color: "#7CFF9B",
-    fontSize: "13px",
-    marginTop: "4px",
-  },
-
-  qty: {
-    display: "flex",
-    gap: "8px",
-    alignItems: "center",
-    marginTop: "8px",
-  },
-
-  qtyButton: {
-    width: "26px",
-    height: "26px",
-    borderRadius: "6px",
-    border: "none",
-    cursor: "pointer",
-    background: "#7CFF9B",
-    fontWeight: "bold",
-  },
-
-  cartRight: {
-    textAlign: "right",
-  },
-
-  remove: {
-    marginTop: "8px",
-    background: "#ff8a8a",
-    border: "none",
-    borderRadius: "6px",
-    padding: "5px 10px",
-    cursor: "pointer",
-  },
-
-  checkout: {
-    marginTop: "20px",
-    width: "100%",
-    padding: "12px",
-    background: "#7CFF9B",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontWeight: "bold",
+    paddingBottom: "90px",
   },
 };
