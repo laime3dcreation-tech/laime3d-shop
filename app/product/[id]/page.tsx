@@ -12,6 +12,7 @@ export default function ProductPage() {
   const [activeImage, setActiveImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState("");
   const [qty, setQty] = useState(1);
+  const [added, setAdded] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -69,8 +70,8 @@ export default function ProductPage() {
           ? {
               ...item,
               qty: unlimitedStock
-                ? item.qty + finalQty
-                : Math.min(item.qty + finalQty, stock),
+                ? Number(item.qty || 0) + finalQty
+                : Math.min(Number(item.qty || 0) + finalQty, stock),
             }
           : item
       );
@@ -86,7 +87,10 @@ export default function ProductPage() {
     }
 
     localStorage.setItem("cart", JSON.stringify(updatedCart));
-    window.location.href = "/shop";
+    window.dispatchEvent(new Event("cart-updated"));
+
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1800);
   }
 
   return (
@@ -212,6 +216,8 @@ export default function ProductPage() {
             </p>
           )}
 
+          {added && <div style={styles.addedMessage}>✅ Produit ajouté au panier</div>}
+
           <button
             onClick={addToCart}
             disabled={isOutOfStock}
@@ -220,7 +226,7 @@ export default function ProductPage() {
               ...(isOutOfStock ? styles.buttonDisabled : {}),
             }}
           >
-            {isOutOfStock ? "Indisponible" : "Ajouter au panier"}
+            {isOutOfStock ? "Indisponible" : added ? "Ajouté ✓" : "Ajouter au panier"}
           </button>
         </section>
       </div>
@@ -391,8 +397,19 @@ const styles: any = {
     marginTop: "10px",
   },
 
+  addedMessage: {
+    marginTop: "20px",
+    background: "#0b1f14",
+    border: "1px solid #7CFF9B",
+    color: "#7CFF9B",
+    borderRadius: "12px",
+    padding: "12px",
+    textAlign: "center",
+    fontWeight: "bold",
+  },
+
   button: {
-    marginTop: "28px",
+    marginTop: "18px",
     width: "100%",
     padding: "15px",
     background: "#7CFF9B",

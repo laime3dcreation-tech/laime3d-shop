@@ -15,6 +15,8 @@ export default function ProductCard({
     product.colors?.[0] || ""
   );
 
+  const [added, setAdded] = useState(false);
+
   const unlimitedStock = Boolean(product.unlimited_stock);
   const stock = Number(product.stock || 0);
   const isOutOfStock = !unlimitedStock && stock <= 0;
@@ -26,11 +28,18 @@ export default function ProductCard({
       ...product,
       selectedColor,
     });
+
+    window.dispatchEvent(new Event("cart-updated"));
+
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1600);
   }
 
   return (
     <div style={styles.card}>
       {isOutOfStock && <div style={styles.soldOutBadge}>Rupture de stock</div>}
+
+      {added && <div style={styles.addedBadge}>Ajouté ✓</div>}
 
       <a
         href={`/product/${product.id}`}
@@ -122,7 +131,7 @@ export default function ProductCard({
             ...(isOutOfStock ? styles.cartButtonDisabled : {}),
           }}
         >
-          {isOutOfStock ? "Indisponible" : "Ajouter"}
+          {isOutOfStock ? "Indisponible" : added ? "Ajouté ✓" : "Ajouter"}
         </button>
       </div>
     </div>
@@ -148,6 +157,19 @@ const styles: any = {
     left: "16px",
     zIndex: 2,
     background: "#ff8a8a",
+    color: "#03140a",
+    padding: "7px 10px",
+    borderRadius: "999px",
+    fontWeight: "bold",
+    fontSize: "13px",
+  },
+
+  addedBadge: {
+    position: "absolute",
+    top: "16px",
+    right: "16px",
+    zIndex: 2,
+    background: "#7CFF9B",
     color: "#03140a",
     padding: "7px 10px",
     borderRadius: "999px",

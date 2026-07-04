@@ -3,64 +3,85 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
-const FREE_SHIPPING_FROM = 69;
-const MONDIAL_RELAY_PRICE = 4.9;
-
 export default function FloatingCart() {
   const pathname = usePathname();
   const [cart, setCart] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
 
   function loadCart() {
+    if (typeof window === "undefined") return;
+
     const saved = localStorage.getItem("cart");
-    setCart(saved ? JSON.parse(saved) : []);
+    const parsedCart = saved ? JSON.parse(saved) : [];
+
+    setCart(parsedCart);
+
+    if (parsedCart.length === 0) {
+      setOpen(false);
+    }
   }
 
   function saveCart(updatedCart: any[]) {
-    setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
+    setCart(updatedCart);
+
+    window.dispatchEvent(new Event("cart-updated"));
+
+    if (updatedCart.length === 0) {
+      setOpen(false);
+    }
   }
 
-  function increaseQty(id: string, selectedColor: string) {
-    const updatedCart = cart.map((item) =>
-      item.id === id && item.selectedColor === selectedColor
-        ? { ...item, qty: item.qty + 1 }
-        : item
+  function increaseQty(index: number) {
+    const updatedCart = cart.map((item, itemIndex) =>
+      itemIndex === index ? { ...item, qty: Number(item.qty || 1) + 1 } : item
     );
 
     saveCart(updatedCart);
   }
 
-  function decreaseQty(id: string, selectedColor: string) {
+  function decreaseQty(index: number) {
     const updatedCart = cart
-      .map((item) =>
-        item.id === id && item.selectedColor === selectedColor
-          ? { ...item, qty: item.qty - 1 }
+      .map((item, itemIndex) =>
+        itemIndex === index
+          ? { ...item, qty: Math.max(0, Number(item.qty || 1) - 1) }
           : item
       )
-      .filter((item) => item.qty > 0);
+      .filter((item) => Number(item.qty || 0) > 0);
 
     saveCart(updatedCart);
   }
 
-  function removeItem(id: string, selectedColor: string) {
-    const updatedCart = cart.filter(
-      (item) => !(item.id === id && item.selectedColor === selectedColor)
-    );
-
+  function removeItem(index: number) {
+    const updatedCart = cart.filter((_, itemIndex) => itemIndex !== index);
     saveCart(updatedCart);
   }
 
-  function clearCart() {
-    saveCart([]);
+  function continueShopping() {
+    setOpen(false);
+
+    if (
+      pathname.startsWith("/checkout") ||
+      pathname.startsWith("/success") ||
+      pathname.startsWith("/cancel")
+    ) {
+      window.location.href = "/shop";
+    }
   }
 
   useEffect(() => {
     loadCart();
 
-    const interval = setInterval(loadCart, 500);
+    window.addEventListener("storage", loadCart);
+    window.addEventListener("cart-updated", loadCart);
 
-    return () => clearInterval(interval);
+    const interval = setInterval(loadCart, 700);
+
+    return () => {
+      window.removeEventListener("storage", loadCart);
+      window.removeEventListener("cart-updated", loadCart);
+      clearInterval(interval);
+    };
   }, []);
 
   if (
@@ -72,30 +93,29 @@ export default function FloatingCart() {
     return null;
   }
 
-  const count = cart.reduce((sum, item) => sum + item.qty, 0);
-
-  const subtotal = cart.reduce(
-    (sum, item) => sum + Number(item.price) * item.qty,
+  const count = cart.reduce((sum, item) => sum + Number(item.qty || 0), 0);
+  const total = cart.reduce(
+    (sum, item) => sum + Number(item.price || 0) * Number(item.qty || 0),
     0
   );
 
-  const deliveryPrice =
-    subtotal === 0 || subtotal >= FREE_SHIPPING_FROM ? 0 : MONDIAL_RELAY_PRICE;
-
-  const total = subtotal + deliveryPrice;
-
-  const remainingForFreeShipping = Math.max(0, FREE_SHIPPING_FROM - subtotal);
-
   return (
     <>
-      <button onClick={() => setOpen(true)} style={styles.floatingButton}>
+      <button
+        onClick={() => setOpen(true)}
+        style={{
+          ...styles.floatingButton,
+          ...(count > 0 ? styles.floatingButtonActive : {}),
+        }}
+        aria-label="Ouvrir le panier"
+      >
         🛒
         {count > 0 && <span style={styles.badge}>{count}</span>}
       </button>
 
       {open && (
         <div style={styles.overlay} onClick={() => setOpen(false)}>
-          <div style={styles.drawer} onClick={(e) => e.stopPropagation()}>
+          <div style={styles.drawer} onClick={(event) => event.stopPropagation()}>
             <button onClick={() => setOpen(false)} style={styles.close}>
               ×
             </button>
@@ -103,117 +123,79 @@ export default function FloatingCart() {
             <h2 style={styles.title}>Votre panier</h2>
 
             {cart.length === 0 ? (
-              <div style={styles.emptyBox}>
+              <div>
                 <p>Votre panier est vide.</p>
 
-                <a href="/shop" style={styles.checkout}>
-                  Découvrir la boutique
-                </a>
+                <button onClick={continueShopping} style={styles.continueButton}>
+                  ← Continuer mes achats
+                </button>
               </div>
             ) : (
               <>
-                {subtotal < FREE_SHIPPING_FROM ? (
-                  <p style={styles.freeShippingInfo}>
-                    Encore{" "}
-                    <b>{remainingForFreeShipping.toFixed(2).replace(".", ",")}€</b>{" "}
-                    pour profiter de la livraison offerte 🎁
-                  </p>
-                ) : (
-                  <p style={styles.freeShippingSuccess}>
-                    🎉 Livraison offerte !
-                  </p>
-                )}
+                <div style={styles.items}>
+                  {cart.map((item, index) => (
+                    <div key={`${item.id}-${item.selectedColor}-${index}`} style={styles.item}>
+                      {item.images?.[0] && (
+                        <img src={item.images[0]} alt={item.name} style={styles.itemImage} />
+                      )}
 
-                <div style={styles.itemsList}>
-                  {cart.map((item, index) => {
-                    const itemTotal = Number(item.price) * item.qty;
+                      <div style={styles.itemContent}>
+                        <div style={styles.itemTop}>
+                          <div>
+                            <strong>{item.name}</strong>
 
-                    return (
-                      <div key={index} style={styles.item}>
-                        {item.images?.[0] && (
-                          <img
-                            src={item.images[0]}
-                            alt={item.name}
-                            style={styles.image}
-                          />
-                        )}
+                            {item.selectedColor && (
+                              <p style={styles.color}>Couleur : {item.selectedColor}</p>
+                            )}
+                          </div>
 
-                        <div style={styles.itemInfo}>
-                          <strong>{item.name}</strong>
+                          <button
+                            onClick={() => removeItem(index)}
+                            style={styles.removeButton}
+                            aria-label="Supprimer"
+                          >
+                            ×
+                          </button>
+                        </div>
 
-                          {item.selectedColor && (
-                            <p style={styles.color}>
-                              Couleur : {item.selectedColor}
-                            </p>
-                          )}
-
-                          <div style={styles.qtyRow}>
-                            <button
-                              onClick={() =>
-                                decreaseQty(item.id, item.selectedColor)
-                              }
-                              style={styles.qtyButton}
-                            >
+                        <div style={styles.itemBottom}>
+                          <div style={styles.qtyControls}>
+                            <button onClick={() => decreaseQty(index)} style={styles.qtyButton}>
                               −
                             </button>
 
                             <span style={styles.qtyNumber}>{item.qty}</span>
 
-                            <button
-                              onClick={() =>
-                                increaseQty(item.id, item.selectedColor)
-                              }
-                              style={styles.qtyButton}
-                            >
+                            <button onClick={() => increaseQty(index)} style={styles.qtyButton}>
                               +
                             </button>
                           </div>
 
-                          <button
-                            onClick={() =>
-                              removeItem(item.id, item.selectedColor)
-                            }
-                            style={styles.remove}
-                          >
-                            Supprimer
-                          </button>
+                          <strong>
+                            {(Number(item.price || 0) * Number(item.qty || 0))
+                              .toFixed(2)
+                              .replace(".", ",")}
+                            €
+                          </strong>
                         </div>
-
-                        <strong style={styles.itemPrice}>
-                          {itemTotal.toFixed(2).replace(".", ",")}€
-                        </strong>
                       </div>
-                    );
-                  })}
+                    </div>
+                  ))}
                 </div>
 
-                <div style={styles.summary}>
-                  <div style={styles.summaryRow}>
-                    <span>Sous-total</span>
-                    <strong>{subtotal.toFixed(2).replace(".", ",")}€</strong>
-                  </div>
+                <hr style={styles.separator} />
 
-                  <div style={styles.summaryRow}>
-                    <span>Livraison estimée</span>
-                    <strong>
-                      {deliveryPrice === 0
-                        ? "Offerte"
-                        : `${deliveryPrice.toFixed(2).replace(".", ",")}€`}
-                    </strong>
-                  </div>
-
-                  <div style={styles.total}>
-                    <span>Total estimé</span>
-                    <strong>{total.toFixed(2).replace(".", ",")}€</strong>
-                  </div>
+                <div style={styles.total}>
+                  <span>Total</span>
+                  <strong>{total.toFixed(2).replace(".", ",")}€</strong>
                 </div>
 
                 <a href="/checkout" style={styles.checkout}>
                   Finaliser ma commande
                 </a>
 
-                <button onClick={clearCart} style={styles.clearButton}>
-                  Vider le panier
+                <button onClick={continueShopping} style={styles.continueButton}>
+                  ← Continuer mes achats
                 </button>
               </>
             )}
@@ -240,6 +222,12 @@ const styles: any = {
     fontWeight: "bold",
     zIndex: 9998,
     boxShadow: "0 10px 30px rgba(0,0,0,0.35)",
+    transition: "transform 0.2s ease, box-shadow 0.2s ease",
+  },
+
+  floatingButtonActive: {
+    transform: "scale(1.05)",
+    boxShadow: "0 14px 35px rgba(124,255,155,0.28)",
   },
 
   badge: {
@@ -248,9 +236,10 @@ const styles: any = {
     right: "-6px",
     background: "#ff5c5c",
     color: "#fff",
-    width: "24px",
+    minWidth: "24px",
     height: "24px",
-    borderRadius: "50%",
+    padding: "0 6px",
+    borderRadius: "999px",
     fontSize: "13px",
     display: "flex",
     alignItems: "center",
@@ -267,7 +256,7 @@ const styles: any = {
   },
 
   drawer: {
-    width: "430px",
+    width: "420px",
     maxWidth: "100%",
     minHeight: "100vh",
     maxHeight: "100vh",
@@ -277,7 +266,6 @@ const styles: any = {
     padding: "28px",
     position: "relative",
     borderLeft: "1px solid #1f4d33",
-    boxSizing: "border-box",
   },
 
   close: {
@@ -296,119 +284,100 @@ const styles: any = {
     marginBottom: "24px",
   },
 
-  emptyBox: {
+  items: {
     display: "grid",
-    gap: "18px",
-  },
-
-  freeShippingInfo: {
-    color: "#ffd166",
-    background: "#1a2d19",
-    padding: "12px",
-    borderRadius: "10px",
-    lineHeight: "1.5",
-  },
-
-  freeShippingSuccess: {
-    color: "#7CFF9B",
-    background: "#12301f",
-    padding: "12px",
-    borderRadius: "10px",
-    fontWeight: "bold",
-  },
-
-  itemsList: {
-    display: "grid",
-    gap: "16px",
+    gap: "14px",
   },
 
   item: {
-    display: "grid",
-    gridTemplateColumns: "64px 1fr auto",
+    display: "flex",
     gap: "12px",
-    alignItems: "start",
-    paddingBottom: "16px",
-    borderBottom: "1px solid #1f4d33",
+    background: "#0b1f14",
+    border: "1px solid #1f4d33",
+    borderRadius: "14px",
+    padding: "12px",
   },
 
-  image: {
-    width: "64px",
-    height: "64px",
+  itemImage: {
+    width: "76px",
+    height: "76px",
     objectFit: "cover",
     borderRadius: "10px",
-    background: "#0b1f14",
+    flexShrink: 0,
   },
 
-  itemInfo: {
+  itemContent: {
+    flex: 1,
     display: "grid",
-    gap: "6px",
+    gap: "12px",
+  },
+
+  itemTop: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: "10px",
+  },
+
+  removeButton: {
+    width: "28px",
+    height: "28px",
+    borderRadius: "50%",
+    border: "none",
+    background: "#ff8a8a",
+    color: "#03140a",
+    cursor: "pointer",
+    fontWeight: "bold",
+    flexShrink: 0,
   },
 
   color: {
     color: "#7CFF9B",
     fontSize: "13px",
-    margin: 0,
+    margin: "5px 0 0",
   },
 
-  qtyRow: {
+  itemBottom: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "12px",
+  },
+
+  qtyControls: {
     display: "flex",
     alignItems: "center",
     gap: "8px",
-    marginTop: "4px",
   },
 
   qtyButton: {
-    width: "28px",
-    height: "28px",
+    width: "32px",
+    height: "32px",
     borderRadius: "8px",
     border: "none",
     background: "#7CFF9B",
     color: "#03140a",
     cursor: "pointer",
     fontWeight: "bold",
+    fontSize: "18px",
   },
 
   qtyNumber: {
-    minWidth: "20px",
+    minWidth: "24px",
     textAlign: "center",
     fontWeight: "bold",
   },
 
-  remove: {
-    marginTop: "4px",
-    background: "transparent",
+  separator: {
     border: "none",
-    color: "#ff8a8a",
-    cursor: "pointer",
-    textAlign: "left",
-    padding: 0,
-    fontWeight: "bold",
-  },
-
-  itemPrice: {
-    color: "#7CFF9B",
-    whiteSpace: "nowrap",
-  },
-
-  summary: {
-    marginTop: "22px",
-    paddingTop: "18px",
     borderTop: "1px solid #1f4d33",
-    display: "grid",
-    gap: "10px",
-  },
-
-  summaryRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    gap: "12px",
+    margin: "20px 0",
   },
 
   total: {
     display: "flex",
     justifyContent: "space-between",
     fontSize: "22px",
-    marginTop: "8px",
+    marginTop: "18px",
     color: "#7CFF9B",
   },
 
@@ -424,14 +393,14 @@ const styles: any = {
     fontWeight: "bold",
   },
 
-  clearButton: {
-    marginTop: "12px",
+  continueButton: {
     width: "100%",
-    padding: "12px",
-    background: "transparent",
-    color: "#ff8a8a",
-    border: "1px solid #ff8a8a",
-    borderRadius: "10px",
+    marginTop: "12px",
+    padding: "13px",
+    background: "#1f4d33",
+    color: "#e8f5e9",
+    border: "none",
+    borderRadius: "12px",
     cursor: "pointer",
     fontWeight: "bold",
   },
