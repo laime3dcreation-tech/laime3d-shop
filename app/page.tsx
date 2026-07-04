@@ -173,9 +173,17 @@ export default function HomePage() {
         <div>
           <h2 style={styles.sectionTitle}>À propos</h2>
           <p style={styles.text}>
-            Laime3D est une petite boutique de créations imprimées en 3D.
-            Chaque pièce est préparée avec attention, du choix du modèle à la
-            finition.
+            Bienvenue chez <b>LAIME3D</b> ❤️
+            <br />
+            <br />
+            Nous créons des objets imprimés en 3D avec passion, en accordant
+            une attention particulière à chaque détail. Chaque pièce est
+            fabriquée avec soin, du choix des matériaux jusqu'aux finitions,
+            afin de vous proposer une création unique et de qualité.
+            <br />
+            <br />
+            Notre objectif est simple : vous offrir des créations originales
+            qui feront plaisir à offrir… ou à s'offrir.
           </p>
         </div>
 
@@ -190,9 +198,12 @@ export default function HomePage() {
             commandes en cours, ce délai peut être légèrement prolongé.
             <br />
             <br />
-            Les colis sont expédiés via <b>Mondial Relay</b> avec un numéro de
-            suivi. Chaque création est soigneusement emballée afin d'arriver en
-            parfait état.
+            <b>🚚 Livraison offerte dès 69€ d'achat.</b>
+            <br />
+            <br />
+            Les colis sont expédiés via <b>Mondial Relay</b> ou en{" "}
+            <b>livraison à domicile</b> avec un numéro de suivi. Chaque création
+            est soigneusement emballée afin d'arriver en parfait état.
           </p>
         </div>
       </section>
