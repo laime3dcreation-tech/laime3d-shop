@@ -16,6 +16,7 @@ declare global {
 export default function Checkout() {
   const [cart, setCart] = useState<any[]>([]);
   const [deliveryMethod, setDeliveryMethod] = useState("mondial_relay");
+  const [isMobile, setIsMobile] = useState(false);
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -44,6 +45,17 @@ export default function Checkout() {
 
   const [widgetReady, setWidgetReady] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    function checkMobile() {
+      setIsMobile(window.innerWidth <= 768);
+    }
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     const saved = localStorage.getItem("cart");
@@ -259,9 +271,54 @@ export default function Checkout() {
     }
   }
 
+  const pageStyle = {
+    ...styles.page,
+    ...(isMobile ? styles.pageMobile : {}),
+  };
+
+  const navStyle = {
+    ...styles.nav,
+    ...(isMobile ? styles.navMobile : {}),
+  };
+
+  const titleStyle = {
+    ...styles.title,
+    ...(isMobile ? styles.titleMobile : {}),
+  };
+
+  const layoutStyle = {
+    ...styles.layout,
+    ...(isMobile ? styles.layoutMobile : {}),
+  };
+
+  const twoColumnsStyle = {
+    ...styles.twoColumns,
+    ...(isMobile ? styles.singleColumn : {}),
+  };
+
+  const deliveryOptionsStyle = {
+    ...styles.deliveryOptions,
+    ...(isMobile ? styles.singleColumn : {}),
+  };
+
+  const cardStyle = {
+    ...styles.card,
+    ...(isMobile ? styles.cardMobile : {}),
+  };
+
+  const summaryStyle = {
+    ...styles.summary,
+    ...(isMobile ? styles.summaryMobile : {}),
+  };
+
+  const widgetStyle = {
+    ...styles.widget,
+    ...(isMobile ? styles.widgetMobile : {}),
+  };
+
   return (
-    <main style={styles.page}>
-      <nav style={styles.nav}>
+    <main style={pageStyle}>
+      <nav style={navStyle}>
         <a href="/" style={styles.logo}>
           LAIME3D
         </a>
@@ -271,14 +328,14 @@ export default function Checkout() {
         </a>
       </nav>
 
-      <h1 style={styles.title}>Finaliser ma commande</h1>
+      <h1 style={titleStyle}>Finaliser ma commande</h1>
 
-      <div style={styles.layout}>
+      <div style={layoutStyle}>
         <section style={styles.form}>
-          <div style={styles.card}>
-            <h2>👤 Vos informations</h2>
+          <div style={cardStyle}>
+            <h2 style={styles.cardTitle}>👤 Vos informations</h2>
 
-            <div style={styles.twoColumns}>
+            <div style={twoColumnsStyle}>
               <input
                 placeholder="Prénom *"
                 value={firstName}
@@ -310,8 +367,8 @@ export default function Checkout() {
             />
           </div>
 
-          <div style={styles.card}>
-            <h2>🚚 Livraison</h2>
+          <div style={cardStyle}>
+            <h2 style={styles.cardTitle}>🚚 Livraison</h2>
 
             {productsTotal < FREE_SHIPPING_FROM ? (
               <p style={styles.freeShippingInfo}>
@@ -323,7 +380,7 @@ export default function Checkout() {
               <p style={styles.freeShippingSuccess}>🎉 Livraison offerte !</p>
             )}
 
-            <div style={styles.deliveryOptions}>
+            <div style={deliveryOptionsStyle}>
               <button
                 type="button"
                 onClick={() => setDeliveryMethod("mondial_relay")}
@@ -388,7 +445,7 @@ export default function Checkout() {
                 <div id="RelayInfo" style={{ display: "none" }} />
 
                 {relaySearchPostalCode.length >= 4 && (
-                  <div id="Zone_Widget" style={styles.widget} />
+                  <div id="Zone_Widget" style={widgetStyle} />
                 )}
 
                 {relay.id && (
@@ -420,7 +477,7 @@ export default function Checkout() {
                   style={styles.input}
                 />
 
-                <div style={styles.twoColumns}>
+                <div style={twoColumnsStyle}>
                   <input
                     placeholder="Code postal *"
                     value={postalCode}
@@ -446,19 +503,21 @@ export default function Checkout() {
             )}
           </div>
 
-          <button onClick={order} disabled={loading} style={styles.payButton}>
-            {loading ? "Redirection..." : "Payer ma commande"}
-          </button>
+          {!isMobile && (
+            <button onClick={order} disabled={loading} style={styles.payButton}>
+              {loading ? "Redirection..." : "Payer ma commande"}
+            </button>
+          )}
         </section>
 
-        <aside style={styles.summary}>
-          <h2>🛒 Votre commande</h2>
+        <aside style={summaryStyle}>
+          <h2 style={styles.cardTitle}>🛒 Votre commande</h2>
 
           {cart.length === 0 && <p>Votre panier est vide.</p>}
 
           {cart.map((item, index) => (
             <div key={index} style={styles.item}>
-              <div>
+              <div style={styles.itemInfo}>
                 <strong>{item.name}</strong>
                 {item.selectedColor && (
                   <p style={styles.color}>Couleur : {item.selectedColor}</p>
@@ -466,7 +525,7 @@ export default function Checkout() {
                 <p>Quantité : {item.qty}</p>
               </div>
 
-              <strong>{Number(item.price) * item.qty}€</strong>
+              <strong>{(Number(item.price) * item.qty).toFixed(2)}€</strong>
             </div>
           ))}
 
@@ -492,6 +551,12 @@ export default function Checkout() {
             <span>Total</span>
             <strong>{finalTotal.toFixed(2).replace(".", ",")}€</strong>
           </div>
+
+          {isMobile && (
+            <button onClick={order} disabled={loading} style={styles.payButton}>
+              {loading ? "Redirection..." : "Payer ma commande"}
+            </button>
+          )}
         </aside>
       </div>
     </main>
@@ -505,7 +570,14 @@ const styles: any = {
     color: "#e8f5e9",
     padding: "40px",
     fontFamily: "Arial",
+    boxSizing: "border-box",
+    overflowX: "hidden",
   },
+
+  pageMobile: {
+    padding: "22px 16px 36px",
+  },
+
   nav: {
     display: "flex",
     justifyContent: "space-between",
@@ -514,6 +586,12 @@ const styles: any = {
     flexWrap: "wrap",
     gap: "12px",
   },
+
+  navMobile: {
+    alignItems: "flex-start",
+    marginBottom: "24px",
+  },
+
   logo: {
     color: "#7CFF9B",
     textDecoration: "none",
@@ -521,26 +599,45 @@ const styles: any = {
     fontWeight: "bold",
     letterSpacing: "4px",
   },
+
   navLink: {
     color: "#7CFF9B",
     textDecoration: "none",
     fontWeight: "bold",
   },
+
   title: {
     color: "#7CFF9B",
     fontSize: "38px",
     marginBottom: "30px",
+    lineHeight: "1.15",
   },
+
+  titleMobile: {
+    fontSize: "34px",
+    marginBottom: "24px",
+  },
+
   layout: {
     display: "grid",
-    gridTemplateColumns: "1fr 380px",
+    gridTemplateColumns: "minmax(0, 1fr) 380px",
     gap: "24px",
     alignItems: "start",
   },
+
+  layoutMobile: {
+    display: "grid",
+    gridTemplateColumns: "1fr",
+    gap: "20px",
+    width: "100%",
+  },
+
   form: {
     display: "grid",
     gap: "20px",
+    minWidth: 0,
   },
+
   card: {
     background: "#10251a",
     border: "1px solid #1f4d33",
@@ -548,42 +645,67 @@ const styles: any = {
     padding: "24px",
     display: "grid",
     gap: "14px",
+    minWidth: 0,
+    boxSizing: "border-box",
   },
+
+  cardMobile: {
+    padding: "18px",
+    borderRadius: "16px",
+  },
+
+  cardTitle: {
+    margin: 0,
+    fontSize: "22px",
+  },
+
   twoColumns: {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
     gap: "12px",
   },
+
+  singleColumn: {
+    gridTemplateColumns: "1fr",
+  },
+
   input: {
     width: "100%",
-    padding: "13px",
-    borderRadius: "10px",
+    padding: "14px",
+    borderRadius: "12px",
     border: "1px solid #1f4d33",
     background: "#0b1f14",
     color: "#fff",
     boxSizing: "border-box",
+    fontSize: "16px",
+    minWidth: 0,
   },
+
   freeShippingInfo: {
     color: "#ffd166",
     background: "#1a2d19",
-    padding: "12px",
-    borderRadius: "10px",
+    padding: "14px",
+    borderRadius: "12px",
+    lineHeight: "1.5",
   },
+
   freeShippingSuccess: {
     color: "#7CFF9B",
     background: "#12301f",
-    padding: "12px",
-    borderRadius: "10px",
+    padding: "14px",
+    borderRadius: "12px",
     fontWeight: "bold",
   },
+
   deliveryOptions: {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
     gap: "12px",
   },
+
   deliveryButton: {
     padding: "16px",
-    borderRadius: "12px",
+    borderRadius: "14px",
     border: "1px solid #1f4d33",
     background: "#0b1f14",
     color: "#e8f5e9",
@@ -592,25 +714,34 @@ const styles: any = {
     flexDirection: "column",
     gap: "8px",
     textAlign: "left",
+    fontSize: "16px",
+    boxSizing: "border-box",
   },
+
   deliveryButtonActive: {
     border: "2px solid #7CFF9B",
     background: "#12301f",
   },
+
   deliveryBox: {
     display: "grid",
     gap: "12px",
     marginTop: "10px",
+    minWidth: 0,
   },
+
   text: {
     color: "#c8facc",
     lineHeight: "1.6",
+    margin: 0,
   },
+
   status: {
     color: "#ffd166",
     fontSize: "14px",
     margin: 0,
   },
+
   widget: {
     background: "#ffffff",
     color: "#000000",
@@ -618,14 +749,27 @@ const styles: any = {
     overflow: "hidden",
     minHeight: "560px",
     padding: "10px",
+    boxSizing: "border-box",
+    maxWidth: "100%",
   },
+
+  widgetMobile: {
+    minHeight: "430px",
+    padding: "6px",
+    width: "100%",
+    overflowX: "auto",
+  },
+
   relayBox: {
     background: "#0b1f14",
     border: "1px solid #1f4d33",
     borderRadius: "12px",
     padding: "14px",
+    lineHeight: "1.4",
   },
+
   payButton: {
+    width: "100%",
     padding: "16px",
     background: "#7CFF9B",
     color: "#03140a",
@@ -634,7 +778,9 @@ const styles: any = {
     cursor: "pointer",
     fontWeight: "bold",
     fontSize: "16px",
+    marginTop: "4px",
   },
+
   summary: {
     background: "#10251a",
     border: "1px solid #1f4d33",
@@ -642,27 +788,47 @@ const styles: any = {
     padding: "24px",
     position: "sticky",
     top: "20px",
+    minWidth: 0,
+    boxSizing: "border-box",
   },
+
+  summaryMobile: {
+    position: "static",
+    width: "100%",
+    padding: "18px",
+    borderRadius: "16px",
+  },
+
   item: {
     display: "flex",
     justifyContent: "space-between",
     gap: "12px",
     marginBottom: "14px",
+    minWidth: 0,
   },
+
+  itemInfo: {
+    minWidth: 0,
+  },
+
   color: {
     color: "#7CFF9B",
     fontSize: "13px",
   },
+
   totalRow: {
     display: "flex",
     justifyContent: "space-between",
     marginTop: "12px",
+    gap: "12px",
   },
+
   finalTotal: {
     display: "flex",
     justifyContent: "space-between",
     marginTop: "16px",
     fontSize: "22px",
     color: "#7CFF9B",
+    gap: "12px",
   },
 };
