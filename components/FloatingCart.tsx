@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
+const FREE_SHIPPING_FROM = 69;
+const DEFAULT_DELIVERY_PRICE = 4.9;
+
 export default function FloatingCart() {
   const pathname = usePathname();
   const [cart, setCart] = useState<any[]>([]);
@@ -93,9 +96,22 @@ export default function FloatingCart() {
   }
 
   const count = cart.reduce((sum, item) => sum + Number(item.qty || 0), 0);
-  const total = cart.reduce(
+
+  const productsTotal = cart.reduce(
     (sum, item) => sum + Number(item.price || 0) * Number(item.qty || 0),
     0
+  );
+
+  const deliveryPrice =
+    productsTotal >= FREE_SHIPPING_FROM || productsTotal === 0
+      ? 0
+      : DEFAULT_DELIVERY_PRICE;
+
+  const finalTotal = productsTotal + deliveryPrice;
+
+  const remainingForFreeShipping = Math.max(
+    0,
+    FREE_SHIPPING_FROM - productsTotal
   );
 
   return (
@@ -131,6 +147,18 @@ export default function FloatingCart() {
               </div>
             ) : (
               <>
+                {productsTotal < FREE_SHIPPING_FROM ? (
+                  <div style={styles.freeShippingInfo}>
+                    Encore{" "}
+                    <b>{remainingForFreeShipping.toFixed(2).replace(".", ",")}€</b>{" "}
+                    pour profiter de la livraison offerte 🎁
+                  </div>
+                ) : (
+                  <div style={styles.freeShippingSuccess}>
+                    🎉 Livraison offerte !
+                  </div>
+                )}
+
                 <div style={styles.items}>
                   {cart.map((item, index) => (
                     <div
@@ -199,9 +227,29 @@ export default function FloatingCart() {
 
                 <hr style={styles.separator} />
 
+                <div style={styles.totalRow}>
+                  <span>Sous-total</span>
+                  <strong>{productsTotal.toFixed(2).replace(".", ",")}€</strong>
+                </div>
+
+                <div style={styles.totalRow}>
+                  <span>Livraison estimée</span>
+                  <strong>
+                    {deliveryPrice === 0
+                      ? "Offerte"
+                      : `${deliveryPrice.toFixed(2).replace(".", ",")}€`}
+                  </strong>
+                </div>
+
+                <p style={styles.deliveryNote}>
+                  Le mode de livraison exact sera confirmé à l’étape suivante.
+                </p>
+
+                <hr style={styles.separator} />
+
                 <div style={styles.total}>
-                  <span>Total</span>
-                  <strong>{total.toFixed(2).replace(".", ",")}€</strong>
+                  <span>Total estimé</span>
+                  <strong>{finalTotal.toFixed(2).replace(".", ",")}€</strong>
                 </div>
 
                 <a href="/checkout" style={styles.checkout}>
@@ -299,6 +347,25 @@ const styles: any = {
     marginBottom: "24px",
   },
 
+  freeShippingInfo: {
+    background: "#1a2d19",
+    color: "#ffd166",
+    padding: "14px",
+    borderRadius: "12px",
+    lineHeight: "1.5",
+    marginBottom: "16px",
+  },
+
+  freeShippingSuccess: {
+    background: "#12301f",
+    color: "#7CFF9B",
+    padding: "14px",
+    borderRadius: "12px",
+    lineHeight: "1.5",
+    marginBottom: "16px",
+    fontWeight: "bold",
+  },
+
   items: {
     display: "grid",
     gap: "14px",
@@ -387,7 +454,21 @@ const styles: any = {
   separator: {
     border: "none",
     borderTop: "1px solid #1f4d33",
-    margin: "20px 0",
+    margin: "18px 0",
+  },
+
+  totalRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: "12px",
+    marginBottom: "10px",
+  },
+
+  deliveryNote: {
+    color: "#b8d9c4",
+    fontSize: "13px",
+    lineHeight: "1.5",
+    margin: "8px 0 0",
   },
 
   total: {
