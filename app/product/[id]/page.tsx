@@ -10,9 +10,22 @@ export default function ProductPage() {
 
   const [product, setProduct] = useState<any>(null);
   const [activeImage, setActiveImage] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const [selectedColor, setSelectedColor] = useState("");
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    function checkMobile() {
+      setIsMobile(window.innerWidth <= 768);
+    }
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     if (!id) return;
@@ -44,10 +57,25 @@ export default function ProductPage() {
     );
   }
 
+  const images = product.images || [];
   const unlimitedStock = Boolean(product.unlimited_stock);
   const stock = Number(product.stock || 0);
   const isOutOfStock = !unlimitedStock && stock <= 0;
   const maxQty = unlimitedStock ? 99 : Math.max(1, stock);
+
+  function previousImage() {
+    if (!images.length) return;
+    setActiveImage((current) =>
+      current === 0 ? images.length - 1 : current - 1
+    );
+  }
+
+  function nextImage() {
+    if (!images.length) return;
+    setActiveImage((current) =>
+      current === images.length - 1 ? 0 : current + 1
+    );
+  }
 
   function addToCart() {
     if (!product || isOutOfStock) return;
@@ -93,52 +121,78 @@ export default function ProductPage() {
     setTimeout(() => setAdded(false), 1800);
   }
 
+  const pageStyle = {
+    ...styles.page,
+    ...(isMobile ? styles.pageMobile : {}),
+  };
+
+  const layoutStyle = {
+    ...styles.layout,
+    ...(isMobile ? styles.layoutMobile : {}),
+  };
+
+  const titleStyle = {
+    ...styles.title,
+    ...(isMobile ? styles.titleMobile : {}),
+  };
+
   return (
-    <main style={styles.page}>
+    <main style={pageStyle}>
       <a href="/shop" style={styles.back}>
         ← Retour à la boutique
       </a>
 
-      <div style={styles.layout}>
+      <div style={layoutStyle}>
         <section>
-          <div style={styles.imageWrapper}>
+          <div style={styles.gallery}>
             {isOutOfStock && (
               <div style={styles.soldOutBadge}>Rupture de stock</div>
             )}
 
-            <img
-              src={product.images?.[activeImage] || product.images?.[0] || ""}
-              alt={product.name}
-              style={{
-                ...styles.mainImage,
-                ...(isOutOfStock ? styles.imageDisabled : {}),
-              }}
-            />
+            <button
+              type="button"
+              onClick={previousImage}
+              style={styles.arrowLeft}
+              aria-label="Image précédente"
+            >
+              ‹
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setLightboxOpen(true)}
+              style={styles.imageButton}
+              aria-label="Agrandir l'image"
+            >
+              <img
+                src={images[activeImage] || images[0] || ""}
+                alt={product.name}
+                style={{
+                  ...styles.mainImage,
+                  ...(isOutOfStock ? styles.imageDisabled : {}),
+                }}
+              />
+            </button>
+
+            <button
+              type="button"
+              onClick={nextImage}
+              style={styles.arrowRight}
+              aria-label="Image suivante"
+            >
+              ›
+            </button>
           </div>
 
-          {product.images?.length > 1 && (
-            <div style={styles.thumbs}>
-              {product.images.map((img: string, index: number) => (
-                <img
-                  key={img}
-                  src={img}
-                  alt={product.name}
-                  onClick={() => setActiveImage(index)}
-                  style={{
-                    ...styles.thumb,
-                    border:
-                      index === activeImage
-                        ? "2px solid #7CFF9B"
-                        : "1px solid transparent",
-                  }}
-                />
-              ))}
+          {images.length > 1 && (
+            <div style={styles.imageCounter}>
+              {activeImage + 1} / {images.length}
             </div>
           )}
         </section>
 
         <section style={styles.info}>
-          <h1 style={styles.title}>{product.name}</h1>
+          <h1 style={titleStyle}>{product.name}</h1>
 
           <p style={styles.price}>
             {Number(product.price || 0).toFixed(2)} €
@@ -230,6 +284,54 @@ export default function ProductPage() {
           </button>
         </section>
       </div>
+
+      {lightboxOpen && (
+        <div style={styles.lightbox} onClick={() => setLightboxOpen(false)}>
+          <div style={styles.lightboxContent} onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              onClick={() => setLightboxOpen(false)}
+              style={styles.lightboxClose}
+              aria-label="Fermer"
+            >
+              ×
+            </button>
+
+            <button
+              type="button"
+              onClick={previousImage}
+              style={styles.lightboxArrowLeft}
+              aria-label="Image précédente"
+            >
+              ‹
+            </button>
+
+            <img
+              src={images[activeImage] || images[0] || ""}
+              alt={product.name}
+              style={styles.lightboxImage}
+            />
+
+            <button
+              type="button"
+              onClick={nextImage}
+              style={styles.lightboxArrowRight}
+              aria-label="Image suivante"
+            >
+              ›
+            </button>
+
+            <div style={styles.lightboxText}>
+              <strong>{product.name}</strong>
+              {images.length > 1 && (
+                <span>
+                  {activeImage + 1} / {images.length}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
@@ -241,6 +343,12 @@ const styles: any = {
     color: "#e8f5e9",
     padding: "40px",
     fontFamily: "Arial",
+    overflowX: "hidden",
+    boxSizing: "border-box",
+  },
+
+  pageMobile: {
+    padding: "22px 16px 34px",
   },
 
   back: {
@@ -253,13 +361,19 @@ const styles: any = {
 
   layout: {
     display: "grid",
-    gridTemplateColumns: "1fr 1fr",
+    gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
     gap: "40px",
     alignItems: "start",
   },
 
-  imageWrapper: {
+  layoutMobile: {
+    gridTemplateColumns: "1fr",
+    gap: "22px",
+  },
+
+  gallery: {
     position: "relative",
+    width: "100%",
   },
 
   soldOutBadge: {
@@ -274,12 +388,23 @@ const styles: any = {
     fontWeight: "bold",
   },
 
+  imageButton: {
+    width: "100%",
+    padding: 0,
+    background: "transparent",
+    border: "none",
+    cursor: "zoom-in",
+    display: "block",
+  },
+
   mainImage: {
     width: "100%",
-    maxHeight: "560px",
-    objectFit: "cover",
+    maxHeight: "640px",
+    objectFit: "contain",
     borderRadius: "18px",
     border: "1px solid #1f4d33",
+    background: "#10251a",
+    display: "block",
   },
 
   imageDisabled: {
@@ -287,19 +412,43 @@ const styles: any = {
     filter: "grayscale(0.5)",
   },
 
-  thumbs: {
-    display: "flex",
-    gap: "10px",
-    marginTop: "14px",
-    flexWrap: "wrap",
+  arrowLeft: {
+    position: "absolute",
+    left: "10px",
+    top: "50%",
+    transform: "translateY(-50%)",
+    zIndex: 3,
+    width: "42px",
+    height: "42px",
+    borderRadius: "50%",
+    border: "none",
+    background: "rgba(0,0,0,0.6)",
+    color: "#fff",
+    fontSize: "34px",
+    cursor: "pointer",
   },
 
-  thumb: {
-    width: "70px",
-    height: "70px",
-    objectFit: "cover",
-    borderRadius: "10px",
+  arrowRight: {
+    position: "absolute",
+    right: "10px",
+    top: "50%",
+    transform: "translateY(-50%)",
+    zIndex: 3,
+    width: "42px",
+    height: "42px",
+    borderRadius: "50%",
+    border: "none",
+    background: "rgba(0,0,0,0.6)",
+    color: "#fff",
+    fontSize: "34px",
     cursor: "pointer",
+  },
+
+  imageCounter: {
+    textAlign: "center",
+    color: "#b8d9c4",
+    fontSize: "14px",
+    marginTop: "10px",
   },
 
   info: {
@@ -307,12 +456,17 @@ const styles: any = {
     border: "1px solid #1f4d33",
     borderRadius: "18px",
     padding: "30px",
+    minWidth: 0,
   },
 
   title: {
     color: "#7CFF9B",
     fontSize: "42px",
     marginBottom: "10px",
+  },
+
+  titleMobile: {
+    fontSize: "32px",
   },
 
   price: {
@@ -425,5 +579,88 @@ const styles: any = {
     background: "#62756a",
     color: "#d4ddd7",
     cursor: "not-allowed",
+  },
+
+  lightbox: {
+    position: "fixed",
+    inset: 0,
+    background: "rgba(0,0,0,0.9)",
+    zIndex: 10000,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "18px",
+  },
+
+  lightboxContent: {
+    position: "relative",
+    width: "min(1080px, 100%)",
+    maxHeight: "92vh",
+    display: "grid",
+    gap: "12px",
+  },
+
+  lightboxImage: {
+    width: "100%",
+    maxHeight: "78vh",
+    objectFit: "contain",
+    borderRadius: "14px",
+    background: "#0b1f14",
+  },
+
+  lightboxText: {
+    color: "#e8f5e9",
+    display: "flex",
+    justifyContent: "space-between",
+    gap: "12px",
+    fontSize: "16px",
+  },
+
+  lightboxClose: {
+    position: "absolute",
+    top: "-14px",
+    right: "-8px",
+    zIndex: 4,
+    width: "38px",
+    height: "38px",
+    borderRadius: "50%",
+    border: "none",
+    background: "#7CFF9B",
+    color: "#03140a",
+    fontSize: "26px",
+    cursor: "pointer",
+    fontWeight: "bold",
+  },
+
+  lightboxArrowLeft: {
+    position: "absolute",
+    left: "8px",
+    top: "50%",
+    transform: "translateY(-50%)",
+    zIndex: 4,
+    width: "42px",
+    height: "42px",
+    borderRadius: "50%",
+    border: "none",
+    background: "rgba(124,255,155,0.9)",
+    color: "#03140a",
+    fontSize: "34px",
+    cursor: "pointer",
+  },
+
+  lightboxArrowRight: {
+    position: "absolute",
+    right: "8px",
+    top: "50%",
+    transform: "translateY(-50%)",
+    zIndex: 4,
+    width: "42px",
+    height: "42px",
+    borderRadius: "50%",
+    border: "none",
+    background: "rgba(124,255,155,0.9)",
+    color: "#03140a",
+    fontSize: "34px",
+    cursor: "pointer",
   },
 };
