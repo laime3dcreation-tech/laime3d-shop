@@ -16,13 +16,31 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "LAIME3D",
+    default: "LAIME3D | Impression 3D en PLA éco-responsable",
     template: "%s | LAIME3D",
   },
+
   description:
     "Créations artisanales imprimées en 3D. Figurines flexibles, lampes, vases, porte-clés et créations personnalisées.",
+
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      {
+        url: "/favicon.ico",
+      },
+      {
+        url: "/icon.png",
+        type: "image/png",
+        sizes: "512x512",
+      },
+    ],
+
+    apple: [
+      {
+        url: "/apple-touch-icon.png",
+        sizes: "180x180",
+      },
+    ],
   },
 };
 
