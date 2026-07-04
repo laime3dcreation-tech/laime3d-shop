@@ -24,7 +24,6 @@ export default function FloatingCart() {
   function saveCart(updatedCart: any[]) {
     localStorage.setItem("cart", JSON.stringify(updatedCart));
     setCart(updatedCart);
-
     window.dispatchEvent(new Event("cart-updated"));
 
     if (updatedCart.length === 0) {
@@ -134,9 +133,16 @@ export default function FloatingCart() {
               <>
                 <div style={styles.items}>
                   {cart.map((item, index) => (
-                    <div key={`${item.id}-${item.selectedColor}-${index}`} style={styles.item}>
+                    <div
+                      key={`${item.id}-${item.selectedColor}-${index}`}
+                      style={styles.item}
+                    >
                       {item.images?.[0] && (
-                        <img src={item.images[0]} alt={item.name} style={styles.itemImage} />
+                        <img
+                          src={item.images[0]}
+                          alt={item.name}
+                          style={styles.itemImage}
+                        />
                       )}
 
                       <div style={styles.itemContent}>
@@ -145,7 +151,9 @@ export default function FloatingCart() {
                             <strong>{item.name}</strong>
 
                             {item.selectedColor && (
-                              <p style={styles.color}>Couleur : {item.selectedColor}</p>
+                              <p style={styles.color}>
+                                Couleur : {item.selectedColor}
+                              </p>
                             )}
                           </div>
 
@@ -160,13 +168,19 @@ export default function FloatingCart() {
 
                         <div style={styles.itemBottom}>
                           <div style={styles.qtyControls}>
-                            <button onClick={() => decreaseQty(index)} style={styles.qtyButton}>
+                            <button
+                              onClick={() => decreaseQty(index)}
+                              style={styles.qtyButton}
+                            >
                               −
                             </button>
 
                             <span style={styles.qtyNumber}>{item.qty}</span>
 
-                            <button onClick={() => increaseQty(index)} style={styles.qtyButton}>
+                            <button
+                              onClick={() => increaseQty(index)}
+                              style={styles.qtyButton}
+                            >
                               +
                             </button>
                           </div>
@@ -257,7 +271,7 @@ const styles: any = {
 
   drawer: {
     width: "420px",
-    maxWidth: "100%",
+    maxWidth: "100vw",
     minHeight: "100vh",
     maxHeight: "100vh",
     overflowY: "auto",
@@ -266,6 +280,7 @@ const styles: any = {
     padding: "28px",
     position: "relative",
     borderLeft: "1px solid #1f4d33",
+    boxSizing: "border-box",
   },
 
   close: {
@@ -296,6 +311,7 @@ const styles: any = {
     border: "1px solid #1f4d33",
     borderRadius: "14px",
     padding: "12px",
+    boxSizing: "border-box",
   },
 
   itemImage: {
@@ -310,6 +326,7 @@ const styles: any = {
     flex: 1,
     display: "grid",
     gap: "12px",
+    minWidth: 0,
   },
 
   itemTop: {
