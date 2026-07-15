@@ -95,8 +95,8 @@ export default function HomePage() {
 
       <section style={styles.heroBanner}>
         <picture style={styles.picture}>
-          <source media="(max-width: 768px)" srcSet="/banner-mobile.png" />
-          <img src="/banner.png" alt="LAIME3D" style={styles.heroImage} />
+          <source media="(max-width: 768px)" srcSet="/publicbanner-mobile.png" />
+          <img src="/publicbanner.png" alt="LAIME3D" style={styles.heroImage} />
         </picture>
 
         <div style={styles.heroOverlay}>
