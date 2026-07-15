@@ -69,9 +69,9 @@ export const metadata: Metadata = {
       "Créations artisanales imprimées en 3D : figurines flexibles, lampes, vases, porte-clés et objets personnalisés.",
     images: [
       {
-        url: "/banner.png",
-        width: 1200,
-        height: 630,
+        url: "/publicbanner.png",
+        width: 1536,
+        height: 864,
         alt: "LAIME3D - Créations artisanales imprimées en 3D",
       },
     ],
@@ -82,7 +82,7 @@ export const metadata: Metadata = {
     title: "LAIME3D | Créations artisanales imprimées en 3D",
     description:
       "Créations artisanales imprimées en 3D : figurines flexibles, lampes, vases, porte-clés et objets personnalisés.",
-    images: ["/banner.png"],
+    images: ["/publicbanner.png"],
   },
 
   icons: {
@@ -100,7 +100,7 @@ const jsonLd = {
   name: "LAIME3D",
   url: "https://www.laime3d.com",
   logo: "https://www.laime3d.com/icon.png",
-  image: "https://www.laime3d.com/banner.png",
+  image: "https://www.laime3d.com/publicbanner.png",
   description:
     "Créations artisanales imprimées en 3D : figurines flexibles, lampes, vases, porte-clés et objets personnalisés.",
   email: "laime3dcontact@yahoo.com",
