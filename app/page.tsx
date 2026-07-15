@@ -95,11 +95,18 @@ export default function HomePage() {
 
       <section style={styles.heroBanner}>
         <picture style={styles.picture}>
-          <source media="(max-width: 768px)" srcSet="/publicbanner-mobile.png" />
-          <img src="/publicbanner.png" alt="LAIME3D" style={styles.heroImage} />
+          <source
+            media="(max-width: 768px)"
+            srcSet="/publicbanner-mobile.png"
+          />
+          <img
+            src="/publicbanner.png"
+            alt="LAIME3D - Créations artisanales imprimées en 3D"
+            style={styles.heroImage}
+          />
         </picture>
 
-        <div style={styles.heroOverlay}>
+        <div style={styles.heroActions}>
           <a href="/shop" style={styles.mainButton}>
             Découvrir nos créations
           </a>
@@ -305,39 +312,30 @@ const styles: any = {
   },
 
   heroBanner: {
-    position: "relative",
     width: "100%",
-    minHeight: "78vh",
     overflow: "hidden",
-    display: "flex",
-    alignItems: "flex-end",
-    justifyContent: "center",
+    background: "#050805",
   },
 
   picture: {
-    position: "absolute",
-    inset: 0,
+    display: "block",
     width: "100%",
-    height: "100%",
   },
 
   heroImage: {
     width: "100%",
-    height: "100%",
-    objectFit: "cover",
-    objectPosition: "center",
+    height: "auto",
     display: "block",
+    objectFit: "contain",
   },
 
-  heroOverlay: {
-    position: "relative",
-    zIndex: 2,
+  heroActions: {
     width: "100%",
-    padding: "0 40px 55px",
+    padding: "22px 20px 28px",
     display: "flex",
     justifyContent: "center",
-    background:
-      "linear-gradient(to top, rgba(11,31,20,0.95), rgba(11,31,20,0.05))",
+    background: "#0b1f14",
+    boxSizing: "border-box",
   },
 
   mainButton: {
