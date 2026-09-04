@@ -512,8 +512,8 @@ const styles: any = {
     padding: "12px",
     borderRadius: "10px",
     border: "1px solid #D7B98F",
-    background: "#F6E8D3",
-    color: "#fff",
+    background: "#FFF8EE",
+    color: "#3B342D",
   },
 
   qtyRow: {
@@ -567,7 +567,7 @@ const styles: any = {
     width: "100%",
     padding: "15px",
     background: "#B77A2D",
-    color: "#2D2925",
+    color: "#FFF8EE",
     border: "none",
     borderRadius: "12px",
     cursor: "pointer",
@@ -626,7 +626,7 @@ const styles: any = {
     borderRadius: "50%",
     border: "none",
     background: "#B77A2D",
-    color: "#2D2925",
+    color: "#FFF8EE",
     fontSize: "26px",
     cursor: "pointer",
     fontWeight: "bold",

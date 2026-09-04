@@ -257,7 +257,7 @@ const styles: any = {
     right: "16px",
     zIndex: 2,
     background: "#B77A2D",
-    color: "#2D2925",
+    color: "#FFF8EE",
     padding: "7px 10px",
     borderRadius: "999px",
     fontWeight: "bold",
@@ -376,8 +376,8 @@ const styles: any = {
     padding: "10px",
     borderRadius: "8px",
     border: "1px solid #D7B98F",
-    background: "#F6E8D3",
-    color: "#fff",
+    background: "#F4E4CE",
+    color: "#3B342D",
   },
 
   price: {
@@ -397,8 +397,8 @@ const styles: any = {
     flex: 1,
     textAlign: "center",
     padding: "11px",
-    background: "#D7B98F",
-    color: "#ffffff",
+    background: "#C18A45",
+    color: "#FFF8EE",
     borderRadius: "8px",
     textDecoration: "none",
     fontWeight: "bold",
@@ -408,7 +408,7 @@ const styles: any = {
     flex: 1,
     padding: "11px",
     background: "#B77A2D",
-    color: "#2D2925",
+    color: "#FFF8EE",
     border: "none",
     borderRadius: "8px",
     cursor: "pointer",
@@ -466,7 +466,7 @@ const styles: any = {
     borderRadius: "50%",
     border: "none",
     background: "#B77A2D",
-    color: "#2D2925",
+    color: "#FFF8EE",
     fontSize: "26px",
     cursor: "pointer",
     fontWeight: "bold",
@@ -504,4 +504,3 @@ const styles: any = {
     cursor: "pointer",
   },
 };
- 

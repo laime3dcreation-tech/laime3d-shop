@@ -248,7 +248,7 @@ const styles: any = {
     borderRadius: "12px",
     border: "1px solid #D7B98F",
     background: "#FBF1E2",
-    color: "#fff",
+    color: "#3B342D",
     fontSize: "16px",
     boxSizing: "border-box",
   },
@@ -258,7 +258,7 @@ const styles: any = {
     borderRadius: "12px",
     border: "1px solid #D7B98F",
     background: "#FBF1E2",
-    color: "#fff",
+    color: "#3B342D",
     fontSize: "16px",
   },
 
@@ -281,7 +281,7 @@ const styles: any = {
 
   catBtnActive: {
     background: "#B77A2D",
-    color: "#2D2925",
+    color: "#FFF8EE",
     fontWeight: "bold",
   },
 

@@ -392,7 +392,7 @@ export default function HomePage() {
 
         .primaryButton {
           background: #b98235;
-          color: white;
+          color: #FFF8EE;
           padding: 15px 30px;
           box-shadow: 0 10px 24px rgba(185, 130, 53, 0.23);
         }
