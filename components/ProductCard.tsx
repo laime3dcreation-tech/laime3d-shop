@@ -227,11 +227,11 @@ export default function ProductCard({
 const styles: any = {
   card: {
     position: "relative",
-    background: "#102a1c",
-    border: "1px solid #1f4d33",
+    background: "#FBF1E2",
+    border: "1px solid #D7B98F",
     borderRadius: "16px",
     padding: "14px",
-    color: "#e8f5e9",
+    color: "#3B342D",
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
@@ -243,8 +243,8 @@ const styles: any = {
     top: "16px",
     left: "16px",
     zIndex: 2,
-    background: "#ff8a8a",
-    color: "#03140a",
+    background: "#D96A5A",
+    color: "#2D2925",
     padding: "7px 10px",
     borderRadius: "999px",
     fontWeight: "bold",
@@ -256,8 +256,8 @@ const styles: any = {
     top: "16px",
     right: "16px",
     zIndex: 2,
-    background: "#7CFF9B",
-    color: "#03140a",
+    background: "#B77A2D",
+    color: "#2D2925",
     padding: "7px 10px",
     borderRadius: "999px",
     fontWeight: "bold",
@@ -301,7 +301,7 @@ const styles: any = {
     height: "34px",
     borderRadius: "50%",
     border: "none",
-    background: "rgba(0,0,0,0.55)",
+    background: "rgba(45,41,37,0.60)",
     color: "#fff",
     fontSize: "28px",
     cursor: "pointer",
@@ -317,7 +317,7 @@ const styles: any = {
     height: "34px",
     borderRadius: "50%",
     border: "none",
-    background: "rgba(0,0,0,0.55)",
+    background: "rgba(45,41,37,0.60)",
     color: "#fff",
     fontSize: "28px",
     cursor: "pointer",
@@ -325,14 +325,14 @@ const styles: any = {
 
   imageCounter: {
     textAlign: "center",
-    color: "#b8d9c4",
+    color: "#817367",
     fontSize: "13px",
     marginTop: "8px",
   },
 
   titleLink: {
     textDecoration: "none",
-    color: "#7CFF9B",
+    color: "#B77A2D",
   },
 
   name: {
@@ -342,24 +342,24 @@ const styles: any = {
 
   description: {
     fontSize: "14px",
-    color: "#c8facc",
+    color: "#746457",
     lineHeight: "1.5",
     minHeight: "45px",
   },
 
   stockLine: {
     marginTop: "8px",
-    color: "#b8d9c4",
+    color: "#817367",
     fontSize: "14px",
     fontWeight: "bold",
   },
 
   stockWarning: {
-    color: "#ffd166",
+    color: "#B8741A",
   },
 
   stockDanger: {
-    color: "#ff8a8a",
+    color: "#D96A5A",
   },
 
   colorsBlock: {
@@ -375,15 +375,15 @@ const styles: any = {
     width: "100%",
     padding: "10px",
     borderRadius: "8px",
-    border: "1px solid #1f4d33",
-    background: "#0b1f14",
+    border: "1px solid #D7B98F",
+    background: "#F6E8D3",
     color: "#fff",
   },
 
   price: {
     marginTop: "15px",
     fontSize: "22px",
-    color: "#7CFF9B",
+    color: "#B77A2D",
     fontWeight: "bold",
   },
 
@@ -397,7 +397,7 @@ const styles: any = {
     flex: 1,
     textAlign: "center",
     padding: "11px",
-    background: "#1f4d33",
+    background: "#D7B98F",
     color: "#ffffff",
     borderRadius: "8px",
     textDecoration: "none",
@@ -407,8 +407,8 @@ const styles: any = {
   cartButton: {
     flex: 1,
     padding: "11px",
-    background: "#7CFF9B",
-    color: "#03140a",
+    background: "#B77A2D",
+    color: "#2D2925",
     border: "none",
     borderRadius: "8px",
     cursor: "pointer",
@@ -416,15 +416,15 @@ const styles: any = {
   },
 
   cartButtonDisabled: {
-    background: "#62756a",
-    color: "#d4ddd7",
+    background: "#C8B7A4",
+    color: "#F1E1CB",
     cursor: "not-allowed",
   },
 
   lightbox: {
     position: "fixed",
     inset: 0,
-    background: "rgba(0,0,0,0.9)",
+    background: "rgba(45,41,37,0.88)",
     zIndex: 10000,
     display: "flex",
     alignItems: "center",
@@ -445,11 +445,11 @@ const styles: any = {
     maxHeight: "78vh",
     objectFit: "contain",
     borderRadius: "14px",
-    background: "#0b1f14",
+    background: "#F6E8D3",
   },
 
   lightboxText: {
-    color: "#e8f5e9",
+    color: "#3B342D",
     display: "flex",
     justifyContent: "space-between",
     gap: "12px",
@@ -465,8 +465,8 @@ const styles: any = {
     height: "38px",
     borderRadius: "50%",
     border: "none",
-    background: "#7CFF9B",
-    color: "#03140a",
+    background: "#B77A2D",
+    color: "#2D2925",
     fontSize: "26px",
     cursor: "pointer",
     fontWeight: "bold",
@@ -482,8 +482,8 @@ const styles: any = {
     height: "42px",
     borderRadius: "50%",
     border: "none",
-    background: "rgba(124,255,155,0.9)",
-    color: "#03140a",
+    background: "rgba(224,171,92,0.95)",
+    color: "#2D2925",
     fontSize: "34px",
     cursor: "pointer",
   },
@@ -498,8 +498,8 @@ const styles: any = {
     height: "42px",
     borderRadius: "50%",
     border: "none",
-    background: "rgba(124,255,155,0.9)",
-    color: "#03140a",
+    background: "rgba(224,171,92,0.95)",
+    color: "#2D2925",
     fontSize: "34px",
     cursor: "pointer",
   },

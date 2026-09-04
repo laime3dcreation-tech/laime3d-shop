@@ -183,8 +183,8 @@ const styles: any = {
   page: {
     minHeight: "100vh",
     padding: "40px",
-    background: "#0b1f14",
-    color: "#e8f5e9",
+    background: "#F6E8D3",
+    color: "#3B342D",
     fontFamily: "Arial",
     boxSizing: "border-box",
     overflowX: "hidden",
@@ -200,7 +200,7 @@ const styles: any = {
   },
 
   logo: {
-    color: "#7CFF9B",
+    color: "#B77A2D",
     textDecoration: "none",
     fontSize: "24px",
     fontWeight: "bold",
@@ -214,7 +214,7 @@ const styles: any = {
   },
 
   navLink: {
-    color: "#e8f5e9",
+    color: "#3B342D",
     textDecoration: "none",
     fontWeight: "bold",
   },
@@ -225,12 +225,12 @@ const styles: any = {
 
   title: {
     fontSize: "42px",
-    color: "#7CFF9B",
+    color: "#B77A2D",
     marginBottom: "8px",
   },
 
   subtitle: {
-    color: "#b8d9c4",
+    color: "#817367",
     fontSize: "18px",
   },
 
@@ -246,8 +246,8 @@ const styles: any = {
     minWidth: "240px",
     padding: "14px",
     borderRadius: "12px",
-    border: "1px solid #1f4d33",
-    background: "#102a1c",
+    border: "1px solid #D7B98F",
+    background: "#FBF1E2",
     color: "#fff",
     fontSize: "16px",
     boxSizing: "border-box",
@@ -256,8 +256,8 @@ const styles: any = {
   select: {
     padding: "14px",
     borderRadius: "12px",
-    border: "1px solid #1f4d33",
-    background: "#102a1c",
+    border: "1px solid #D7B98F",
+    background: "#FBF1E2",
     color: "#fff",
     fontSize: "16px",
   },
@@ -271,17 +271,17 @@ const styles: any = {
 
   catBtn: {
     padding: "12px 16px",
-    background: "#102a1c",
-    color: "#e8f5e9",
-    border: "1px solid #1f4d33",
+    background: "#FBF1E2",
+    color: "#3B342D",
+    border: "1px solid #D7B98F",
     borderRadius: "10px",
     cursor: "pointer",
     fontSize: "15px",
   },
 
   catBtnActive: {
-    background: "#7CFF9B",
-    color: "#03140a",
+    background: "#B77A2D",
+    color: "#2D2925",
     fontWeight: "bold",
   },
 

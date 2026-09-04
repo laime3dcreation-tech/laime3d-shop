@@ -295,7 +295,7 @@ export default function HomePage() {
       <style jsx>{`
         :global(body) {
           margin: 0;
-          background: #f8f2e8;
+          background: #F4E4CE;
           color: #352f2a;
         }
 
@@ -305,7 +305,7 @@ export default function HomePage() {
 
         .page {
           min-height: 100vh;
-          background: #f8f2e8;
+          background: #F4E4CE;
           color: #352f2a;
           font-family: Arial, Helvetica, sans-serif;
         }
@@ -398,7 +398,7 @@ export default function HomePage() {
         }
 
         .secondaryButton {
-          background: #fffaf3;
+          background: #FAEEDC;
           border: 1px solid #d8c09e;
           color: #795426;
           padding: 13px 24px;
@@ -454,7 +454,7 @@ export default function HomePage() {
         }
 
         .altSection {
-          background: #f3eadc;
+          background: #EEDCC2;
           max-width: none;
           padding-left: max(34px, calc((100vw - 1252px) / 2));
           padding-right: max(34px, calc((100vw - 1252px) / 2));
@@ -509,7 +509,7 @@ export default function HomePage() {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: #f4e4cc;
+          background: #EFD6B1;
           font-size: 28px;
           margin-bottom: 18px;
         }
@@ -591,7 +591,7 @@ export default function HomePage() {
         }
 
         .storyCard {
-          background: #fffaf3;
+          background: #FAEEDC;
           border: 1px solid #dfccb1;
           border-radius: 26px;
           padding: 38px;
@@ -610,7 +610,7 @@ export default function HomePage() {
         }
 
         .shippingHighlight {
-          background: #f2dfc1;
+          background: #EBCFA4;
           color: #744c1c;
           border-radius: 14px;
           padding: 14px 16px;
@@ -623,7 +623,7 @@ export default function HomePage() {
           margin: 0 auto 80px;
           padding: 58px 36px;
           text-align: center;
-          background: #ead9bf;
+          background: #E7CDA8;
           border-radius: 30px;
         }
 
@@ -640,7 +640,7 @@ export default function HomePage() {
         }
 
         .footer {
-          background: #efe3d2;
+          background: #EAD5B8;
           border-top: 1px solid #dcc6a6;
           padding: 52px 30px 34px;
           text-align: center;

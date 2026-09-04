@@ -276,27 +276,27 @@ const styles: any = {
     width: "58px",
     height: "58px",
     borderRadius: "50%",
-    background: "#7CFF9B",
-    color: "#03140a",
+    background: "#B77A2D",
+    color: "#2D2925",
     border: "none",
     cursor: "pointer",
     fontSize: "24px",
     fontWeight: "bold",
     zIndex: 9998,
-    boxShadow: "0 10px 30px rgba(0,0,0,0.35)",
+    boxShadow: "0 10px 30px rgba(91,61,31,0.16)",
     transition: "transform 0.2s ease, box-shadow 0.2s ease",
   },
 
   floatingButtonActive: {
     transform: "scale(1.05)",
-    boxShadow: "0 14px 35px rgba(124,255,155,0.28)",
+    boxShadow: "0 14px 35px rgba(201,138,46,0.22)",
   },
 
   badge: {
     position: "absolute",
     top: "-6px",
     right: "-6px",
-    background: "#ff5c5c",
+    background: "#C95A4A",
     color: "#fff",
     minWidth: "24px",
     height: "24px",
@@ -311,7 +311,7 @@ const styles: any = {
   overlay: {
     position: "fixed",
     inset: 0,
-    background: "rgba(0,0,0,0.55)",
+    background: "rgba(45,41,37,0.60)",
     zIndex: 9999,
     display: "flex",
     justifyContent: "flex-end",
@@ -323,11 +323,11 @@ const styles: any = {
     minHeight: "100vh",
     maxHeight: "100vh",
     overflowY: "auto",
-    background: "#10251a",
-    color: "#e8f5e9",
+    background: "#FBF1E2",
+    color: "#3B342D",
     padding: "28px",
     position: "relative",
-    borderLeft: "1px solid #1f4d33",
+    borderLeft: "1px solid #D7B98F",
     boxSizing: "border-box",
   },
 
@@ -343,13 +343,13 @@ const styles: any = {
   },
 
   title: {
-    color: "#7CFF9B",
+    color: "#B77A2D",
     marginBottom: "24px",
   },
 
   freeShippingInfo: {
-    background: "#1a2d19",
-    color: "#ffd166",
+    background: "#EFD8B7",
+    color: "#B8741A",
     padding: "14px",
     borderRadius: "12px",
     lineHeight: "1.5",
@@ -357,8 +357,8 @@ const styles: any = {
   },
 
   freeShippingSuccess: {
-    background: "#12301f",
-    color: "#7CFF9B",
+    background: "#EFD8B7",
+    color: "#B77A2D",
     padding: "14px",
     borderRadius: "12px",
     lineHeight: "1.5",
@@ -374,8 +374,8 @@ const styles: any = {
   item: {
     display: "flex",
     gap: "12px",
-    background: "#0b1f14",
-    border: "1px solid #1f4d33",
+    background: "#F6E8D3",
+    border: "1px solid #D7B98F",
     borderRadius: "14px",
     padding: "12px",
     boxSizing: "border-box",
@@ -407,15 +407,15 @@ const styles: any = {
     height: "28px",
     borderRadius: "50%",
     border: "none",
-    background: "#ff8a8a",
-    color: "#03140a",
+    background: "#D96A5A",
+    color: "#2D2925",
     cursor: "pointer",
     fontWeight: "bold",
     flexShrink: 0,
   },
 
   color: {
-    color: "#7CFF9B",
+    color: "#B77A2D",
     fontSize: "13px",
     margin: "5px 0 0",
   },
@@ -438,8 +438,8 @@ const styles: any = {
     height: "32px",
     borderRadius: "8px",
     border: "none",
-    background: "#7CFF9B",
-    color: "#03140a",
+    background: "#B77A2D",
+    color: "#2D2925",
     cursor: "pointer",
     fontWeight: "bold",
     fontSize: "18px",
@@ -453,7 +453,7 @@ const styles: any = {
 
   separator: {
     border: "none",
-    borderTop: "1px solid #1f4d33",
+    borderTop: "1px solid #D7B98F",
     margin: "18px 0",
   },
 
@@ -465,7 +465,7 @@ const styles: any = {
   },
 
   deliveryNote: {
-    color: "#b8d9c4",
+    color: "#817367",
     fontSize: "13px",
     lineHeight: "1.5",
     margin: "8px 0 0",
@@ -476,15 +476,15 @@ const styles: any = {
     justifyContent: "space-between",
     fontSize: "22px",
     marginTop: "18px",
-    color: "#7CFF9B",
+    color: "#B77A2D",
   },
 
   checkout: {
     display: "block",
     marginTop: "24px",
     padding: "14px",
-    background: "#7CFF9B",
-    color: "#03140a",
+    background: "#B77A2D",
+    color: "#2D2925",
     borderRadius: "12px",
     textAlign: "center",
     textDecoration: "none",
@@ -495,8 +495,8 @@ const styles: any = {
     width: "100%",
     marginTop: "12px",
     padding: "13px",
-    background: "#1f4d33",
-    color: "#e8f5e9",
+    background: "#D7B98F",
+    color: "#3B342D",
     border: "none",
     borderRadius: "12px",
     cursor: "pointer",

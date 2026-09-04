@@ -339,8 +339,8 @@ export default function ProductPage() {
 const styles: any = {
   page: {
     minHeight: "100vh",
-    background: "#0b1f14",
-    color: "#e8f5e9",
+    background: "#F6E8D3",
+    color: "#3B342D",
     padding: "40px",
     fontFamily: "Arial",
     overflowX: "hidden",
@@ -352,7 +352,7 @@ const styles: any = {
   },
 
   back: {
-    color: "#7CFF9B",
+    color: "#B77A2D",
     textDecoration: "none",
     fontWeight: "bold",
     display: "inline-block",
@@ -381,8 +381,8 @@ const styles: any = {
     top: "18px",
     left: "18px",
     zIndex: 2,
-    background: "#ff8a8a",
-    color: "#03140a",
+    background: "#D96A5A",
+    color: "#2D2925",
     padding: "9px 14px",
     borderRadius: "999px",
     fontWeight: "bold",
@@ -402,8 +402,8 @@ const styles: any = {
     maxHeight: "640px",
     objectFit: "contain",
     borderRadius: "18px",
-    border: "1px solid #1f4d33",
-    background: "#10251a",
+    border: "1px solid #D7B98F",
+    background: "#FBF1E2",
     display: "block",
   },
 
@@ -422,7 +422,7 @@ const styles: any = {
     height: "42px",
     borderRadius: "50%",
     border: "none",
-    background: "rgba(0,0,0,0.6)",
+    background: "rgba(45,41,37,0.62)",
     color: "#fff",
     fontSize: "34px",
     cursor: "pointer",
@@ -438,7 +438,7 @@ const styles: any = {
     height: "42px",
     borderRadius: "50%",
     border: "none",
-    background: "rgba(0,0,0,0.6)",
+    background: "rgba(45,41,37,0.62)",
     color: "#fff",
     fontSize: "34px",
     cursor: "pointer",
@@ -446,21 +446,21 @@ const styles: any = {
 
   imageCounter: {
     textAlign: "center",
-    color: "#b8d9c4",
+    color: "#817367",
     fontSize: "14px",
     marginTop: "10px",
   },
 
   info: {
-    background: "#10251a",
-    border: "1px solid #1f4d33",
+    background: "#FBF1E2",
+    border: "1px solid #D7B98F",
     borderRadius: "18px",
     padding: "30px",
     minWidth: 0,
   },
 
   title: {
-    color: "#7CFF9B",
+    color: "#B77A2D",
     fontSize: "42px",
     marginBottom: "10px",
   },
@@ -476,25 +476,25 @@ const styles: any = {
   },
 
   stockBox: {
-    background: "#0b1f14",
-    border: "1px solid #1f4d33",
+    background: "#F6E8D3",
+    border: "1px solid #D7B98F",
     borderRadius: "12px",
     padding: "12px",
     marginBottom: "22px",
-    color: "#7CFF9B",
+    color: "#B77A2D",
     fontWeight: "bold",
   },
 
   stockWarning: {
-    color: "#ffd166",
+    color: "#B8741A",
   },
 
   stockDanger: {
-    color: "#ff8a8a",
+    color: "#D96A5A",
   },
 
   description: {
-    color: "#c8facc",
+    color: "#746457",
     lineHeight: "1.7",
     fontSize: "17px",
     marginBottom: "25px",
@@ -511,8 +511,8 @@ const styles: any = {
     width: "100%",
     padding: "12px",
     borderRadius: "10px",
-    border: "1px solid #1f4d33",
-    background: "#0b1f14",
+    border: "1px solid #D7B98F",
+    background: "#F6E8D3",
     color: "#fff",
   },
 
@@ -528,14 +528,14 @@ const styles: any = {
     height: "36px",
     borderRadius: "8px",
     border: "none",
-    background: "#7CFF9B",
+    background: "#B77A2D",
     cursor: "pointer",
     fontWeight: "bold",
   },
 
   disabledSmallButton: {
-    background: "#62756a",
-    color: "#d4ddd7",
+    background: "#C8B7A4",
+    color: "#F1E1CB",
     cursor: "not-allowed",
   },
 
@@ -546,16 +546,16 @@ const styles: any = {
   },
 
   stockNote: {
-    color: "#b8d9c4",
+    color: "#817367",
     fontSize: "14px",
     marginTop: "10px",
   },
 
   addedMessage: {
     marginTop: "20px",
-    background: "#0b1f14",
-    border: "1px solid #7CFF9B",
-    color: "#7CFF9B",
+    background: "#F6E8D3",
+    border: "1px solid #B77A2D",
+    color: "#B77A2D",
     borderRadius: "12px",
     padding: "12px",
     textAlign: "center",
@@ -566,8 +566,8 @@ const styles: any = {
     marginTop: "18px",
     width: "100%",
     padding: "15px",
-    background: "#7CFF9B",
-    color: "#03140a",
+    background: "#B77A2D",
+    color: "#2D2925",
     border: "none",
     borderRadius: "12px",
     cursor: "pointer",
@@ -576,15 +576,15 @@ const styles: any = {
   },
 
   buttonDisabled: {
-    background: "#62756a",
-    color: "#d4ddd7",
+    background: "#C8B7A4",
+    color: "#F1E1CB",
     cursor: "not-allowed",
   },
 
   lightbox: {
     position: "fixed",
     inset: 0,
-    background: "rgba(0,0,0,0.9)",
+    background: "rgba(45,41,37,0.88)",
     zIndex: 10000,
     display: "flex",
     alignItems: "center",
@@ -605,11 +605,11 @@ const styles: any = {
     maxHeight: "78vh",
     objectFit: "contain",
     borderRadius: "14px",
-    background: "#0b1f14",
+    background: "#F6E8D3",
   },
 
   lightboxText: {
-    color: "#e8f5e9",
+    color: "#3B342D",
     display: "flex",
     justifyContent: "space-between",
     gap: "12px",
@@ -625,8 +625,8 @@ const styles: any = {
     height: "38px",
     borderRadius: "50%",
     border: "none",
-    background: "#7CFF9B",
-    color: "#03140a",
+    background: "#B77A2D",
+    color: "#2D2925",
     fontSize: "26px",
     cursor: "pointer",
     fontWeight: "bold",
@@ -642,8 +642,8 @@ const styles: any = {
     height: "42px",
     borderRadius: "50%",
     border: "none",
-    background: "rgba(124,255,155,0.9)",
-    color: "#03140a",
+    background: "rgba(224,171,92,0.95)",
+    color: "#2D2925",
     fontSize: "34px",
     cursor: "pointer",
   },
@@ -658,8 +658,8 @@ const styles: any = {
     height: "42px",
     borderRadius: "50%",
     border: "none",
-    background: "rgba(124,255,155,0.9)",
-    color: "#03140a",
+    background: "rgba(224,171,92,0.95)",
+    color: "#2D2925",
     fontSize: "34px",
     cursor: "pointer",
   },
