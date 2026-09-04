@@ -14,19 +14,19 @@ const collections = [
   },
   {
     title: "Lampes",
-    text: "Objets lumineux pour une ambiance unique.",
+    text: "Des pièces lumineuses pour une ambiance douce et unique.",
     emoji: "💡",
     href: "/shop?category=lamps",
   },
   {
     title: "Vases",
-    text: "Décoration imprimée en 3D avec soin.",
+    text: "Décoration contemporaine imprimée avec soin.",
     emoji: "🏺",
     href: "/shop?category=vases",
   },
   {
     title: "Porte-clés",
-    text: "Petites créations à offrir ou à garder.",
+    text: "De petites créations originales à offrir ou à garder.",
     emoji: "🔑",
     href: "/shop?category=keychains",
   },
@@ -71,30 +71,30 @@ export default function HomePage() {
       : [...cart, { ...product, qty: 1 }];
 
     localStorage.setItem("cart", JSON.stringify(updatedCart));
+    window.dispatchEvent(new Event("cart-updated"));
   }
 
   return (
-    <main style={styles.page}>
-      <nav style={styles.nav}>
-        <a href="/" style={styles.logo}>
+    <main className="page">
+      <div className="shippingBar">
+        Livraison offerte dès 69€ d’achat · Expédition suivie
+      </div>
+
+      <nav className="nav">
+        <a href="/" className="brand">
           LAIME3D
         </a>
 
-        <div style={styles.navLinks}>
-          <a href="/shop" style={styles.navLink}>
-            Collections
-          </a>
-          <a href="#about" style={styles.navLink}>
-            À propos
-          </a>
-          <a href="#contact" style={styles.navLink}>
-            Contact
-          </a>
+        <div className="navLinks">
+          <a href="/shop">Boutique</a>
+          <a href="#collections">Collections</a>
+          <a href="#about">À propos</a>
+          <a href="#contact">Contact</a>
         </div>
       </nav>
 
-      <section style={styles.heroBanner}>
-        <picture style={styles.picture}>
+      <section className="hero">
+        <picture className="heroPicture">
           <source
             media="(max-width: 768px)"
             srcSet="/publicbanner-mobile.png"
@@ -102,40 +102,63 @@ export default function HomePage() {
           <img
             src="/publicbanner.png"
             alt="LAIME3D - Créations artisanales imprimées en 3D"
-            style={styles.heroImage}
+            className="heroImage"
           />
         </picture>
 
-        <div style={styles.heroActions}>
-          <a href="/shop" style={styles.mainButton}>
-            Découvrir nos créations
+        <div className="heroButtonWrap">
+          <a href="/shop" className="primaryButton">
+            Découvrir la boutique
           </a>
         </div>
       </section>
 
-      <section style={styles.section}>
-        <h2 style={styles.sectionTitle}>Nos collections</h2>
+      <section className="intro">
+        <span className="eyebrow">CRÉATIONS ARTISANALES</span>
+        <h1>Des objets uniques, créés avec soin</h1>
+        <p>
+          Lampes, décoration et petites créations imprimées en 3D dans un
+          univers doux, chaleureux et original.
+        </p>
+      </section>
 
-        <div style={styles.collections}>
+      <section id="collections" className="section">
+        <div className="sectionHeading">
+          <div>
+            <span className="eyebrow">DÉCOUVRIR</span>
+            <h2>Nos collections</h2>
+          </div>
+          <a href="/shop" className="textLink">
+            Voir toute la boutique →
+          </a>
+        </div>
+
+        <div className="collections">
           {collections.map((collection) => (
             <a
               key={collection.title}
               href={collection.href}
-              style={styles.collectionCard}
+              className="collectionCard"
             >
-              <span style={styles.collectionEmoji}>{collection.emoji}</span>
+              <div className="collectionIcon">{collection.emoji}</div>
               <h3>{collection.title}</h3>
               <p>{collection.text}</p>
+              <span>Découvrir →</span>
             </a>
           ))}
         </div>
       </section>
 
       {featured.length > 0 && (
-        <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>⭐ Nos coups de cœur</h2>
+        <section className="section altSection">
+          <div className="sectionHeading">
+            <div>
+              <span className="eyebrow">SÉLECTION</span>
+              <h2>Nos coups de cœur</h2>
+            </div>
+          </div>
 
-          <div style={styles.grid}>
+          <div className="productGrid">
             {featured.map((product) => (
               <ProductCard
                 key={product.id}
@@ -147,10 +170,15 @@ export default function HomePage() {
         </section>
       )}
 
-      <section style={styles.section}>
-        <h2 style={styles.sectionTitle}>🆕 Nouveautés</h2>
+      <section className="section">
+        <div className="sectionHeading">
+          <div>
+            <span className="eyebrow">NOUVEAUTÉS</span>
+            <h2>Les dernières créations</h2>
+          </div>
+        </div>
 
-        <div style={styles.grid}>
+        <div className="productGrid">
           {latest.map((product) => (
             <ProductCard
               key={product.id}
@@ -160,331 +188,611 @@ export default function HomePage() {
           ))}
         </div>
 
-        <a href="/shop" style={styles.secondaryButton}>
-          Voir toute la boutique
-        </a>
-      </section>
-
-      <section style={styles.section}>
-        <h2 style={styles.sectionTitle}>Pourquoi Laime3D ?</h2>
-
-        <div style={styles.reasons}>
-          <div style={styles.reason}>❤️ Créé avec passion</div>
-          <div style={styles.reason}>🎨 Plusieurs couleurs disponibles</div>
-          <div style={styles.reason}>✨ Fabrication artisanale</div>
-          <div style={styles.reason}>📦 Envoi soigné avec suivi</div>
+        <div className="center">
+          <a href="/shop" className="secondaryButton">
+            Voir toute la boutique
+          </a>
         </div>
       </section>
 
-      <section id="about" style={styles.infoSection}>
-        <div>
-          <h2 style={styles.sectionTitle}>À propos</h2>
-          <p style={styles.text}>
+      <section className="valuesSection">
+        <div className="value">
+          <span>♡</span>
+          <strong>Créé avec passion</strong>
+          <p>Chaque création est préparée avec attention.</p>
+        </div>
+
+        <div className="value">
+          <span>✦</span>
+          <strong>Fabrication artisanale</strong>
+          <p>Des objets originaux, réalisés en petite série.</p>
+        </div>
+
+        <div className="value">
+          <span>🎨</span>
+          <strong>Plusieurs couleurs</strong>
+          <p>Choisissez la finition qui correspond à votre intérieur.</p>
+        </div>
+
+        <div className="value">
+          <span>📦</span>
+          <strong>Envoi soigné</strong>
+          <p>Emballage attentif et suivi de votre colis.</p>
+        </div>
+      </section>
+
+      <section id="about" className="storySection">
+        <div className="storyCard">
+          <span className="eyebrow">NOTRE UNIVERS</span>
+          <h2>À propos de LAIME3D</h2>
+          <p>
             Bienvenue chez <b>LAIME3D</b> ❤️
-            <br />
-            <br />
+          </p>
+          <p>
             Nous créons des objets imprimés en 3D avec passion, en accordant
             une attention particulière à chaque détail. Chaque pièce est
-            fabriquée avec soin, du choix des matériaux jusqu'aux finitions,
-            afin de vous proposer une création unique et de qualité.
-            <br />
-            <br />
-            Notre objectif est simple : vous offrir des créations originales
-            qui feront plaisir à offrir… ou à s'offrir.
+            fabriquée avec soin, du choix des matériaux jusqu’aux finitions.
+          </p>
+          <p>
+            Notre objectif est simple : vous proposer des créations originales,
+            chaleureuses et agréables à offrir… ou à s’offrir.
           </p>
         </div>
 
-        <div>
-          <h2 style={styles.sectionTitle}>Livraison</h2>
-          <p style={styles.text}>
-            Toutes nos créations sont préparées avec soin avant l'expédition.
-            <br />
-            <br />
-            Les commandes sont généralement expédiées sous <b>24 à 72 heures</b>.
-            Selon la complexité du modèle, les couleurs choisies ou le volume de
-            commandes en cours, ce délai peut être légèrement prolongé.
-            <br />
-            <br />
-            <b>🚚 Livraison offerte dès 69€ d'achat.</b>
-            <br />
-            <br />
+        <div className="storyCard">
+          <span className="eyebrow">EXPÉDITION</span>
+          <h2>Livraison</h2>
+          <p>
+            Toutes nos créations sont préparées avec soin avant l’expédition.
+            Les commandes sont généralement expédiées sous{" "}
+            <b>24 à 72 heures</b>.
+          </p>
+          <div className="shippingHighlight">
+            Livraison offerte dès <b>69€ d’achat</b>
+          </div>
+          <p>
             Les colis sont expédiés via <b>Mondial Relay</b> ou en{" "}
-            <b>livraison à domicile</b> avec un numéro de suivi. Chaque création
-            est soigneusement emballée afin d'arriver en parfait état.
+            <b>livraison à domicile</b> avec un numéro de suivi.
           </p>
         </div>
       </section>
 
-      <section id="contact" style={styles.idea}>
-        <h2 style={styles.ideaTitle}>Une idée en tête ?</h2>
-
-        <h3>Vous rêvez d'une création unique ?</h3>
-
-        <p>Nous adorons relever de nouveaux défis.</p>
-
+      <section id="contact" className="contactSection">
+        <span className="eyebrow">SUR MESURE</span>
+        <h2>Une idée en tête ?</h2>
         <p>
-          Parlez-nous de votre idée, et nous ferons tout notre possible pour lui
-          donner vie.
+          Vous rêvez d’une création particulière ? Parlez-nous de votre idée,
+          nous ferons tout notre possible pour lui donner vie.
         </p>
-
         <ContactModal />
       </section>
 
-      <footer style={styles.footer}>
-        <h2 style={styles.footerLogo}>LAIME3D</h2>
+      <footer className="footer">
+        <div className="footerBrand">LAIME3D</div>
+        <p>Créé avec le cœur. Imprimé avec passion.</p>
 
-        <p style={styles.footerText}>
-          Créé avec le cœur.
-          <br />
-          Imprimé avec passion.
-        </p>
-
-        <div style={styles.footerContacts}>
-          <a href="mailto:laime3dcontact@yahoo.com" style={styles.footerLink}>
+        <div className="footerContacts">
+          <a href="mailto:laime3dcontact@yahoo.com">
             ✉️ laime3dcontact@yahoo.com
           </a>
-
           <a
             href="https://instagram.com/laime3d"
             target="_blank"
             rel="noreferrer"
-            style={styles.footerLink}
           >
             📷 @laime3d
           </a>
         </div>
 
-        <div style={styles.footerLegal}>
-          <a href="/legal/mentions-legales" style={styles.footerLegalLink}>
-            Mentions légales
-          </a>
-          <a href="/legal/cgv" style={styles.footerLegalLink}>
-            CGV
-          </a>
-          <a href="/legal/confidentialite" style={styles.footerLegalLink}>
-            Confidentialité
-          </a>
-          <a href="/legal/livraison-retours" style={styles.footerLegalLink}>
-            Livraison & retours
-          </a>
+        <div className="footerLegal">
+          <a href="/legal/mentions-legales">Mentions légales</a>
+          <a href="/legal/cgv">CGV</a>
+          <a href="/legal/confidentialite">Confidentialité</a>
+          <a href="/legal/livraison-retours">Livraison & retours</a>
         </div>
       </footer>
+
+      <style jsx>{`
+        :global(body) {
+          margin: 0;
+          background: #f8f2e8;
+          color: #352f2a;
+        }
+
+        :global(*) {
+          box-sizing: border-box;
+        }
+
+        .page {
+          min-height: 100vh;
+          background: #f8f2e8;
+          color: #352f2a;
+          font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .shippingBar {
+          background: #b98235;
+          color: #fffaf2;
+          text-align: center;
+          padding: 9px 18px;
+          font-size: 13px;
+          letter-spacing: 0.3px;
+        }
+
+        .nav {
+          max-width: 1380px;
+          margin: 0 auto;
+          padding: 22px 34px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 20px;
+        }
+
+        .brand {
+          color: #8d5f24;
+          text-decoration: none;
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: 26px;
+          font-weight: 700;
+          letter-spacing: 4px;
+        }
+
+        .navLinks {
+          display: flex;
+          align-items: center;
+          gap: 28px;
+          flex-wrap: wrap;
+        }
+
+        .navLinks a {
+          color: #51483f;
+          text-decoration: none;
+          font-size: 14px;
+          font-weight: 600;
+        }
+
+        .hero {
+          max-width: 1480px;
+          margin: 0 auto;
+          padding: 0 24px;
+        }
+
+        .heroPicture {
+          display: block;
+          width: 100%;
+          overflow: hidden;
+          border-radius: 28px;
+          box-shadow: 0 18px 55px rgba(92, 67, 38, 0.14);
+          background: #efe2cf;
+        }
+
+        .heroImage {
+          width: 100%;
+          height: auto;
+          display: block;
+        }
+
+        .heroButtonWrap {
+          display: flex;
+          justify-content: center;
+          padding: 26px 0 12px;
+        }
+
+        .primaryButton,
+        .secondaryButton {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          text-decoration: none;
+          border-radius: 999px;
+          font-weight: 700;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .primaryButton {
+          background: #b98235;
+          color: white;
+          padding: 15px 30px;
+          box-shadow: 0 10px 24px rgba(185, 130, 53, 0.23);
+        }
+
+        .secondaryButton {
+          background: #fffaf3;
+          border: 1px solid #d8c09e;
+          color: #795426;
+          padding: 13px 24px;
+        }
+
+        .primaryButton:hover,
+        .secondaryButton:hover {
+          transform: translateY(-2px);
+        }
+
+        .intro {
+          max-width: 780px;
+          margin: 74px auto 34px;
+          padding: 0 24px;
+          text-align: center;
+        }
+
+        .eyebrow {
+          display: inline-block;
+          color: #b0782f;
+          font-size: 12px;
+          letter-spacing: 2.2px;
+          font-weight: 800;
+          margin-bottom: 10px;
+        }
+
+        .intro h1,
+        .sectionHeading h2,
+        .storyCard h2,
+        .contactSection h2 {
+          font-family: Georgia, "Times New Roman", serif;
+          font-weight: 600;
+          color: #4a3c2d;
+        }
+
+        .intro h1 {
+          font-size: clamp(34px, 5vw, 58px);
+          line-height: 1.08;
+          margin: 0 0 18px;
+        }
+
+        .intro p {
+          color: #75685c;
+          font-size: 18px;
+          line-height: 1.7;
+          margin: 0;
+        }
+
+        .section {
+          max-width: 1320px;
+          margin: 0 auto;
+          padding: 72px 34px;
+        }
+
+        .altSection {
+          background: #f3eadc;
+          max-width: none;
+          padding-left: max(34px, calc((100vw - 1252px) / 2));
+          padding-right: max(34px, calc((100vw - 1252px) / 2));
+        }
+
+        .sectionHeading {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          gap: 24px;
+          margin-bottom: 30px;
+        }
+
+        .sectionHeading h2 {
+          font-size: clamp(30px, 4vw, 46px);
+          margin: 0;
+        }
+
+        .textLink {
+          color: #8b632e;
+          text-decoration: none;
+          font-weight: 700;
+          white-space: nowrap;
+        }
+
+        .collections {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 18px;
+        }
+
+        .collectionCard {
+          background: rgba(255, 252, 247, 0.88);
+          border: 1px solid #dfccb1;
+          border-radius: 22px;
+          padding: 27px;
+          color: #443c34;
+          text-decoration: none;
+          box-shadow: 0 10px 32px rgba(87, 61, 32, 0.07);
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .collectionCard:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 16px 36px rgba(87, 61, 32, 0.11);
+        }
+
+        .collectionIcon {
+          width: 52px;
+          height: 52px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #f4e4cc;
+          font-size: 28px;
+          margin-bottom: 18px;
+        }
+
+        .collectionCard h3 {
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: 23px;
+          margin: 0 0 10px;
+        }
+
+        .collectionCard p {
+          color: #786b60;
+          line-height: 1.55;
+          min-height: 48px;
+          margin-bottom: 18px;
+        }
+
+        .collectionCard span {
+          color: #9c6d2e;
+          font-weight: 700;
+          font-size: 14px;
+        }
+
+        .productGrid {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 20px;
+        }
+
+        .center {
+          text-align: center;
+          margin-top: 30px;
+        }
+
+        .valuesSection {
+          max-width: 1260px;
+          margin: 28px auto 78px;
+          padding: 28px 34px;
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 16px;
+        }
+
+        .value {
+          text-align: center;
+          padding: 26px 20px;
+          border-top: 1px solid #ddc8a8;
+          border-bottom: 1px solid #ddc8a8;
+        }
+
+        .value > span {
+          font-size: 28px;
+          color: #b98235;
+          display: block;
+          margin-bottom: 10px;
+        }
+
+        .value strong {
+          display: block;
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: 18px;
+          margin-bottom: 8px;
+        }
+
+        .value p {
+          color: #796e65;
+          font-size: 14px;
+          line-height: 1.5;
+          margin: 0;
+        }
+
+        .storySection {
+          max-width: 1260px;
+          margin: 0 auto;
+          padding: 28px 34px 80px;
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 24px;
+        }
+
+        .storyCard {
+          background: #fffaf3;
+          border: 1px solid #dfccb1;
+          border-radius: 26px;
+          padding: 38px;
+          box-shadow: 0 12px 35px rgba(93, 65, 34, 0.07);
+        }
+
+        .storyCard h2 {
+          font-size: 34px;
+          margin: 2px 0 20px;
+        }
+
+        .storyCard p {
+          color: #6e6258;
+          line-height: 1.75;
+          font-size: 16px;
+        }
+
+        .shippingHighlight {
+          background: #f2dfc1;
+          color: #744c1c;
+          border-radius: 14px;
+          padding: 14px 16px;
+          margin: 18px 0;
+          font-size: 16px;
+        }
+
+        .contactSection {
+          max-width: 920px;
+          margin: 0 auto 80px;
+          padding: 58px 36px;
+          text-align: center;
+          background: #ead9bf;
+          border-radius: 30px;
+        }
+
+        .contactSection h2 {
+          font-size: 42px;
+          margin: 4px 0 14px;
+        }
+
+        .contactSection p {
+          max-width: 650px;
+          margin: 0 auto 26px;
+          color: #675b50;
+          line-height: 1.7;
+        }
+
+        .footer {
+          background: #efe3d2;
+          border-top: 1px solid #dcc6a6;
+          padding: 52px 30px 34px;
+          text-align: center;
+          color: #75695e;
+        }
+
+        .footerBrand {
+          color: #8d5f24;
+          font-family: Georgia, "Times New Roman", serif;
+          letter-spacing: 5px;
+          font-size: 30px;
+          font-weight: 700;
+          margin-bottom: 12px;
+        }
+
+        .footerContacts,
+        .footerLegal {
+          display: flex;
+          justify-content: center;
+          gap: 18px 28px;
+          flex-wrap: wrap;
+        }
+
+        .footerContacts {
+          margin-top: 22px;
+        }
+
+        .footerContacts a {
+          color: #8a602a;
+          text-decoration: none;
+          font-weight: 700;
+        }
+
+        .footerLegal {
+          margin-top: 30px;
+          padding-top: 22px;
+          border-top: 1px solid #d8c3a4;
+        }
+
+        .footerLegal a {
+          color: #776b61;
+          text-decoration: none;
+          font-size: 13px;
+          font-weight: 600;
+        }
+
+        @media (max-width: 980px) {
+          .collections,
+          .productGrid,
+          .valuesSection {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+
+          .storySection {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .shippingBar {
+            font-size: 12px;
+            padding: 8px 12px;
+          }
+
+          .nav {
+            padding: 18px 16px;
+            align-items: flex-start;
+          }
+
+          .brand {
+            font-size: 21px;
+          }
+
+          .navLinks {
+            gap: 12px 17px;
+            justify-content: flex-end;
+          }
+
+          .navLinks a {
+            font-size: 13px;
+          }
+
+          .hero {
+            padding: 0 10px;
+          }
+
+          .heroPicture {
+            border-radius: 18px;
+          }
+
+          .heroButtonWrap {
+            padding-top: 18px;
+          }
+
+          .intro {
+            margin-top: 50px;
+          }
+
+          .section,
+          .altSection {
+            padding: 54px 16px;
+          }
+
+          .sectionHeading {
+            align-items: flex-start;
+            flex-direction: column;
+            margin-bottom: 24px;
+          }
+
+          .collections,
+          .productGrid,
+          .valuesSection {
+            grid-template-columns: 1fr;
+          }
+
+          .collectionCard {
+            padding: 22px;
+          }
+
+          .valuesSection {
+            padding: 20px 16px 58px;
+            margin-bottom: 10px;
+          }
+
+          .value {
+            padding: 20px 16px;
+          }
+
+          .storySection {
+            padding: 10px 16px 58px;
+          }
+
+          .storyCard {
+            padding: 27px 22px;
+            border-radius: 20px;
+          }
+
+          .contactSection {
+            margin: 0 16px 58px;
+            padding: 42px 22px;
+            border-radius: 22px;
+          }
+
+          .contactSection h2 {
+            font-size: 34px;
+          }
+
+          .footer {
+            padding: 42px 18px 28px;
+          }
+        }
+      `}</style>
     </main>
   );
 }
-
-const styles: any = {
-  page: {
-    minHeight: "100vh",
-    background: "#0b1f14",
-    color: "#e8f5e9",
-    fontFamily: "Arial",
-  },
-
-  nav: {
-    padding: "24px 40px",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderBottom: "1px solid #1f4d33",
-    flexWrap: "wrap",
-    gap: "14px",
-  },
-
-  logo: {
-    color: "#7CFF9B",
-    letterSpacing: "3px",
-    fontSize: "20px",
-    textDecoration: "none",
-    fontWeight: "bold",
-  },
-
-  navLinks: {
-    display: "flex",
-    gap: "20px",
-    flexWrap: "wrap",
-  },
-
-  navLink: {
-    color: "#e8f5e9",
-    textDecoration: "none",
-    fontWeight: "bold",
-  },
-
-  heroBanner: {
-    width: "100%",
-    overflow: "hidden",
-    background: "#050805",
-  },
-
-  picture: {
-    display: "block",
-    width: "100%",
-  },
-
-  heroImage: {
-    width: "100%",
-    height: "auto",
-    display: "block",
-    objectFit: "contain",
-  },
-
-  heroActions: {
-    width: "100%",
-    padding: "22px 20px 28px",
-    display: "flex",
-    justifyContent: "center",
-    background: "#0b1f14",
-    boxSizing: "border-box",
-  },
-
-  mainButton: {
-    display: "inline-block",
-    padding: "16px 30px",
-    background: "#7CFF9B",
-    color: "#03140a",
-    borderRadius: "14px",
-    textDecoration: "none",
-    fontWeight: "bold",
-    fontSize: "18px",
-    boxShadow: "0 12px 30px rgba(0,0,0,0.35)",
-  },
-
-  secondaryButton: {
-    display: "inline-block",
-    marginTop: "25px",
-    padding: "12px 20px",
-    background: "#1f4d33",
-    color: "#e8f5e9",
-    borderRadius: "10px",
-    textDecoration: "none",
-    fontWeight: "bold",
-  },
-
-  section: {
-    padding: "60px 40px",
-  },
-
-  sectionTitle: {
-    color: "#7CFF9B",
-    fontSize: "34px",
-    marginBottom: "24px",
-  },
-
-  collections: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: "18px",
-  },
-
-  collectionCard: {
-    background: "#10251a",
-    border: "1px solid #1f4d33",
-    borderRadius: "18px",
-    padding: "26px",
-    color: "#e8f5e9",
-    textDecoration: "none",
-  },
-
-  collectionEmoji: {
-    fontSize: "42px",
-  },
-
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
-    gap: "18px",
-  },
-
-  reasons: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: "16px",
-  },
-
-  reason: {
-    background: "#10251a",
-    border: "1px solid #1f4d33",
-    borderRadius: "14px",
-    padding: "20px",
-    fontWeight: "bold",
-  },
-
-  infoSection: {
-    padding: "60px 40px",
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-    gap: "24px",
-  },
-
-  text: {
-    color: "#c8facc",
-    lineHeight: "1.7",
-    fontSize: "17px",
-  },
-
-  idea: {
-    margin: "40px",
-    padding: "50px 30px",
-    background: "#10251a",
-    border: "1px solid #1f4d33",
-    borderRadius: "24px",
-    textAlign: "center",
-  },
-
-  ideaTitle: {
-    color: "#7CFF9B",
-    fontSize: "38px",
-  },
-
-  footer: {
-    padding: "45px 40px",
-    textAlign: "center",
-    color: "#b8d9c4",
-    borderTop: "1px solid #1f4d33",
-  },
-
-  footerLogo: {
-    color: "#7CFF9B",
-    fontSize: "32px",
-    letterSpacing: "5px",
-    marginBottom: "15px",
-  },
-
-  footerText: {
-    color: "#b8d9c4",
-    marginBottom: "25px",
-    lineHeight: "1.7",
-  },
-
-  footerContacts: {
-    display: "flex",
-    justifyContent: "center",
-    gap: "25px",
-    flexWrap: "wrap",
-  },
-
-  footerLink: {
-    color: "#7CFF9B",
-    textDecoration: "none",
-    fontWeight: "bold",
-    fontSize: "17px",
-  },
-
-  footerLegal: {
-    marginTop: "28px",
-    paddingTop: "22px",
-    borderTop: "1px solid #1f4d33",
-    display: "flex",
-    justifyContent: "center",
-    gap: "18px",
-    flexWrap: "wrap",
-  },
-
-  footerLegalLink: {
-    color: "#b8d9c4",
-    textDecoration: "none",
-    fontSize: "14px",
-    fontWeight: "bold",
-  },
-};
