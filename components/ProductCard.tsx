@@ -504,3 +504,4 @@ const styles: any = {
     cursor: "pointer",
   },
 };
+ 
