@@ -48,6 +48,34 @@ export default function ProductPage() {
     loadProduct();
   }, [id]);
 
+  const descriptionBlocks = useMemo(() => {
+    const text = String(product?.description || "").trim();
+    if (!text) return [];
+
+    const knownHeadings = [
+      "✨ POURQUOI VOUS ALLEZ L’ADORER",
+      "✨ POURQUOI VOUS ALLEZ L'ADORER",
+      "💡 CONTENU",
+      "🏡 IDÉALE POUR",
+      "🏡 IDEALE POUR",
+      "🎨 UNE PIÈCE DÉCORATIVE UNIQUE",
+      "🎨 UNE PIECE DECORATIVE UNIQUE",
+      "🇫🇷 FABRIQUÉE EN FRANCE",
+      "🇫🇷 FABRIQUEE EN FRANCE",
+    ];
+
+    const escaped = knownHeadings
+      .map((h) => h.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+      .join("|");
+
+    const parts = text
+      .split(new RegExp(`(?=${escaped})`, "g"))
+      .map((part) => part.trim())
+      .filter(Boolean);
+
+    return parts.length ? parts : [text];
+  }, [product?.description]);
+
   if (!product) {
     return (
       <main style={styles.page}>
@@ -118,34 +146,6 @@ export default function ProductPage() {
     setAdded(true);
     setTimeout(() => setAdded(false), 1800);
   }
-
-  const descriptionBlocks = useMemo(() => {
-    const text = String(product.description || "").trim();
-    if (!text) return [];
-
-    const knownHeadings = [
-      "✨ POURQUOI VOUS ALLEZ L’ADORER",
-      "✨ POURQUOI VOUS ALLEZ L'ADORER",
-      "💡 CONTENU",
-      "🏡 IDÉALE POUR",
-      "🏡 IDEALE POUR",
-      "🎨 UNE PIÈCE DÉCORATIVE UNIQUE",
-      "🎨 UNE PIECE DECORATIVE UNIQUE",
-      "🇫🇷 FABRIQUÉE EN FRANCE",
-      "🇫🇷 FABRIQUEE EN FRANCE",
-    ];
-
-    const escaped = knownHeadings
-      .map((h) => h.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-      .join("|");
-
-    const parts = text
-      .split(new RegExp(`(?=${escaped})`, "g"))
-      .map((part) => part.trim())
-      .filter(Boolean);
-
-    return parts.length ? parts : [text];
-  }, [product.description]);
 
   const pageStyle = {
     ...styles.page,
