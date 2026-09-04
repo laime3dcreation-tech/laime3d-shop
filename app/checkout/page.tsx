@@ -590,8 +590,8 @@ export default function Checkout() {
 const styles: any = {
   page: {
     minHeight: "100vh",
-    background: "#0b1f14",
-    color: "#e8f5e9",
+    background: "#FFF8EE",
+    color: "#332F2B",
     padding: "40px",
     fontFamily: "Arial",
     boxSizing: "border-box",
@@ -617,7 +617,7 @@ const styles: any = {
   },
 
   logo: {
-    color: "#7CFF9B",
+    color: "#C98A2E",
     textDecoration: "none",
     fontSize: "24px",
     fontWeight: "bold",
@@ -625,13 +625,13 @@ const styles: any = {
   },
 
   navLink: {
-    color: "#7CFF9B",
+    color: "#C98A2E",
     textDecoration: "none",
     fontWeight: "bold",
   },
 
   title: {
-    color: "#7CFF9B",
+    color: "#C98A2E",
     fontSize: "38px",
     marginBottom: "30px",
     lineHeight: "1.15",
@@ -663,8 +663,8 @@ const styles: any = {
   },
 
   card: {
-    background: "#10251a",
-    border: "1px solid #1f4d33",
+    background: "#FFFDF8",
+    border: "1px solid #E5C9A6",
     borderRadius: "18px",
     padding: "24px",
     display: "grid",
@@ -697,8 +697,8 @@ const styles: any = {
     width: "100%",
     padding: "14px",
     borderRadius: "12px",
-    border: "1px solid #1f4d33",
-    background: "#0b1f14",
+    border: "1px solid #E5C9A6",
+    background: "#FFF8EE",
     color: "#fff",
     boxSizing: "border-box",
     fontSize: "16px",
@@ -706,16 +706,16 @@ const styles: any = {
   },
 
   freeShippingInfo: {
-    color: "#ffd166",
-    background: "#1a2d19",
+    color: "#B8741A",
+    background: "#F7E7CF",
     padding: "14px",
     borderRadius: "12px",
     lineHeight: "1.5",
   },
 
   freeShippingSuccess: {
-    color: "#7CFF9B",
-    background: "#12301f",
+    color: "#C98A2E",
+    background: "#F7E7CF",
     padding: "14px",
     borderRadius: "12px",
     fontWeight: "bold",
@@ -730,9 +730,9 @@ const styles: any = {
   deliveryButton: {
     padding: "16px",
     borderRadius: "14px",
-    border: "1px solid #1f4d33",
-    background: "#0b1f14",
-    color: "#e8f5e9",
+    border: "1px solid #E5C9A6",
+    background: "#FFF8EE",
+    color: "#332F2B",
     cursor: "pointer",
     display: "flex",
     flexDirection: "column",
@@ -743,8 +743,8 @@ const styles: any = {
   },
 
   deliveryButtonActive: {
-    border: "2px solid #7CFF9B",
-    background: "#12301f",
+    border: "2px solid #C98A2E",
+    background: "#F7E7CF",
   },
 
   deliveryBox: {
@@ -755,13 +755,13 @@ const styles: any = {
   },
 
   text: {
-    color: "#c8facc",
+    color: "#6F6358",
     lineHeight: "1.6",
     margin: 0,
   },
 
   status: {
-    color: "#ffd166",
+    color: "#B8741A",
     fontSize: "14px",
     margin: 0,
   },
@@ -785,8 +785,8 @@ const styles: any = {
   },
 
   relayBox: {
-    background: "#0b1f14",
-    border: "1px solid #1f4d33",
+    background: "#FFF8EE",
+    border: "1px solid #E5C9A6",
     borderRadius: "12px",
     padding: "14px",
     lineHeight: "1.4",
@@ -795,8 +795,8 @@ const styles: any = {
   payButton: {
     width: "100%",
     padding: "16px",
-    background: "#7CFF9B",
-    color: "#03140a",
+    background: "#C98A2E",
+    color: "#2D2925",
     border: "none",
     borderRadius: "12px",
     cursor: "pointer",
@@ -806,8 +806,8 @@ const styles: any = {
   },
 
   summary: {
-    background: "#10251a",
-    border: "1px solid #1f4d33",
+    background: "#FFFDF8",
+    border: "1px solid #E5C9A6",
     borderRadius: "18px",
     padding: "24px",
     position: "sticky",
@@ -836,7 +836,7 @@ const styles: any = {
   },
 
   color: {
-    color: "#7CFF9B",
+    color: "#C98A2E",
     fontSize: "13px",
   },
 
@@ -852,7 +852,8 @@ const styles: any = {
     justifyContent: "space-between",
     marginTop: "16px",
     fontSize: "22px",
-    color: "#7CFF9B",
+    color: "#C98A2E",
     gap: "12px",
   },
 };
+
